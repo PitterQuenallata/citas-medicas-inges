@@ -17,16 +17,26 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
+    }
+
+    public function medico()
+    {
+        return $this->hasOne(\App\Models\Medico::class, 'id_usuario', 'id');
+    }
+
+    public function paciente()
+    {
+        return $this->hasOne(\App\Models\Paciente::class, 'id_usuario', 'id');
+    }
+
+    public function citasRegistradas()
+    {
+        return $this->hasMany(\App\Models\Cita::class, 'id_usuario_registra', 'id');
     }
 }
