@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HorarioMedico extends Model
 {
-    protected $table      = 'horarios_medicos';
+    protected $table = 'horarios_medicos';
     protected $primaryKey = 'id_horario';
 
     protected $fillable = [
@@ -20,12 +20,11 @@ class HorarioMedico extends Model
     ];
 
     protected $casts = [
-        'dia_semana'            => 'integer',
+        'dia_semana' => 'integer',
         'duracion_cita_minutos' => 'integer',
-        'activo'                => 'boolean',
+        'activo' => 'boolean',
     ];
 
-    // ─── Nombres de días de la semana ────────────────────────────────────────
     public const DIAS = [
         1 => 'Lunes',
         2 => 'Martes',
@@ -36,13 +35,10 @@ class HorarioMedico extends Model
         7 => 'Domingo',
     ];
 
-    /** Retorna el nombre del día de la semana. */
     public function getNombreDiaAttribute(): string
     {
         return self::DIAS[$this->dia_semana] ?? 'Desconocido';
     }
-
-    // ─── Relaciones ──────────────────────────────────────────────────────────
 
     public function medico(): BelongsTo
     {
