@@ -1,0 +1,271 @@
+/* ============================================================
+   CITAS MÉDICAS — Estilos complementarios a Bootstrap 5
+   Aspecto inspirado en shadcn/ui: bordes suaves, sombras mínimas
+   ============================================================ */
+
+:root {
+    --brand:       #6366f1;
+    --brand-dark:  #4f46e5;
+    --surface:     #f8fafc;
+    --border:      #e2e8f0;
+    --text-main:   #0f172a;
+    --text-muted:  #64748b;
+    --radius:      0.5rem;
+    --shadow-sm:   0 1px 3px rgba(0, 0, 0, .07), 0 1px 2px rgba(0, 0, 0, .04);
+    --shadow-md:   0 4px 6px rgba(0, 0, 0, .07), 0 2px 4px rgba(0, 0, 0, .04);
+}
+
+/* ── Body ── */
+body {
+    background-color: var(--surface);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Navbar ── */
+.navbar-citas {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.navbar-citas .navbar-brand {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--brand);
+    letter-spacing: -.3px;
+}
+.navbar-citas .nav-link {
+    color: var(--text-muted);
+    font-size: .875rem;
+    font-weight: 500;
+    transition: color .15s;
+}
+.navbar-citas .nav-link:hover,
+.navbar-citas .nav-link.active {
+    color: var(--brand);
+}
+
+/* ── Cards ── */
+.card-citas {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.card-citas .card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+.card-citas .card-header h5,
+.card-citas .card-header h6 {
+    font-weight: 600;
+    font-size: .9375rem;
+    margin: 0;
+    color: var(--text-main);
+}
+
+/* ── Tabla ── */
+.table-citas {
+    font-size: .875rem;
+}
+.table-citas thead th {
+    background: var(--surface);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: .8125rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-top: none;
+    border-bottom: 2px solid var(--border);
+    padding: .75rem 1rem;
+    white-space: nowrap;
+}
+.table-citas tbody tr {
+    transition: background .12s;
+}
+.table-citas tbody tr:hover {
+    background: #f1f5f9;
+}
+.table-citas tbody td {
+    padding: .75rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+    border-top: none;
+}
+
+/* ── Badges de estado ── */
+.badge-estado {
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .3em .65em;
+    border-radius: 999px;
+}
+.badge-pendiente    { background: #dbeafe; color: #1d4ed8; }
+.badge-confirmada   { background: #d1fae5; color: #065f46; }
+.badge-atendida     { background: #e0e7ff; color: #3730a3; }
+.badge-cancelada    { background: #fee2e2; color: #b91c1c; }
+.badge-reprogramada { background: #fef3c7; color: #92400e; }
+.badge-no-asistio   { background: #f3f4f6; color: #374151; }
+
+/* ── Botones ── */
+.btn-brand {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+    border-radius: var(--radius);
+    font-size: .875rem;
+    font-weight: 500;
+    padding: .45rem 1rem;
+    transition: background .15s, border-color .15s;
+}
+.btn-brand:hover {
+    background-color: var(--brand-dark);
+    border-color: var(--brand-dark);
+    color: #fff;
+}
+.btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: var(--radius);
+    font-size: .875rem;
+    font-weight: 500;
+    padding: .45rem 1rem;
+    transition: border-color .15s, color .15s;
+}
+.btn-ghost:hover {
+    border-color: #94a3b8;
+    color: var(--text-main);
+}
+
+/* ── Formularios ── */
+.form-label-citas {
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: .3rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+.form-control,
+.form-select {
+    border-color: var(--border);
+    border-radius: var(--radius);
+    font-size: .9rem;
+}
+
+/* ── Alert de disponibilidad ── */
+.alert-disponibilidad {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius);
+    color: #b91c1c;
+    font-size: .875rem;
+}
+.alert-disponibilidad.ok {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
+/* ── Detalle de cita ── */
+.detail-label {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-muted);
+}
+.detail-value {
+    font-size: .9375rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+/* ── Paginación ── */
+.pagination .page-link {
+    border-color: var(--border);
+    color: var(--text-muted);
+    font-size: .875rem;
+    border-radius: var(--radius) !important;
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+
+/* ── Slot picker ── */
+.slot-btn {
+    border-radius: var(--radius);
+    font-size: .8125rem;
+    font-weight: 500;
+    padding: .35rem .75rem;
+    transition: background .12s, border-color .12s, color .12s;
+    white-space: nowrap;
+}
+.slot-libre {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-main);
+}
+.slot-libre:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+    background: #f0f0ff;
+}
+.slot-seleccionado {
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
+    color: #fff !important;
+}
+.slot-ocupado {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* ── Agenda ── */
+.agenda-slot {
+    padding: .6rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: #fff;
+    margin-bottom: .5rem;
+    transition: box-shadow .12s;
+}
+.agenda-slot:hover {
+    box-shadow: var(--shadow-md);
+}
+.agenda-hora {
+    font-size: .8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 7rem;
+}
+.agenda-libre {
+    background: #f8fafc;
+    border-style: dashed;
+    color: #94a3b8;
+}
+
+/* ── Página vacía ── */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+.empty-state svg {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+}
