@@ -5,8 +5,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Medico;
 
 class User extends Authenticatable
 {
@@ -23,6 +25,14 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+
+    /**
+     * Relación con médico
+     */
+    public function medico(): HasOne
+    {
+        return $this->hasOne(Medico::class, 'id_usuario', 'id_usuario');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
