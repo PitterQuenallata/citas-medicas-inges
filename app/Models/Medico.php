@@ -58,10 +58,9 @@ class Medico extends Model
 
     /** El usuario de sistema que corresponde a este médico (1:1). */
     public function usuario(): BelongsTo
-    {
-        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
-    }
-
+{
+    return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
+}
     /** Especialidades que posee el médico (N:M). */
     public function especialidades(): BelongsToMany
     {
