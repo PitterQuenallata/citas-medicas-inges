@@ -27,4 +27,12 @@ class Paciente extends Model
         'observaciones_generales',
         'estado'
     ];
+    protected static function booted()
+{
+    static::created(function ($paciente) {
+        $paciente->updateQuietly([
+            'codigo_paciente' => 'PAC-' . str_pad($paciente->id_paciente, 4, '0', STR_PAD_LEFT),
+        ]);
+    });
+}
 }

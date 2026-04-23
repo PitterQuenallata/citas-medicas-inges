@@ -9,13 +9,21 @@ class PacienteController extends Controller
 {
     public function index(Request $request)
     {
-        $pacientes = Paciente::when($request->buscar, function ($q) use ($request) {
-            $q->where('nombres', 'like', "%{$request->buscar}%")
-              ->orWhere('apellidos', 'like', "%{$request->buscar}%")
-              ->orWhere('ci', 'like', "%{$request->buscar}%");
-        })->paginate(10);
+        $buscar = $request->buscar;
+
+        $pacientes = Paciente::when($buscar, function ($q) use ($buscar) {
+            $q->where(function ($query) use ($buscar) {
+                $query->where('nombres', 'like', "%$buscar%")
+                    ->orWhere('apellidos', 'like', "%$buscar%")
+                    ->orWhere('ci', 'like', "%$buscar%");
+            });
+        })
+        ->orderBy('id_paciente', 'desc')
+        ->paginate(10)
+        ->withQueryString(); // 🔥 mantiene búsqueda en paginación
 
         return view('pacientes.index', compact('pacientes'));
+
     }
 
     public function create()
@@ -37,16 +45,7 @@ class PacienteController extends Controller
             'ci.unique' => 'Este CI ya está registrado',
         ]);
 
-        // 🔥 GENERAR CÓDIGO AUTOMÁTICO
-        $ultimo = Paciente::latest('id_paciente')->first();
-
-        $numero = $ultimo ? $ultimo->id_paciente + 1 : 1;
-
-        $codigo = 'PAC-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
-
-        // GUARDAR
-        Paciente::create([
-            'codigo_paciente' => $codigo,
+            $paciente = Paciente::create([
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
             'ci' => $request->ci,
@@ -73,7 +72,13 @@ class PacienteController extends Controller
             'ci.unique' => 'Este CI ya está registrado',
         ]);
 
-        $paciente->update($request->all());
+       $paciente->update($request->only([
+    'nombres',
+    'apellidos',
+    'ci',
+    'telefono',
+    'estado'
+]));
 
         return redirect()->route('pacientes.index')
             ->with('success', 'Paciente actualizado');
@@ -81,16 +86,23 @@ class PacienteController extends Controller
 
     public function destroy(Paciente $paciente)
     {
-        $paciente->delete();
-        return back();
+        $paciente->update([
+            'estado' => 'inactivo',
+        ]);
+        return redirect()->route('pacientes.index')
+            ->with('success', 'Paciente desactivado correctamente');
     }
 
-    public function validarCI(Request $request)
-{
-    $existe = \App\Models\Paciente::where('ci', $request->ci)->exists();
+        public function validarCI(Request $request)
+        {
+            $request->validate([
+                'ci' => 'required'
+            ]);
 
-    return response()->json([
-        'existe' => $existe
-    ]);
-}
+            $existe = Paciente::where('ci', $request->ci)->exists();
+
+            return response()->json([
+                'existe' => $existe
+            ]);
+        }
 }
