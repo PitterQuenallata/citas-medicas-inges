@@ -13,7 +13,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-semibold" href="{{ route('medicos.index') }}">
-                <i class="fas fa-hospital-user me-2"></i>Sistema de Citas Médicas
+                <i class="fas fa-user-md me-2"></i>Sistema de Citas Médicas
             </a>
         </div>
     </nav>

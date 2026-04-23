@@ -1,4 +1,3 @@
-{{-- resources/views/medicos/create.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Nuevo Médico')
@@ -21,10 +20,8 @@
 
         <div class="row g-4">
 
-            {{-- ── Columna principal ─────────────────────────────────────────── --}}
             <div class="col-lg-8">
 
-                {{-- Datos personales --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-semibold">
                         <i class="fas fa-id-card me-2 text-primary"></i>Datos del Médico
@@ -122,7 +119,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Estado <span class="text-danger">*</span></label>
                                 <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
-                                    <option value="activo"   @selected(old('estado', 'activo') === 'activo')>Activo</option>
+                                    <option value="activo" @selected(old('estado', 'activo') === 'activo')>Activo</option>
                                     <option value="inactivo" @selected(old('estado') === 'inactivo')>Inactivo</option>
                                 </select>
                                 @error('estado')
@@ -134,7 +131,6 @@
                     </div>
                 </div>
 
-                {{-- Horarios --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center fw-semibold">
                         <span><i class="fas fa-clock me-2 text-primary"></i>Horarios de Atención</span>
@@ -143,9 +139,7 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <div id="contenedorHorarios">
-                            {{-- Los horarios se agregan dinámicamente --}}
-                        </div>
+                        <div id="contenedorHorarios"></div>
                         <p class="text-muted small mb-0" id="mensajeSinHorarios">
                             <i class="fas fa-info-circle me-1"></i>
                             No hay horarios configurados. Haga clic en "Agregar horario" para agregar disponibilidad.
@@ -155,10 +149,8 @@
 
             </div>
 
-            {{-- ── Columna lateral ───────────────────────────────────────────── --}}
             <div class="col-lg-4">
 
-                {{-- Especialidades --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-semibold">
                         <i class="fas fa-stethoscope me-2 text-primary"></i>Especialidades
@@ -170,7 +162,7 @@
                                        name="especialidades[]"
                                        value="{{ $esp->id_especialidad }}"
                                        id="esp_{{ $esp->id_especialidad }}"
-                                       {{ in_array($esp->id_especialidad, (array)old('especialidades', [])) ? 'checked' : '' }}>
+                                       {{ in_array($esp->id_especialidad, (array) old('especialidades', [])) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="esp_{{ $esp->id_especialidad }}">
                                     {{ $esp->nombre_especialidad }}
                                 </label>
@@ -181,14 +173,13 @@
                     </div>
                 </div>
 
-                {{-- Acciones --}}
                 <div class="card shadow-sm">
                     <div class="card-body d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-save me-1"></i> Guardar Médico
                         </button>
                         <a href="{{ route('medicos.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-1"></i> Cancelar
+                            <i class="fas fa-arrow-left me-1"></i> Volver al listado
                         </a>
                     </div>
                 </div>
@@ -198,7 +189,6 @@
     </form>
 </div>
 
-{{-- ── Template para fila de horario (clonado por JS) ───────────────────────── --}}
 <template id="templateHorario">
     <div class="horario-fila border rounded p-3 mb-3 position-relative">
         <button type="button"
@@ -237,10 +227,10 @@
 <script>
 (function () {
     let contadorHorario = 0;
-    const contenedor       = document.getElementById('contenedorHorarios');
-    const mensajeSin       = document.getElementById('mensajeSinHorarios');
-    const btnAgregar       = document.getElementById('btnAgregarHorario');
-    const template         = document.getElementById('templateHorario');
+    const contenedor = document.getElementById('contenedorHorarios');
+    const mensajeSin = document.getElementById('mensajeSinHorarios');
+    const btnAgregar = document.getElementById('btnAgregarHorario');
+    const template = document.getElementById('templateHorario');
 
     function actualizarMensaje() {
         mensajeSin.classList.toggle('d-none', contenedor.children.length > 0);
@@ -248,15 +238,16 @@
 
     btnAgregar.addEventListener('click', () => {
         const clone = template.content.cloneNode(true);
-        // Reemplazar IDX por índice único
+
         clone.querySelectorAll('[name]').forEach(el => {
             el.name = el.name.replace('IDX', contadorHorario);
         });
-        // Botón eliminar
+
         clone.querySelector('.btn-eliminar-horario').addEventListener('click', function () {
             this.closest('.horario-fila').remove();
             actualizarMensaje();
         });
+
         contenedor.appendChild(clone);
         contadorHorario++;
         actualizarMensaje();
