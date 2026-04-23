@@ -9,67 +9,69 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css">
 </head>
 <body class="bg-light">
-    <div class="container-fluid" style="min-height: 100vh;">
-        <!-- Header superior -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-2">
-            <div class="container-fluid">
-                <span class="navbar-brand fw-bold text-primary">Médico Cristianos Solidarios</span>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nombre.' '.auth()->user()->apellido) }}&background=0D8ABC&color=fff&size=32' class="rounded-circle me-2" width="32" height="32" alt="avatar">
-                            <span>{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li class="dropdown-header text-center">
-                                <strong>{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</strong><br>
-                                <small class="text-muted">{{ auth()->user()->email }}</small>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}" class="px-3">
-                                    @csrf
-                                    <button class="dropdown-item text-danger" type="submit">Cerrar sesión</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+    <div class="container-fluid d-flex flex-row p-0" style="min-height: 100vh;">
+        <!-- Sidebar moderno -->
+        <nav class="col-md-2 d-none d-md-flex flex-column p-0 shadow-sm sidebar" style="background: #102542 url('/img/fondo.jpg') no-repeat center center; background-size: cover; color: #fff; min-height: 100vh; position:relative; z-index:2;">
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(16,37,66,0.92);z-index:1;"></div>
+            <div class="d-flex flex-column align-items-center py-4 border-bottom position-relative" style="z-index:2;">
+                <img src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nombre.' '.auth()->user()->apellido) }}&background=0D8ABC&color=fff&size=80' class="rounded-circle mb-2" alt="avatar" width="64" height="64">
+                <div class="fw-bold">{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</div>
+                <small class="text-secondary">{{ auth()->user()->email }}</small>
             </div>
+            <ul class="nav flex-column mt-4 w-100 position-relative" style="z-index:2;">
+                <li class="nav-item">
+                    <a class="nav-link text-white active" style="background:#1b3358; border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
+                        <i class="bi bi-calendar3 me-2"></i> Citas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
+                        <i class="bi bi-people me-2"></i> Pacientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
+                        <i class="bi bi-bar-chart me-2"></i> Reportes
+                    </a>
+                </li>
+            </ul>
         </nav>
-        <div class="row min-vh-100">
-            <!-- Sidebar moderno -->
-            <nav class="col-md-2 d-none d-md-flex flex-column p-0 shadow-sm sidebar" style="background: #102542 url('/img/fondo.jpg') no-repeat center center; background-size: cover; color: #fff; min-height: 100vh; position:relative;">
-                <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(16,37,66,0.92);z-index:1;"></div>
-                <div class="d-flex flex-column align-items-center py-4 border-bottom position-relative" style="z-index:2;">
-                    <img src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nombre.' '.auth()->user()->apellido) }}&background=0D8ABC&color=fff&size=80' class="rounded-circle mb-2" alt="avatar" width="64" height="64">
-                    <div class="fw-bold">{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</div>
-                    <small class="text-secondary">{{ auth()->user()->email }}</small>
+        <!-- Contenido principal -->
+        <div class="flex-grow-1 d-flex flex-column min-vh-100" style="background:#f8fafc;">
+            <!-- Header superior -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-2" style="z-index:3;">
+                <div class="container-fluid">
+                    <span class="navbar-brand fw-bold text-primary">Médico Cristianos Solidarios</span>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nombre.' '.auth()->user()->apellido) }}&background=0D8ABC&color=fff&size=32' class="rounded-circle me-2" width="32" height="32" alt="avatar">
+                                <span>{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li class="dropdown-header text-center">
+                                    <strong>{{ auth()->user()->nombre }} {{ auth()->user()->apellido }}</strong><br>
+                                    <small class="text-muted">{{ auth()->user()->email }}</small>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}" class="px-3">
+                                        @csrf
+                                        <button class="dropdown-item text-danger" type="submit">Cerrar sesión</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
-                <ul class="nav flex-column mt-4 w-100 position-relative" style="z-index:2;">
-                    <li class="nav-item">
-                        <a class="nav-link text-white active" style="background:#1b3358; border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
-                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
-                            <i class="bi bi-calendar3 me-2"></i> Citas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
-                            <i class="bi bi-people me-2"></i> Pacientes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" style="border-radius: 30px; margin: 0 10px 8px 10px;" href="#">
-                            <i class="bi bi-bar-chart me-2"></i> Reportes
-                        </a>
-                    </li>
-                </ul>
-                <!-- Botón de cerrar sesión eliminado del sidebar, ahora en el header -->
             </nav>
+            <!-- main único, línea duplicada eliminada -->
+            <!-- ...el resto del contenido principal permanece igual... -->
             <!-- Contenido principal -->
             <main class="col-md-10 ms-sm-auto px-4 py-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
