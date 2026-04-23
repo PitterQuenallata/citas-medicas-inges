@@ -6,8 +6,10 @@
     <title>Login - Médico Cristianos Solidarios</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<body style="background: url('/img/fondo.jpg') no-repeat center center fixed; background-size: cover;">
-    <div class="container d-flex align-items-center justify-content-center min-vh-100" style="backdrop-filter: blur(2px);">
+<body style="position:relative; min-height:100vh;">
+    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:url('/img/fondo.jpg') no-repeat center center fixed;background-size:cover;"></div>
+    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;background:rgba(16,37,66,0.80);"></div>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100" style="backdrop-filter: blur(2px); position:relative; z-index:2;">
         <div class="row w-100 justify-content-center">
             <div class="col-md-5 col-lg-4">
                 <div class="card shadow-lg border-0" style="background:rgba(255,255,255,0.97);">
