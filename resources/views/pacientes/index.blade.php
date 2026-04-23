@@ -41,7 +41,7 @@
             <td>
                 <a href="{{ route('pacientes.edit',$p) }}" class="btn btn-warning btn-sm">Editar</a>
 
-                <form action="{{ route('pacientes.destroy',$p) }}" method="POST" class="d-inline">
+                <form action="{{ route('pacientes.destroy',$p) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas desactivar este paciente?');">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-danger btn-sm">Eliminar</button>
