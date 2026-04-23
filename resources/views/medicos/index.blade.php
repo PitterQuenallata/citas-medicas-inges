@@ -1,4 +1,3 @@
-{{-- resources/views/medicos/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Gestión de Médicos')
@@ -6,7 +5,6 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    {{-- ── Encabezado ──────────────────────────────────────────────────────── --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
@@ -19,9 +17,6 @@
         </a>
     </div>
 
-    
-
-    {{-- ── Filtros de búsqueda ──────────────────────────────────────────────── --}}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('medicos.index') }}" class="row g-3 align-items-end">
@@ -38,7 +33,7 @@
                     <label for="estado" class="form-label fw-semibold">Estado</label>
                     <select id="estado" name="estado" class="form-select">
                         <option value="">Todos</option>
-                        <option value="activo"   @selected($filtroEstado === 'activo')>Activo</option>
+                        <option value="activo" @selected($filtroEstado === 'activo')>Activo</option>
                         <option value="inactivo" @selected($filtroEstado === 'inactivo')>Inactivo</option>
                     </select>
                 </div>
@@ -51,7 +46,6 @@
         </div>
     </div>
 
-    {{-- ── Tabla de médicos ─────────────────────────────────────────────────── --}}
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -137,7 +131,6 @@
             </div>
         </div>
 
-        {{-- Paginación --}}
         @if($medicos->hasPages())
         <div class="card-footer d-flex justify-content-between align-items-center">
             <small class="text-muted">

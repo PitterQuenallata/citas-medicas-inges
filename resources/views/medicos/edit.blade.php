@@ -1,4 +1,3 @@
-{{-- resources/views/medicos/edit.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Editar Médico')
@@ -25,10 +24,8 @@
 
         <div class="row g-4">
 
-            {{-- ── Columna principal ─────────────────────────────────────────── --}}
             <div class="col-lg-8">
 
-                {{-- Datos personales --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-semibold">
                         <i class="fas fa-id-card me-2 text-primary"></i>Datos del Médico
@@ -127,7 +124,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Estado <span class="text-danger">*</span></label>
                                 <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
-                                    <option value="activo"   @selected(old('estado', $medico->estado) === 'activo')>Activo</option>
+                                    <option value="activo" @selected(old('estado', $medico->estado) === 'activo')>Activo</option>
                                     <option value="inactivo" @selected(old('estado', $medico->estado) === 'inactivo')>Inactivo</option>
                                 </select>
                                 @error('estado')
@@ -139,7 +136,6 @@
                     </div>
                 </div>
 
-                {{-- Horarios --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center fw-semibold">
                         <span><i class="fas fa-clock me-2 text-primary"></i>Horarios de Atención</span>
@@ -149,7 +145,6 @@
                     </div>
                     <div class="card-body">
                         <div id="contenedorHorarios">
-                            {{-- Horarios existentes --}}
                             @foreach($medico->horarios as $idx => $horario)
                             <div class="horario-fila border rounded p-3 mb-3 position-relative">
                                 <button type="button"
@@ -197,10 +192,8 @@
 
             </div>
 
-            {{-- ── Columna lateral ───────────────────────────────────────────── --}}
             <div class="col-lg-4">
 
-                {{-- Especialidades --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-semibold">
                         <i class="fas fa-stethoscope me-2 text-primary"></i>Especialidades
@@ -223,27 +216,13 @@
                     </div>
                 </div>
 
-                {{-- Info endpoint API --}}
-                <div class="card shadow-sm border-info mb-4">
-                    <div class="card-header bg-info bg-opacity-10 text-info fw-semibold">
-                        <i class="fas fa-code me-2"></i>Endpoint API (para Citas)
-                    </div>
-                    <div class="card-body">
-                        <p class="small mb-1">Los horarios de este médico están disponibles en:</p>
-                        <code class="small d-block bg-light p-2 rounded">
-                            GET /api/medicos/{{ $medico->id_medico }}/horarios
-                        </code>
-                    </div>
-                </div>
-
-                {{-- Acciones --}}
                 <div class="card shadow-sm">
                     <div class="card-body d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-save me-1"></i> Guardar Cambios
                         </button>
                         <a href="{{ route('medicos.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-1"></i> Cancelar
+                            <i class="fas fa-arrow-left me-1"></i> Volver al listado
                         </a>
                     </div>
                 </div>
@@ -253,7 +232,6 @@
     </form>
 </div>
 
-{{-- Template para nuevos horarios --}}
 <template id="templateHorario">
     <div class="horario-fila border rounded p-3 mb-3 position-relative">
         <button type="button"
@@ -290,18 +268,16 @@
 @push('scripts')
 <script>
 (function () {
-    // Índice inicial = horarios existentes en el DOM para no colisionar
     let contadorHorario = {{ $medico->horarios->count() }};
-    const contenedor    = document.getElementById('contenedorHorarios');
-    const mensajeSin    = document.getElementById('mensajeSinHorarios');
-    const btnAgregar    = document.getElementById('btnAgregarHorario');
-    const template      = document.getElementById('templateHorario');
+    const contenedor = document.getElementById('contenedorHorarios');
+    const mensajeSin = document.getElementById('mensajeSinHorarios');
+    const btnAgregar = document.getElementById('btnAgregarHorario');
+    const template = document.getElementById('templateHorario');
 
     function actualizarMensaje() {
         mensajeSin.classList.toggle('d-none', contenedor.children.length > 0);
     }
 
-    // Botones eliminar de horarios existentes
     contenedor.querySelectorAll('.btn-eliminar-horario').forEach(btn => {
         btn.addEventListener('click', function () {
             this.closest('.horario-fila').remove();
@@ -311,13 +287,16 @@
 
     btnAgregar.addEventListener('click', () => {
         const clone = template.content.cloneNode(true);
+
         clone.querySelectorAll('[name]').forEach(el => {
             el.name = el.name.replace('IDX', contadorHorario);
         });
+
         clone.querySelector('.btn-eliminar-horario').addEventListener('click', function () {
             this.closest('.horario-fila').remove();
             actualizarMensaje();
         });
+
         contenedor.appendChild(clone);
         contadorHorario++;
         actualizarMensaje();
