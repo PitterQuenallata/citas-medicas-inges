@@ -37,12 +37,15 @@ class PacienteController extends Controller
         $request->validate([
             'nombres' => 'required',
             'apellidos' => 'required',
-            'ci' => 'required|unique:pacientes,ci',
+            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci'],
+            'telefono' => ['nullable', 'regex:/^[0-9]+$/'],
         ], [
             'nombres.required' => 'El nombre es obligatorio',
             'apellidos.required' => 'El apellido es obligatorio',
             'ci.required' => 'El CI es obligatorio',
             'ci.unique' => 'Este CI ya está registrado',
+            'ci.regex' => 'El CI debe contener solo números',
+            'telefono.regex' => 'El teléfono debe contener solo números',
         ]);
 
             $paciente = Paciente::create([
@@ -67,9 +70,12 @@ class PacienteController extends Controller
         $request->validate([
             'nombres' => 'required',
             'apellidos' => 'required',
-            'ci' => 'required|unique:pacientes,ci,' . $paciente->id_paciente . ',id_paciente',
+            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci,' . $paciente->id_paciente . ',id_paciente'],
+            'telefono' => ['nullable', 'regex:/^[0-9]+$/'],
         ], [
             'ci.unique' => 'Este CI ya está registrado',
+            'ci.regex' => 'El CI debe contener solo números',
+            'telefono.regex' => 'El teléfono debe contener solo números',
         ]);
 
        $paciente->update($request->only([
@@ -96,7 +102,9 @@ class PacienteController extends Controller
         public function validarCI(Request $request)
         {
             $request->validate([
-                'ci' => 'required'
+                'ci' => ['required', 'regex:/^[0-9]+$/'],
+            ], [
+                'ci.regex' => 'El CI debe contener solo números',
             ]);
 
             $existe = Paciente::where('ci', $request->ci)->exists();
