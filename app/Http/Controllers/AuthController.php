@@ -25,9 +25,10 @@ class AuthController extends Controller
             ->where('estado', 'activo')
             ->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            Auth::login($user);
-            return redirect()->intended('/');
+
+        if ($user && \Hash::check($request->password, $user->password)) {
+            \Auth::login($user);
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors(['email' => 'Credenciales incorrectas o usuario inactivo.'])->withInput();
