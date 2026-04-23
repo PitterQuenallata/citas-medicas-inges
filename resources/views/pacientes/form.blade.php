@@ -37,7 +37,7 @@
 
     <div class="col-md-6">
         <label class="form-label">Teléfono</label>
-        <input name="telefono" type="tel" autocomplete="tel" placeholder="Ej: 7xxxxxxx"
+        <input name="telefono" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Ej: 7xxxxxxx"
             value="{{ old('telefono', $paciente->telefono ?? '') }}"
             class="form-control @error('telefono') is-invalid @enderror">
 
