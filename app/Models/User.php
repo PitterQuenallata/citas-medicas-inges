@@ -10,6 +10,35 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    /**
+     * Nombre de la tabla personalizada.
+     * @var string
+     */
+    protected $table = 'usuarios';
+
+    /**
+     * Clave primaria personalizada.
+     * @var string
+     */
+    protected $primaryKey = 'id_usuario';
+
+    /**
+     * Indica si la clave primaria es autoincremental.
+     * @var bool
+     */
+    public $incrementing = true;
+
+    /**
+     * Tipo de la clave primaria.
+     * @var string
+     */
+    protected $keyType = 'int';
+
+    /**
+     * Indica si el modelo tiene marcas de tiempo.
+     * @var bool
+     */
+    public $timestamps = true;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
