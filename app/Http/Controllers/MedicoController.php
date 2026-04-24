@@ -1,0 +1,211 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Especialidad;
+use App\Models\HorarioMedico;
+use App\Models\Medico;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
+class MedicoController extends Controller
+{
+    public function index(Request $request)
+    {
+        $busqueda = $request->input('busqueda');
+        $filtroEstado = $request->input('estado');
+
+        $medicos = Medico::with('especialidades', 'horariosActivos')
+            ->when($busqueda, fn ($q) => $q->buscar($busqueda))
+            ->when($filtroEstado, fn ($q) => $q->where('estado', $filtroEstado))
+            ->orderBy('apellidos')
+            ->orderBy('nombres')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('medicos.index', compact('medicos', 'busqueda', 'filtroEstado'));
+    }
+
+    public function create()
+    {
+        $especialidades = Especialidad::where('estado', 'activo')
+            ->orderBy('nombre_especialidad')
+            ->get();
+
+        $usuariosSinMedico = User::whereDoesntHave('medico')
+            ->where('estado', 'activo')
+            ->orderBy('nombre')
+            ->get();
+
+        $codigoSugerido = Medico::generarCodigo();
+        $diasSemana = HorarioMedico::DIAS;
+
+        return view('medicos.create', compact(
+            'especialidades',
+            'usuariosSinMedico',
+            'codigoSugerido',
+            'diasSemana'
+        ));
+    }
+
+    public function store(Request $request)
+    {
+        $datos = $this->validarMedico($request);
+
+        DB::transaction(function () use ($datos) {
+            $medico = Medico::create([
+                'id_usuario' => $datos['id_usuario'],
+                'codigo_medico' => $datos['codigo_medico'],
+                'nombres' => $datos['nombres'],
+                'apellidos' => $datos['apellidos'],
+                'ci' => $datos['ci'] ?? null,
+                'telefono' => $datos['telefono'] ?? null,
+                'email' => $datos['email'] ?? null,
+                'matricula_profesional' => $datos['matricula_profesional'],
+                'estado' => $datos['estado'],
+            ]);
+
+            $medico->especialidades()->sync($datos['especialidades'] ?? []);
+
+            foreach ($datos['horarios'] ?? [] as $horario) {
+                $medico->horarios()->create([
+                    'dia_semana' => $horario['dia_semana'],
+                    'hora_inicio' => $horario['hora_inicio'],
+                    'hora_fin' => $horario['hora_fin'],
+                    'duracion_cita_minutos' => $horario['duracion_cita_minutos'] ?? 30,
+                    'activo' => true,
+                ]);
+            }
+        });
+
+        return redirect()->route('medicos.index')
+            ->with('success', 'Médico registrado correctamente.');
+    }
+
+    public function edit(Medico $medico)
+    {
+        $medico->load('especialidades', 'horarios');
+
+        $especialidades = Especialidad::where('estado', 'activo')
+            ->orderBy('nombre_especialidad')
+            ->get();
+
+        $usuariosDisponibles = User::where(function ($q) use ($medico) {
+                $q->whereDoesntHave('medico')
+                  ->orWhere('id_usuario', $medico->id_usuario);
+            })
+            ->where('estado', 'activo')
+            ->orderBy('nombre')
+            ->get();
+
+        $especialidadesSeleccionadas = $medico->especialidades->pluck('id_especialidad')->toArray();
+        $diasSemana = HorarioMedico::DIAS;
+
+        return view('medicos.edit', compact(
+            'medico',
+            'especialidades',
+            'usuariosDisponibles',
+            'especialidadesSeleccionadas',
+            'diasSemana'
+        ));
+    }
+
+    public function update(Request $request, Medico $medico)
+    {
+        $datos = $this->validarMedico($request, $medico);
+
+        DB::transaction(function () use ($datos, $medico) {
+            $medico->update([
+                'id_usuario' => $datos['id_usuario'],
+                'codigo_medico' => $datos['codigo_medico'],
+                'nombres' => $datos['nombres'],
+                'apellidos' => $datos['apellidos'],
+                'ci' => $datos['ci'] ?? null,
+                'telefono' => $datos['telefono'] ?? null,
+                'email' => $datos['email'] ?? null,
+                'matricula_profesional' => $datos['matricula_profesional'],
+                'estado' => $datos['estado'],
+            ]);
+
+            $medico->especialidades()->sync($datos['especialidades'] ?? []);
+
+            $medico->horarios()->delete();
+
+            foreach ($datos['horarios'] ?? [] as $horario) {
+                $medico->horarios()->create([
+                    'dia_semana' => $horario['dia_semana'],
+                    'hora_inicio' => $horario['hora_inicio'],
+                    'hora_fin' => $horario['hora_fin'],
+                    'duracion_cita_minutos' => $horario['duracion_cita_minutos'] ?? 30,
+                    'activo' => isset($horario['activo']) ? (bool) $horario['activo'] : true,
+                ]);
+            }
+        });
+
+        return redirect()->route('medicos.index')
+            ->with('success', 'Médico actualizado correctamente.');
+    }
+
+    private function validarMedico(Request $request, ?Medico $medico = null): array
+    {
+        $rules = [
+            'id_usuario' => [
+                'required',
+                'exists:usuarios,id_usuario',
+                $medico
+                    ? Rule::unique('medicos', 'id_usuario')->ignore($medico->id_medico, 'id_medico')
+                    : 'unique:medicos,id_usuario',
+            ],
+            'codigo_medico' => [
+                'required',
+                'string',
+                'max:30',
+                $medico
+                    ? Rule::unique('medicos', 'codigo_medico')->ignore($medico->id_medico, 'id_medico')
+                    : 'unique:medicos,codigo_medico',
+            ],
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
+            'ci' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:150'],
+            'matricula_profesional' => [
+                'required',
+                'string',
+                'max:50',
+                $medico
+                    ? Rule::unique('medicos', 'matricula_profesional')->ignore($medico->id_medico, 'id_medico')
+                    : 'unique:medicos,matricula_profesional',
+            ],
+            'estado' => ['required', Rule::in(['activo', 'inactivo'])],
+            'especialidades' => ['nullable', 'array'],
+            'especialidades.*' => ['exists:especialidades,id_especialidad'],
+            'horarios' => ['nullable', 'array'],
+            'horarios.*.dia_semana' => ['required_with:horarios', 'integer', 'between:1,7'],
+            'horarios.*.hora_inicio' => ['required_with:horarios', 'date_format:H:i'],
+            'horarios.*.hora_fin' => ['required_with:horarios', 'date_format:H:i'],
+            'horarios.*.duracion_cita_minutos' => ['nullable', 'integer', 'between:5,240'],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        $validator->after(function ($validator) use ($request) {
+            foreach ($request->input('horarios', []) as $i => $horario) {
+                $inicio = $horario['hora_inicio'] ?? null;
+                $fin = $horario['hora_fin'] ?? null;
+
+                if ($inicio && $fin && $fin <= $inicio) {
+                    $validator->errors()->add(
+                        "horarios.$i.hora_fin",
+                        'La hora fin debe ser mayor a la hora inicio.'
+                    );
+                }
+            }
+        });
+
+        return $validator->validate();
+    }
+}
