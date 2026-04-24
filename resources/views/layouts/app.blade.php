@@ -21,13 +21,14 @@
     @stack('styles')
 </head>
 
-<body x-data x-bind="$store.global.documentBody">
+<body x-data x-bind="$store.global.documentBody" class="is-sidebar-open">
 
     <x-app-preloader></x-app-preloader>
 
     <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" x-cloak>
         <div class="sidebar print:hidden">
             <x-app-partials.main-sidebar></x-app-partials.main-sidebar>
+            <x-app-partials.sidebar-panel></x-app-partials.sidebar-panel>
 
         </div>
 

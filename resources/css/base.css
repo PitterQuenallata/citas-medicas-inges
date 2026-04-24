@@ -140,7 +140,7 @@ nav.header .header-container {
 }
 
 .is-sidebar-open .main-content {
-    @apply ease-out xl:ml-[var(--main-sidebar-width)];
+    @apply ease-out xl:ml-[calc(var(--main-sidebar-width)+var(--sidebar-panel-width))];
 }
 
 /* Sideblock styles */
