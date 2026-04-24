@@ -60,6 +60,12 @@ class PacienteController extends Controller
             ->with('success', 'Paciente creado correctamente');
     }
 
+    public function show(Paciente $paciente)
+    {
+        $paciente->load('citas.medico');
+        return view('pacientes.show', compact('paciente'));
+    }
+
     public function edit(Paciente $paciente)
     {
         return view('pacientes.edit', compact('paciente'));

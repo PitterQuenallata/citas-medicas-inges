@@ -1,155 +1,95 @@
 @extends('layouts.app')
-
-@section('title', 'Gestión de Citas')
+@section('title', 'Citas')
 
 @section('content')
-
-{{-- Encabezado --}}
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h4 class="fw-bold mb-1" style="color:#0f172a;">Gestión de Citas</h4>
-        <p class="text-muted small mb-0">{{ $citas->total() }} cita(s) encontradas</p>
-    </div>
-    <a href="{{ route('citas.create') }}" class="btn btn-brand">
-        + Nueva cita
+<div class="flex items-center justify-between py-2 pb-4">
+    <form method="GET" class="flex flex-wrap gap-2">
+        <select name="medico_id" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
+            <option value="">Todos los médicos</option>
+            @foreach($medicos as $m)
+                <option value="{{ $m->id_medico }}" {{ request('medico_id') == $m->id_medico ? 'selected' : '' }}>
+                    Dr. {{ $m->nombres }} {{ $m->apellidos }}
+                </option>
+            @endforeach
+        </select>
+        <select name="especialidad_id" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
+            <option value="">Todas las especialidades</option>
+            @foreach($especialidades as $e)
+                <option value="{{ $e->id_especialidad }}" {{ request('especialidad_id') == $e->id_especialidad ? 'selected' : '' }}>
+                    {{ $e->nombre_especialidad }}
+                </option>
+            @endforeach
+        </select>
+        <input type="date" name="fecha" value="{{ request('fecha') }}"
+            class="form-input h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100" />
+        <button type="submit" class="btn h-9 bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">Filtrar</button>
+    </form>
+    <a href="{{ route('citas.create') }}" class="btn h-9 bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
+        + Nueva Cita
     </a>
 </div>
 
-{{-- Filtros --}}
-<div class="card-citas mb-4 p-3">
-    <form method="GET" action="{{ route('citas.index') }}" class="row g-2 align-items-end">
-        <div class="col-md-3">
-            <label class="form-label-citas">Buscar paciente</label>
-            <input type="text" name="buscar" class="form-control form-control-sm"
-                   placeholder="Nombre, apellido o CI…"
-                   value="{{ request('buscar') }}">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label-citas">Fecha</label>
-            <input type="date" name="fecha" class="form-control form-control-sm"
-                   value="{{ request('fecha') }}">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label-citas">Especialidad</label>
-            <select name="especialidad" class="form-select form-select-sm">
-                <option value="">Todas</option>
-                @foreach($especialidades as $esp)
-                    <option value="{{ $esp->id_especialidad }}"
-                        {{ request('especialidad') == $esp->id_especialidad ? 'selected' : '' }}>
-                        {{ $esp->nombre_especialidad }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label-citas">Médico</label>
-            <select name="medico" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @foreach($medicos as $med)
-                    <option value="{{ $med->id_medico }}"
-                        {{ request('medico') == $med->id_medico ? 'selected' : '' }}>
-                        Dr(a). {{ $med->apellidos }}, {{ $med->nombres }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label-citas">Estado</label>
-            <select name="estado" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @foreach(['pendiente','confirmada','atendida','cancelada','reprogramada','no_asistio'] as $est)
-                    <option value="{{ $est }}" {{ request('estado') === $est ? 'selected' : '' }}>
-                        {{ ucfirst(str_replace('_', ' ', $est)) }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-2 d-flex gap-2">
-            <button type="submit" class="btn btn-brand btn-sm w-100">Filtrar</button>
-            <a href="{{ route('citas.index') }}" class="btn btn-ghost btn-sm">×</a>
-        </div>
-    </form>
-</div>
-
-{{-- Tabla --}}
-<div class="card-citas">
-    @if($citas->isEmpty())
-        <div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <p class="mb-0">No se encontraron citas con los filtros seleccionados.</p>
-            <a href="{{ route('citas.create') }}" class="btn btn-brand mt-3">Crear primera cita</a>
-        </div>
-    @else
-        <div class="table-responsive">
-            <table class="table table-citas mb-0">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Paciente</th>
-                        <th>Médico</th>
-                        <th>Fecha</th>
-                        <th>Horario</th>
-                        <th>Estado</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($citas as $cita)
-                    <tr>
-                        <td>
-                            <span class="fw-semibold" style="font-size:.8125rem;color:#6366f1;">
-                                {{ $cita->codigo_cita }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="fw-semibold">{{ $cita->paciente->apellidos }}, {{ $cita->paciente->nombres }}</div>
-                            @if($cita->paciente->ci)
-                                <small class="text-muted">{{ $cita->paciente->ci }}</small>
+<div class="card px-4 pb-4 sm:px-5">
+    <div class="min-w-full overflow-x-auto">
+        <table class="is-hoverable w-full text-left">
+            <thead>
+                <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Fecha / Hora</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Paciente</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Médico</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Motivo</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Estado</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($citas as $cita)
+                <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5">
+                        <p class="text-sm font-medium text-slate-700 dark:text-navy-100">{{ $cita->fecha_cita ? \Carbon\Carbon::parse($cita->fecha_cita)->format('d/m/Y') : '—' }}</p>
+                        <p class="text-xs text-slate-400">{{ $cita->hora_inicio ? substr($cita->hora_inicio,0,5) : '' }} - {{ $cita->hora_fin ? substr($cita->hora_fin,0,5) : '' }}</p>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5 text-slate-600 dark:text-navy-200">
+                        {{ $cita->paciente?->nombres }} {{ $cita->paciente?->apellidos }}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5 text-slate-600 dark:text-navy-200">
+                        Dr. {{ $cita->medico?->nombres }} {{ $cita->medico?->apellidos }}
+                    </td>
+                    <td class="px-3 py-3 sm:px-5 max-w-xs text-sm text-slate-600 dark:text-navy-200 truncate">{{ $cita->motivo_consulta ?? '—' }}</td>
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5">
+                        <span class="badge rounded-full text-xs
+                            @if($cita->estado_cita === 'pendiente') bg-warning/10 text-warning
+                            @elseif($cita->estado_cita === 'confirmada') bg-info/10 text-info
+                            @elseif($cita->estado_cita === 'atendida') bg-success/10 text-success
+                            @elseif($cita->estado_cita === 'cancelada') bg-error/10 text-error
+                            @else bg-slate-100 text-slate-600 @endif">
+                            {{ ucfirst($cita->estado_cita) }}
+                        </span>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5">
+                        <div class="flex gap-1">
+                            <a href="{{ route('citas.show', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-slate-500 hover:bg-slate-100" title="Ver">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </a>
+                            @if(!in_array($cita->estado_cita, ['cancelada','atendida']))
+                            <a href="{{ route('citas.edit', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <form method="POST" action="{{ route('citas.cancelar', $cita->id_cita) }}" onsubmit="return confirm('¿Cancelar esta cita?')">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Cancelar">
+                                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </form>
                             @endif
-                        </td>
-                        <td>
-                            <div>Dr(a). {{ $cita->medico->apellidos }}, {{ $cita->medico->nombres }}</div>
-                        </td>
-                        <td>{{ \Carbon\Carbon::parse($cita->fecha_cita)->format('d/m/Y') }}</td>
-                        <td>
-                            <span style="font-size:.8125rem;">
-                                {{ substr($cita->hora_inicio, 0, 5) }} – {{ substr($cita->hora_fin, 0, 5) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge-estado {{ $cita->badge_class }}">
-                                {{ $cita->estado_label }}
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <div class="d-flex justify-content-end gap-1">
-                                <a href="{{ route('citas.show', $cita) }}"
-                                   class="btn btn-ghost btn-sm" title="Ver detalle">
-                                   Ver
-                                </a>
-                                @if(!in_array($cita->estado_cita, ['cancelada','atendida','reprogramada']))
-                                    <a href="{{ route('citas.edit', $cita) }}"
-                                       class="btn btn-ghost btn-sm" title="Editar">
-                                       Editar
-                                    </a>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        @if($citas->hasPages())
-            <div class="p-3 d-flex justify-content-end border-top" style="border-color:var(--border)!important;">
-                {{ $citas->links() }}
-            </div>
-        @endif
-    @endif
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="6" class="px-5 py-8 text-center text-slate-400">No se encontraron citas.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
-
 @endsection

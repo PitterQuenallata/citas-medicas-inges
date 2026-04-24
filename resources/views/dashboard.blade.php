@@ -1,92 +1,114 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
+
 @section('content')
+@php
+    use App\Models\Paciente;
+    use App\Models\Medico;
+    use App\Models\Cita;
+    $totalPacientes = Paciente::count();
+    $totalMedicos   = Medico::where('estado','activo')->count();
+    $totalCitas     = Cita::count();
+    $citasHoy       = Cita::whereDate('fecha_cita', today())->count();
+    $citasPendientes= Cita::where('estado_cita','pendiente')->count();
+    $citasCanceladas= Cita::where('estado_cita','cancelada')->count();
+@endphp
+
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <!-- Citas -->
-    <div class="card p-4 sm:p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs-plus font-medium text-slate-400 dark:text-navy-300">Módulo</p>
-                <p class="mt-1 text-2xl font-semibold text-slate-700 dark:text-navy-100">Citas</p>
-            </div>
-            <div class="flex size-12 items-center justify-center rounded-full bg-primary/10 dark:bg-accent/10">
-                <svg class="size-6 text-primary dark:text-accent" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="2" fill="currentColor" fill-opacity=".3"/>
-                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-info/10 dark:bg-info/15">
+            <svg class="size-7 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 21H7a4 4 0 01-4-4v-1a5 5 0 015-5h8a5 5 0 015 5v1a4 4 0 01-4 4zM12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
         </div>
-        <div class="mt-4">
-            <a href="{{ route('citas.index') }}"
-                class="btn h-8 rounded-full bg-primary px-4 text-xs font-medium text-white hover:bg-primary-focus">
-                Ver Citas
-            </a>
-            <a href="{{ route('citas.create') }}"
-                class="btn ml-2 h-8 rounded-full border border-slate-300 px-4 text-xs font-medium text-slate-700 hover:bg-slate-150 dark:border-navy-450 dark:text-navy-100 dark:hover:bg-navy-500">
-                Nueva Cita
-            </a>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $totalPacientes }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Pacientes registrados</p>
         </div>
     </div>
 
-    <!-- Médicos -->
-    <div class="card p-4 sm:p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs-plus font-medium text-slate-400 dark:text-navy-300">Módulo</p>
-                <p class="mt-1 text-2xl font-semibold text-slate-700 dark:text-navy-100">Médicos</p>
-            </div>
-            <div class="flex size-12 items-center justify-center rounded-full bg-success/10">
-                <svg class="size-6 text-success" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity=".3"/>
-                    <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-success/10 dark:bg-success/15">
+            <svg class="size-7 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div class="mt-4">
-            <a href="{{ route('medicos.index') }}"
-                class="btn h-8 rounded-full bg-success px-4 text-xs font-medium text-white hover:bg-success-focus">
-                Ver Médicos
-            </a>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $totalMedicos }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Médicos activos</p>
         </div>
     </div>
 
-    <!-- Pacientes -->
-    <div class="card p-4 sm:p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs-plus font-medium text-slate-400 dark:text-navy-300">Módulo</p>
-                <p class="mt-1 text-2xl font-semibold text-slate-700 dark:text-navy-100">Pacientes</p>
-            </div>
-            <div class="flex size-12 items-center justify-center rounded-full bg-info/10">
-                <svg class="size-6 text-info" viewBox="0 0 24 24" fill="none">
-                    <path d="M17 21H7a4 4 0 0 1-4-4v-1a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v1a4 4 0 0 1-4 4Z" fill="currentColor" fill-opacity=".3"/>
-                    <circle cx="12" cy="7" r="4" fill="currentColor"/>
-                </svg>
-            </div>
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/15">
+            <svg class="size-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
-        <div class="mt-4">
-            <a href="{{ route('pacientes.index') }}"
-                class="btn h-8 rounded-full bg-info px-4 text-xs font-medium text-white hover:bg-info-focus">
-                Ver Pacientes
-            </a>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $totalCitas }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Total citas</p>
+        </div>
+    </div>
+
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-warning/10 dark:bg-warning/15">
+            <svg class="size-7 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $citasHoy }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Citas hoy</p>
+        </div>
+    </div>
+
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-secondary/10 dark:bg-secondary/15">
+            <svg class="size-7 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $citasPendientes }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Citas pendientes</p>
+        </div>
+    </div>
+
+    <div class="card flex items-center gap-4 p-4 sm:p-5">
+        <div class="flex size-14 shrink-0 items-center justify-center rounded-xl bg-error/10 dark:bg-error/15">
+            <svg class="size-7 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <p class="text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $citasCanceladas }}</p>
+            <p class="text-sm text-slate-400 dark:text-navy-300">Citas canceladas</p>
         </div>
     </div>
 </div>
 
-<!-- Bienvenida -->
-<div class="card mt-4 p-4 sm:p-5">
-    <div class="flex items-center space-x-4">
-        <div class="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-accent/10">
-            <img src="{{ asset('images/illustrations/doctor.svg') }}" alt="doctor" class="size-10" />
-        </div>
-        <div>
-            <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                Bienvenido, {{ auth()->user()->nombre }} {{ auth()->user()->apellido }}
-            </h3>
-            <p class="mt-1 text-xs text-slate-400 dark:text-navy-300">
-                Sistema de Gestión de Citas Médicas. Usa el menú lateral para navegar.
-            </p>
-        </div>
+@php $ultimasCitas = Cita::with(['paciente','medico'])->latest('fecha_cita')->take(5)->get(); @endphp
+<div class="card mt-4 px-4 pb-4 sm:px-5">
+    <div class="flex items-center py-4">
+        <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">Últimas citas registradas</h3>
+        <a href="{{ route('citas.index') }}" class="ml-auto text-xs text-primary hover:underline">Ver todas</a>
+    </div>
+    <div class="min-w-full overflow-x-auto">
+        <table class="is-hoverable w-full text-left">
+            <thead>
+                <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100">Fecha</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100">Paciente</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100">Médico</th>
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($ultimasCitas as $cita)
+                <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <td class="whitespace-nowrap px-3 py-2.5 text-sm text-slate-600">{{ $cita->fecha_cita ? \Carbon\Carbon::parse($cita->fecha_cita)->format('d/m/Y') : '—' }}</td>
+                    <td class="whitespace-nowrap px-3 py-2.5 text-sm text-slate-700">{{ $cita->paciente?->nombres }} {{ $cita->paciente?->apellidos }}</td>
+                    <td class="whitespace-nowrap px-3 py-2.5 text-sm text-slate-600">Dr. {{ $cita->medico?->nombres }} {{ $cita->medico?->apellidos }}</td>
+                    <td class="whitespace-nowrap px-3 py-2.5">
+                        <span class="badge rounded-full text-xs @if($cita->estado_cita==='pendiente') bg-warning/10 text-warning @elseif($cita->estado_cita==='confirmada') bg-info/10 text-info @elseif($cita->estado_cita==='atendida') bg-success/10 text-success @else bg-error/10 text-error @endif">
+                            {{ ucfirst($cita->estado_cita) }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="4" class="px-3 py-6 text-center text-slate-400">Sin citas registradas aún.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection
