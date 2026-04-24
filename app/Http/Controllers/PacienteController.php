@@ -4,26 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Paciente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PacienteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $buscar = $request->buscar;
-
-        $pacientes = Paciente::when($buscar, function ($q) use ($buscar) {
-            $q->where(function ($query) use ($buscar) {
-                $query->where('nombres', 'like', "%$buscar%")
-                    ->orWhere('apellidos', 'like', "%$buscar%")
-                    ->orWhere('ci', 'like', "%$buscar%");
-            });
-        })
-        ->orderBy('id_paciente', 'desc')
-        ->paginate(10)
-        ->withQueryString(); // 🔥 mantiene búsqueda en paginación
+        $pacientes = Paciente::query()
+            ->orderBy('id_paciente', 'desc')
+            ->paginate(10);
 
         return view('pacientes.index', compact('pacientes'));
-
     }
 
     public function create()
@@ -33,31 +24,53 @@ class PacienteController extends Controller
 
     public function store(Request $request)
     {
-        // VALIDACIONES
-        $request->validate([
-            'nombres' => 'required',
-            'apellidos' => 'required',
-            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci'],
-            'telefono' => ['nullable', 'regex:/^[0-9]+$/'],
+        $data = $request->validate([
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
+            'fecha_nacimiento' => ['required', 'date'],
+            'sexo' => ['required', 'in:masculino,femenino,otro'],
+            'ci' => ['required', 'numeric', 'digits_between:6,20', 'unique:pacientes,ci'],
+            'direccion' => ['required', 'string', 'max:255'],
+            'telefono' => ['required', 'numeric', 'digits_between:7,20'],
+            'email' => ['required', 'email', 'max:150'],
+            'grupo_sanguineo' => ['nullable', 'string', 'max:10'],
+            'contacto_emergencia_nombre' => ['nullable', 'string', 'max:150'],
+            'contacto_emergencia_telefono' => ['nullable', 'numeric', 'digits_between:7,20'],
+            'alergias' => ['nullable', 'string'],
+            'observaciones_generales' => ['nullable', 'string'],
+            'estado' => ['required', 'in:activo,inactivo'],
         ], [
-            'nombres.required' => 'El nombre es obligatorio',
-            'apellidos.required' => 'El apellido es obligatorio',
-            'ci.required' => 'El CI es obligatorio',
-            'ci.unique' => 'Este CI ya está registrado',
-            'ci.regex' => 'El CI debe contener solo números',
-            'telefono.regex' => 'El teléfono debe contener solo números',
+            'ci.numeric' => 'Ingrese un numero valido.',
+            'ci.unique' => 'CI duplicado.',
+            'telefono.numeric' => 'Ingrese un numero valido.',
+            'contacto_emergencia_telefono.numeric' => 'Ingrese un numero valido.',
         ]);
 
-            $paciente = Paciente::create([
-            'nombres' => $request->nombres,
-            'apellidos' => $request->apellidos,
-            'ci' => $request->ci,
-            'telefono' => $request->telefono,
-            'estado' => $request->estado ?? 'activo',
-        ]);
+        try {
+            DB::transaction(function () use ($data) {
+                $lastCodigo = DB::table('pacientes')
+                    ->select('codigo_paciente')
+                    ->orderByDesc('id_paciente')
+                    ->lockForUpdate()
+                    ->value('codigo_paciente');
 
-        return redirect()->route('pacientes.index')
-            ->with('success', 'Paciente creado correctamente');
+                $next = 1;
+                if (is_string($lastCodigo) && preg_match('/PAC-(\d+)/', $lastCodigo, $m)) {
+                    $next = ((int) $m[1]) + 1;
+                }
+
+                $codigo = 'PAC-' . str_pad((string) $next, 6, '0', STR_PAD_LEFT);
+
+                Paciente::query()->create([
+                    ...$data,
+                    'codigo_paciente' => $codigo,
+                ]);
+            });
+
+            return redirect()->route('pacientes.index')->with('success', 'Paciente creado correctamente.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'No se pudo crear el paciente.');
+        }
     }
 
     public function edit(Paciente $paciente)
@@ -67,50 +80,46 @@ class PacienteController extends Controller
 
     public function update(Request $request, Paciente $paciente)
     {
-        $request->validate([
-            'nombres' => 'required',
-            'apellidos' => 'required',
-            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci,' . $paciente->id_paciente . ',id_paciente'],
-            'telefono' => ['nullable', 'regex:/^[0-9]+$/'],
+        $data = $request->validate([
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
+            'fecha_nacimiento' => ['required', 'date'],
+            'sexo' => ['required', 'in:masculino,femenino,otro'],
+            'ci' => ['required', 'numeric', 'digits_between:6,20', 'unique:pacientes,ci,' . $paciente->id_paciente . ',id_paciente'],
+            'direccion' => ['required', 'string', 'max:255'],
+            'telefono' => ['required', 'numeric', 'digits_between:7,20'],
+            'email' => ['required', 'email', 'max:150'],
+            'grupo_sanguineo' => ['nullable', 'string', 'max:10'],
+            'contacto_emergencia_nombre' => ['nullable', 'string', 'max:150'],
+            'contacto_emergencia_telefono' => ['nullable', 'numeric', 'digits_between:7,20'],
+            'alergias' => ['nullable', 'string'],
+            'observaciones_generales' => ['nullable', 'string'],
+            'estado' => ['required', 'in:activo,inactivo'],
         ], [
-            'ci.unique' => 'Este CI ya está registrado',
-            'ci.regex' => 'El CI debe contener solo números',
-            'telefono.regex' => 'El teléfono debe contener solo números',
+            'ci.numeric' => 'Ingrese un numero valido.',
+            'ci.unique' => 'CI duplicado.',
+            'telefono.numeric' => 'Ingrese un numero valido.',
+            'contacto_emergencia_telefono.numeric' => 'Ingrese un numero valido.',
         ]);
 
-       $paciente->update($request->only([
-    'nombres',
-    'apellidos',
-    'ci',
-    'telefono',
-    'estado'
-]));
+        try {
+            $paciente->update($data);
 
-        return redirect()->route('pacientes.index')
-            ->with('success', 'Paciente actualizado');
+            return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado correctamente.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'No se pudo actualizar el paciente.');
+        }
     }
 
     public function destroy(Paciente $paciente)
     {
-        $paciente->update([
-            'estado' => 'inactivo',
-        ]);
-        return redirect()->route('pacientes.index')
-            ->with('success', 'Paciente desactivado correctamente');
-    }
+        try {
+            $paciente->estado = 'inactivo';
+            $paciente->save();
 
-        public function validarCI(Request $request)
-        {
-            $request->validate([
-                'ci' => ['required', 'regex:/^[0-9]+$/'],
-            ], [
-                'ci.regex' => 'El CI debe contener solo números',
-            ]);
-
-            $existe = Paciente::where('ci', $request->ci)->exists();
-
-            return response()->json([
-                'existe' => $existe
-            ]);
+            return redirect()->route('pacientes.index')->with('success', 'Paciente inactivado correctamente.');
+        } catch (\Throwable $e) {
+            return redirect()->route('pacientes.index')->with('error', 'No se pudo inactivar el paciente.');
         }
+    }
 }

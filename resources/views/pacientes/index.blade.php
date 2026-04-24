@@ -1,82 +1,51 @@
 @extends('layouts.app')
 
+@section('title', 'Pacientes')
+
 @section('content')
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="h4 mb-0">Pacientes</h1>
+        <a class="btn btn-primary" href="{{ route('pacientes.create') }}">Crear</a>
+    </div>
 
-<h2 class="mb-3">Pacientes</h2>
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Código</th>
+                    <th>Apellidos</th>
+                    <th>Nombres</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ($pacientes as $paciente)
+                    <tr>
+                        <td>{{ $paciente->id_paciente }}</td>
+                        <td>{{ $paciente->codigo_paciente }}</td>
+                        <td>{{ $paciente->apellidos }}</td>
+                        <td>{{ $paciente->nombres }}</td>
+                        <td>{{ $paciente->estado }}</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('pacientes.edit', $paciente) }}">Editar</a>
 
-<div class="d-flex justify-content-between mb-3">
-    <form method="GET" class="d-flex">
-        <input type="text" name="buscar" class="form-control me-2" placeholder="Buscar...">
-        <button class="btn btn-primary">Buscar</button>
-    </form>
+                            <form method="POST" action="{{ route('pacientes.destroy', $paciente) }}" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
 
-    <a href="{{ route('pacientes.create') }}" class="btn btn-success">
-        + Nuevo Paciente
-    </a>
-</div>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>CI</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th width="180">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($pacientes as $p)
-        <tr>
-            <td>{{ $p->codigo_paciente }}</td>
-            <td>{{ $p->nombres }} {{ $p->apellidos }}</td>
-            <td>{{ $p->ci }}</td>
-            <td>{{ $p->telefono }}</td>
-            <td>
-                <span class="badge bg-{{ $p->estado == 'activo' ? 'success' : 'secondary' }}">
-                    {{ $p->estado }}
-                </span>
-            </td>
-            <td>
-                <a href="{{ route('pacientes.edit',$p) }}" class="btn btn-warning btn-sm">Editar</a>
-
-                <form action="{{ route('pacientes.destroy',$p) }}" method="POST" class="d-inline js-confirm-delete">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-
-{{ $pacientes->links() }}
-
+        <div class="card-body">
+            {{ $pacientes->links() }}
+        </div>
+    </div>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('form.js-confirm-delete').forEach(function (form) {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                Swal.fire({
-                    title: '¿Desactivar paciente?',
-                    text: 'El paciente no se eliminará de la base de datos, solo quedará inactivo.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Sí, desactivar',
-                    cancelButtonText: 'Cancelar',
-                }).then(function (result) {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    });
-</script>
-@endpush

@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Paciente extends Model
 {
-   protected $primaryKey = 'id_paciente';
+    use HasFactory;
+
+    protected $table = 'pacientes';
+
+    protected $primaryKey = 'id_paciente';
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
 
     protected $fillable = [
         'id_usuario',
@@ -25,14 +33,23 @@ class Paciente extends Model
         'contacto_emergencia_telefono',
         'alergias',
         'observaciones_generales',
-        'estado'
+        'estado',
     ];
-    protected static function booted()
-{
-    static::created(function ($paciente) {
-        $paciente->updateQuietly([
-            'codigo_paciente' => 'PAC-' . str_pad($paciente->id_paciente, 4, '0', STR_PAD_LEFT),
-        ]);
-    });
-}
+
+    protected function casts(): array
+    {
+        return [
+            'fecha_nacimiento' => 'date',
+        ];
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
+    }
+
+    public function citas()
+    {
+        return $this->hasMany(Cita::class, 'id_paciente', 'id_paciente');
+    }
 }
