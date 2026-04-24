@@ -12,10 +12,14 @@ class SidebarComposer
             'title' => 'Menu',
             'items' => [
                 [
-                    ['title' => 'Dashboard',  'route_name' => 'dashboard'],
-                    ['title' => 'Citas',      'route_name' => 'citas.index'],
-                    ['title' => 'Medicos',    'route_name' => 'medicos.index'],
-                    ['title' => 'Pacientes',  'route_name' => 'pacientes.index'],
+                    ['title' => 'Dashboard',       'route_name' => 'dashboard'],
+                    ['title' => 'Citas',           'route_name' => 'citas.index'],
+                    ['title' => 'Agenda',          'route_name' => 'agenda'],
+                    ['title' => 'Medicos',         'route_name' => 'medicos.index'],
+                    ['title' => 'Pacientes',       'route_name' => 'pacientes.index'],
+                    ['title' => 'Especialidades',  'route_name' => 'especialidades.index'],
+                    ['title' => 'Horarios',        'route_name' => 'horarios.index'],
+                    ['title' => 'Historial',       'route_name' => 'historial.index'],
                 ],
             ],
         ];
