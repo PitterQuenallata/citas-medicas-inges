@@ -1,49 +1,78 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Médico Cristianos Solidarios</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body style="position:relative; min-height:100vh;">
-    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:url('/img/fondo.jpg') no-repeat center center fixed;background-size:cover;"></div>
-    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;background:rgba(16,37,66,0.80);"></div>
-    <div class="container d-flex align-items-center justify-content-center min-vh-100" style="backdrop-filter: blur(2px); position:relative; z-index:2;">
-        <div class="row w-100 justify-content-center">
-            <div class="col-md-5 col-lg-4">
-                <div class="card shadow-lg border-0" style="background:rgba(255,255,255,0.97);">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <img src="https://ui-avatars.com/api/?name=MCS&background=0D8ABC&color=fff&size=80" class="rounded-circle shadow-sm mb-2" alt="avatar" width="64" height="64">
-                            <h4 class="fw-bold mb-0">Iniciar Sesión</h4>
-                            <small class="text-secondary">Médico Cristianos Solidarios</small>
-                        </div>
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Correo electrónico</label>
-                                <input type="email" class="form-control form-control-lg" id="email" name="email" value="{{ old('email') }}" required autofocus>
-                            </div>
-                            <div class="mb-4">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control form-control-lg" id="password" name="password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm">Entrar</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<x-base-layout title="Iniciar Sesión">
+    <div class="fixed top-0 hidden p-6 lg:block lg:px-12">
+        <a href="#" class="flex items-center space-x-2">
+            <img class="size-12" src="{{ asset('images/app-logo.svg') }}" alt="logo" />
+            <p class="text-xl font-semibold uppercase text-slate-700 dark:text-navy-100">
+                {{ config('app.name') }}
+            </p>
+        </a>
+    </div>
+    <div class="hidden w-full place-items-center lg:grid">
+        <div class="w-full max-w-lg p-6">
+            <img class="w-full" x-show="!$store.global.isDarkModeEnabled"
+                src="{{ asset('images/illustrations/dashboard-check.svg') }}" alt="image" />
+            <img class="w-full" x-show="$store.global.isDarkModeEnabled"
+                src="{{ asset('images/illustrations/dashboard-check-dark.svg') }}" alt="image" />
         </div>
     </div>
-</body>
-</html>
+    <main class="flex w-full flex-col items-center bg-white dark:bg-navy-700 lg:max-w-md">
+        <div class="flex w-full max-w-sm grow flex-col justify-center p-5">
+            <div class="text-center">
+                <img class="mx-auto size-16 lg:hidden" src="{{ asset('images/app-logo.svg') }}" alt="logo" />
+                <div class="mt-4">
+                    <h2 class="text-2xl font-semibold text-slate-600 dark:text-navy-100">
+                        Bienvenido
+                    </h2>
+                    <p class="text-slate-400 dark:text-navy-300">
+                        Ingrese sus credenciales para continuar
+                    </p>
+                </div>
+            </div>
+            <form class="mt-10" action="{{ route('login') }}" method="POST">
+                @csrf
+                <div>
+                    <label class="relative flex">
+                        <input
+                            class="form-input peer w-full rounded-lg bg-slate-150 px-3 py-2 pl-9 ring-primary/50 placeholder:text-slate-400 hover:bg-slate-200 focus:ring-3 dark:bg-navy-900/90 dark:ring-accent/50 dark:placeholder:text-navy-300 dark:hover:bg-navy-900 dark:focus:bg-navy-900"
+                            placeholder="Correo electrónico" type="email" name="email"
+                            value="{{ old('email') }}" autofocus />
+                        <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5 transition-colors duration-200"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                    </label>
+                    @error('email')
+                        <span class="text-xs text-error">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mt-4">
+                    <label class="relative flex">
+                        <input
+                            class="form-input peer w-full rounded-lg bg-slate-150 px-3 py-2 pl-9 ring-primary/50 placeholder:text-slate-400 hover:bg-slate-200 focus:ring-3 dark:bg-navy-900/90 dark:ring-accent/50 dark:placeholder:text-navy-300 dark:hover:bg-navy-900 dark:focus:bg-navy-900"
+                            placeholder="Contraseña" type="password" name="password" />
+                        <span class="pointer-events-none absolute flex h-full w-10 items-center justify-center text-slate-400 peer-focus:text-primary dark:text-navy-300 dark:peer-focus:text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5 transition-colors duration-200"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </span>
+                    </label>
+                    @error('password')
+                        <span class="text-xs text-error">{{ $message }}</span>
+                    @enderror
+                </div>
+                <button type="submit"
+                    class="btn mt-10 h-10 w-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+        <div class="my-5 flex justify-center text-xs text-slate-400 dark:text-navy-300">
+            <p>Sistema de Gestión de Citas Médicas</p>
+        </div>
+    </main>
+</x-base-layout>
