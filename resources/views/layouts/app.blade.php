@@ -21,7 +21,7 @@
     @stack('styles')
 </head>
 
-<body x-data x-bind="$store.global.documentBody" class="is-sidebar-open">
+<body x-data x-bind="$store.global.documentBody">
 
     <x-app-preloader></x-app-preloader>
 
