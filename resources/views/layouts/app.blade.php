@@ -28,7 +28,7 @@
     <div id="root" class="min-h-100vh flex grow bg-slate-50 dark:bg-navy-900" x-cloak>
         <div class="sidebar print:hidden">
             <x-app-partials.main-sidebar></x-app-partials.main-sidebar>
-            <x-app-partials.sidebar-panel></x-app-partials.sidebar-panel>
+
         </div>
 
         <x-app-partials.header></x-app-partials.header>
