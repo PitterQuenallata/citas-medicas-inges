@@ -29,7 +29,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('id_usuario', 'fk_pacientes_usuario')
-                  ->references('id')->on('users')
+                  ->references('id_usuario')->on('usuarios')
                   ->onDelete('set null')->onUpdate('cascade');
 
             $table->index('id_usuario', 'idx_pacientes_usuario');

@@ -41,7 +41,7 @@ return new class extends Migration
                   ->onDelete('restrict')->onUpdate('cascade');
 
             $table->foreign('id_usuario_registra', 'fk_citas_usuario_registra')
-                  ->references('id')->on('users')
+                  ->references('id_usuario')->on('usuarios')
                   ->onDelete('restrict')->onUpdate('cascade');
 
             $table->foreign('id_cita_reprogramada_desde', 'fk_citas_reprogramada_desde')
