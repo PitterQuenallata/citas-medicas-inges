@@ -5,14 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Seeder de prueba para el módulo Médicos.
- * SOLO inserta datos si las tablas están vacías (idempotente).
- * NO modifica pacientes, usuarios ni otras tablas del equipo.
- *
- * Uso:
- *   php artisan db:seed --class=MedicoSeeder
- */
 class MedicoSeeder extends Seeder
 {
     public function run(): void
@@ -36,12 +28,12 @@ class MedicoSeeder extends Seeder
         // Requiere que existan usuarios con id 1 y 2 (módulo de Walter).
         // Si no existen, se omite silenciosamente.
         $usuariosExistentes = DB::table('usuarios')
-                                ->whereIn('id_usuario', [1, 2])
+                                ->whereIn('id_usuario', [1, 2, 3])
                                 ->pluck('id_usuario')
                                 ->toArray();
 
         if (empty($usuariosExistentes)) {
-            $this->command->warn('⚠ No se encontraron usuarios con id 1 o 2. Corre el seeder de usuarios primero (Walter).');
+            $this->command->warn('⚠ No se encontraron usuarios con id 1, 2 o 3. Corre el seeder de usuarios primero (Walter).');
             return;
         }
 
@@ -80,7 +72,7 @@ class MedicoSeeder extends Seeder
 
             // ── Horarios de prueba: Lun-Vie 08:00-12:00 ──────────────────────
             for ($dia = 1; $dia <= 5; $dia++) {
-                DB::table('horarios_medicos')->insert([
+                DB::table('horarios_medicos')->insertOrIgnore([
                     'id_medico'             => $idMedico,
                     'dia_semana'            => $dia,
                     'hora_inicio'           => '08:00:00',
