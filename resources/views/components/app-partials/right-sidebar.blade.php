@@ -128,7 +128,7 @@
                         Pinned Apps
                     </h2>
                     <div class="mt-3 flex space-x-3">
-                        <a href="{{route('apps/kanban')}}" class="w-12 text-center">
+                        <a href="#" class="w-12 text-center">
                             <div class="avatar size-10">
                                 <div class="is-initial mask is-squircle bg-success text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
@@ -143,7 +143,7 @@
                                 Kanban
                             </p>
                         </a>
-                        <a href="{{route('dashboards/crm-analytics')}}" class="w-12 text-center">
+                        <a href="#" class="w-12 text-center">
                             <div class="avatar size-10">
                                 <div class="is-initial mask is-squircle bg-warning text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
@@ -158,7 +158,7 @@
                                 Analytics
                             </p>
                         </a>
-                        <a href="{{route('apps/chat')}}" class="w-12 text-center">
+                        <a href="#" class="w-12 text-center">
                             <div class="avatar size-10">
                                 <div class="is-initial mask is-squircle bg-info text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
@@ -173,7 +173,7 @@
                                 Chat
                             </p>
                         </a>
-                        <a href="{{route('apps/filemanager')}}" class="w-12 text-center">
+                        <a href="#" class="w-12 text-center">
                             <div class="avatar size-10">
                                 <div class="is-initial mask is-squircle bg-error text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
@@ -188,7 +188,7 @@
                                 Files
                             </p>
                         </a>
-                        <a href="{{route('dashboards/banking-1')}}" class="w-12 text-center">
+                        <a href="#" class="w-12 text-center">
                             <div class="avatar size-10">
                                 <div class="is-initial mask is-squircle bg-secondary text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
