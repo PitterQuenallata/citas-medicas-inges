@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update']);
 
     Route::resource('pacientes', PacienteController::class);
+    Route::patch('pacientes/{paciente}/activar', [PacienteController::class, 'activar'])->name('pacientes.activar');
     Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');
 
     Route::resource('citas', CitasController::class);
