@@ -55,6 +55,16 @@ class SidebarComposer
         ];
     }
 
+    private static function seccionNotificaciones(): array
+    {
+        return [
+            'title' => 'Notificaciones',
+            'items' => [[
+                ['title' => 'Historial de Envios', 'route_name' => 'notificaciones.index'],
+            ]],
+        ];
+    }
+
     private static function seccionSistema(): array
     {
         return [
@@ -84,6 +94,8 @@ class SidebarComposer
                 => self::seccionPacientes(),
             str_starts_with($pageName, 'usuarios') || str_starts_with($pageName, 'roles') || str_starts_with($pageName, 'permisos')
                 => self::seccionAdmin(),
+            str_starts_with($pageName, 'notificaciones')
+                => self::seccionNotificaciones(),
             str_starts_with($pageName, 'reportes') || str_starts_with($pageName, 'auditoria')
                 => self::seccionSistema(),
             default => self::seccionDefault(),

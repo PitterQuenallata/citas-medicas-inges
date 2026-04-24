@@ -14,6 +14,7 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\NotificacionController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -48,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('permisos', PermisoController::class)->only(['index']);
     Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
     Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');
+    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
 
     Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
     Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');
