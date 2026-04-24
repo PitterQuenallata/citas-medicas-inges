@@ -1,59 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Citas Medicas
+### Clinica Medicos Cristianos Solidarios
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web para gestionar citas medicas, agenda, pacientes y medicos.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Laravel 12** + **Blade**
+- **TailwindCSS 4** (NO Bootstrap)
+- **Alpine.js**
+- **Vite** + **pnpm**
+- **MySQL**
+- **Plantilla UI:** Line One Laravel
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.2+
+- Composer
+- Node.js + pnpm
+- MySQL (LAMPP / XAMPP)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalacion
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clonar el repositorio
+git clone https://github.com/PitterQuenallata/citas-medicas-inges.git
+cd citas-medicas-inges
 
-php artisan boost:install
+# 2. Instalar dependencias PHP
+composer install
+
+# 3. Instalar dependencias JS
+pnpm install
+
+# 4. Copiar el archivo de entorno
+cp .env.example .env
+
+# 5. Generar clave de la app
+php artisan key:generate
+
+# 6. Configurar la BD en .env
+DB_DATABASE=citas_medicas
+DB_USERNAME=root
+DB_PASSWORD=
+
+# 7. Crear la base de datos y migrar
+php artisan migrate
+
+# 8. (Opcional) Datos de prueba
+php artisan db:seed
+
+# 9. Compilar assets
+pnpm run build
+
+# 10. Levantar el servidor
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Abrir en el navegador: `http://localhost:8000`
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Modulos
 
-## Code of Conduct
+| Modulo | Estado |
+|--------|--------|
+| Dashboard | Funcional |
+| Citas | Funcional |
+| Agenda Medica | Funcional |
+| Medicos | Funcional |
+| Pacientes | Funcional |
+| Especialidades | En desarrollo |
+| Horarios Medicos | En desarrollo |
+| Historial Clinico | En desarrollo |
+| Usuarios / Roles / Permisos | En desarrollo |
+| Notificaciones WhatsApp | En desarrollo |
+| Reportes | En desarrollo |
+| Auditoria | En desarrollo |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Equipo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Integrante | Rama anterior | Modulo nuevo |
+|------------|--------------|--------------|
+| Pitter | feature/citas-pitter | feature/notificaciones-pitter |
+| Alvaro | feature/medicos-alvaro | feature/especialidades-alvaro |
+| Josue | feature/pacientes-josue | feature/horarios-josue |
+| Walter | feature/login-walter | feature/usuarios-walter |
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# Sistema-de-gestion-de-citas-medicas
+## Flujo de trabajo
+
+```bash
+# Antes de trabajar, siempre actualizar desde develop
+git checkout develop
+git pull origin develop
+
+# Crear tu rama nueva
+git checkout -b feature/mi-modulo-minombre
+
+# Commits en español, minusculas
+git commit -m "agregar vista de mi modulo"
+
+# Subir la rama
+git push origin feature/mi-modulo-minombre
+```
+
+> Ver `GUIA-EQUIPO.md` para instrucciones detalladas de desarrollo.
+
+---
+
+## Comandos utiles
+
+```bash
+php artisan view:clear   # limpiar cache de vistas
+php artisan route:list   # ver todas las rutas
+pnpm run build           # compilar assets
+pnpm run dev             # compilar en modo desarrollo (watch)
+```
