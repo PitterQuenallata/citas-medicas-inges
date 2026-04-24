@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MedicoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PacienteController;
 
 Route::get('/', function () {
     return redirect()->route('medicos.index');
@@ -9,3 +10,6 @@ Route::get('/', function () {
 
 Route::resource('medicos', MedicoController::class)
     ->only(['index', 'create', 'store', 'edit', 'update']);
+
+Route::resource('pacientes', PacienteController::class);
+Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');

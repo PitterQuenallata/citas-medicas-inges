@@ -12,7 +12,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="{{ route('medicos.index') }}">
+            <a class="navbar-brand fw-semibold" href="#">
                 <i class="fas fa-user-md me-2"></i>Sistema de Citas Médicas
             </a>
         </div>
@@ -25,39 +25,38 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: @json(session('success')),
-                confirmButtonText: 'Aceptar'
-            });
-        </script>
-    @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: @json(session('success')),
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
 
-    @if(session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: @json(session('error')),
-                confirmButtonText: 'Aceptar'
-            });
-        </script>
-    @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
 
-    @if($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Revise los datos',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonText: 'Aceptar'
-            });
-        </script>
-    @endif
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Revise los datos',
+                    html: `{!! implode('<br>', $errors->all()) !!}`,
+                    confirmButtonText: 'Aceptar'
+                });
+            @endif
+        });
+    </script>
 
     @stack('scripts')
+
 </body>
 </html>
