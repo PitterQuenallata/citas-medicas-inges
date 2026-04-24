@@ -9,6 +9,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EspecialidadController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\HistorialController;
+use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\RolController;
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\ReportesController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -37,6 +42,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('historial', HistorialController::class)->only(['index', 'show']);
+
+    Route::resource('usuarios', UsuariosController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('roles', RolController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('permisos', PermisoController::class)->only(['index']);
+    Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+    Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');
 
     Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
     Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');

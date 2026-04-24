@@ -20,6 +20,17 @@ class SidebarComposer
                     ['title' => 'Especialidades',  'route_name' => 'especialidades.index'],
                     ['title' => 'Horarios',        'route_name' => 'horarios.index'],
                     ['title' => 'Historial',       'route_name' => 'historial.index'],
+                    [
+                        'title' => 'Usuarios',
+                        'route_name' => 'usuarios.index',
+                        'submenu' => [
+                            ['title' => 'Lista de Usuarios', 'route_name' => 'usuarios.index'],
+                            ['title' => 'Roles',             'route_name' => 'roles.index'],
+                            ['title' => 'Permisos',          'route_name' => 'permisos.index'],
+                        ],
+                    ],
+                    ['title' => 'Auditoria',       'route_name' => 'auditoria.index'],
+                    ['title' => 'Reportes',        'route_name' => 'reportes.index'],
                 ],
             ],
         ];
