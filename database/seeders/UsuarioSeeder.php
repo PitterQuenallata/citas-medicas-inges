@@ -38,6 +38,15 @@ class UsuarioSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+                        [
+                'nombre'     => 'Josue',
+                'apellido'   => 'Gonzales',
+                'email'      => 'jgonzales@clinica.com',
+                'password'   => Hash::make('sopademani1'),
+                'estado'     => 'activo',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }
