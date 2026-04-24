@@ -15,7 +15,7 @@ return new class extends Migration
             $table->primary(['id_usuario', 'id_rol']);
 
             $table->foreign('id_usuario', 'fk_usuario_rol_usuario')
-                  ->references('id_usuario')->on('usuarios')
+                  ->references('id')->on('users')
                   ->onDelete('cascade')->onUpdate('cascade');
 
             $table->foreign('id_rol', 'fk_usuario_rol_rol')

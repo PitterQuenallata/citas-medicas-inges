@@ -27,13 +27,13 @@ class MedicoSeeder extends Seeder
         // ─── 2. Médicos de prueba ─────────────────────────────────────────────
         // Requiere que existan usuarios con id 1 y 2 (módulo de Walter).
         // Si no existen, se omite silenciosamente.
-        $usuariosExistentes = DB::table('usuarios')
-                                ->whereIn('id_usuario', [1, 2, 3])
-                                ->pluck('id_usuario')
+        $usuariosExistentes = DB::table('users')
+                                ->whereIn('id', [1, 2, 3])
+                                ->pluck('id')
                                 ->toArray();
 
         if (empty($usuariosExistentes)) {
-            $this->command->warn('⚠ No se encontraron usuarios con id 1, 2 o 3. Corre el seeder de usuarios primero (Walter).');
+            $this->command->warn('⚠ No se encontraron usuarios con id 1, 2 o 3. Corre el UserSeeder primero.');
             return;
         }
 

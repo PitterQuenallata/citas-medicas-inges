@@ -14,12 +14,6 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $table = 'usuarios';
-    protected $primaryKey = 'id_usuario';
-    public $incrementing = true;
-    protected $keyType = 'int';
-    public $timestamps = true;
-
     protected $fillable = [
         'nombre',
         'apellido',
@@ -27,7 +21,6 @@ class User extends Authenticatable
         'telefono',
         'password',
         'estado',
-        'id_rol',
         'ultimo_login',
     ];
 
@@ -46,16 +39,16 @@ class User extends Authenticatable
 
     public function medico(): HasOne
     {
-        return $this->hasOne(Medico::class, 'id_usuario', 'id_usuario');
+        return $this->hasOne(Medico::class, 'id_usuario');
     }
 
     public function paciente(): HasOne
     {
-        return $this->hasOne(Paciente::class, 'id_usuario', 'id_usuario');
+        return $this->hasOne(Paciente::class, 'id_usuario');
     }
 
     public function citasRegistradas(): HasMany
     {
-        return $this->hasMany(Cita::class, 'id_usuario_registra', 'id_usuario');
+        return $this->hasMany(Cita::class, 'id_usuario_registra');
     }
 }
