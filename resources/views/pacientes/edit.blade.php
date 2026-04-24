@@ -12,7 +12,7 @@
 
             <div class="card-body">
 
-                <form method="POST" action="{{ route('pacientes.update', $paciente) }}">
+                <form method="POST" action="{{ route('pacientes.update', $paciente) }}" class="js-paciente-update">
                     @csrf
                     @method('PUT')
 
