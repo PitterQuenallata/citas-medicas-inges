@@ -41,7 +41,7 @@
             <td>
                 <a href="{{ route('pacientes.edit',$p) }}" class="btn btn-warning btn-sm">Editar</a>
 
-                <form action="{{ route('pacientes.destroy',$p) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas desactivar este paciente?');">
+                <form action="{{ route('pacientes.destroy',$p) }}" method="POST" class="d-inline js-confirm-delete">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-danger btn-sm">Eliminar</button>
@@ -55,3 +55,28 @@
 {{ $pacientes->links() }}
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('form.js-confirm-delete').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: '¿Desactivar paciente?',
+                    text: 'El paciente no se eliminará de la base de datos, solo quedará inactivo.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, desactivar',
+                    cancelButtonText: 'Cancelar',
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+@endpush

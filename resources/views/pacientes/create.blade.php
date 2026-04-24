@@ -22,7 +22,7 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('pacientes.store') }}">
+        <form method="POST" action="{{ route('pacientes.store') }}" class="js-paciente-create">
             @csrf
 
             @include('pacientes.form')
@@ -40,3 +40,18 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if ($errors->any())
+            Swal.fire({
+                icon: 'error',
+                title: 'Datos inválidos',
+                html: {!! json_encode('<ul class="text-start mb-0">' . implode('', $errors->all('<li>:message</li>')) . '</ul>') !!},
+                confirmButtonText: 'Revisar',
+            });
+        @endif
+    });
+</script>
+@endpush
