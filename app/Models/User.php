@@ -60,8 +60,22 @@ class User extends Authenticatable
 
     public function tienePermiso(string $permiso): bool
     {
+        if ($this->esSuperAdmin()) return true;
+
         return $this->roles()->whereHas('permisos', function ($q) use ($permiso) {
             $q->where('nombre_permiso', $permiso);
         })->exists();
+    }
+
+    public function esSuperAdmin(): bool
+    {
+        return $this->roles()->where('nombre_rol', 'SuperAdmin')->exists();
+    }
+
+    public function tieneRelaciones(): bool
+    {
+        return $this->medico()->exists()
+            || $this->paciente()->exists()
+            || $this->citasRegistradas()->exists();
     }
 }

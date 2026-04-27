@@ -79,14 +79,8 @@
                             </button>
                             <form method="POST" action="{{ route('roles.destroy', $rol->id_rol) }}" class="swal-delete">
                                 @csrf @method('DELETE')
-                                <button type="submit"
-                                    class="btn size-8 rounded-full p-0 {{ $rol->estado === 'activo' ? 'text-error hover:bg-error/10' : 'text-success hover:bg-success/10' }}"
-                                    title="{{ $rol->estado === 'activo' ? 'Desactivar' : 'Activar' }}">
-                                    @if($rol->estado === 'activo')
-                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                    @else
-                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    @endif
+                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Eliminar">
+                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
                         </div>
@@ -134,11 +128,12 @@
                         <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Permisos</span>
                         <div class="mt-2 grid grid-cols-2 gap-2">
                             @foreach($permisos as $permiso)
-                            <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-navy-200">
+                            <label class="inline-flex items-center space-x-2">
                                 <input type="checkbox" name="permisos[]" value="{{ $permiso->id_permiso }}"
                                     :checked="permisosSeleccionados.includes({{ $permiso->id_permiso }})"
-                                    class="form-checkbox is-basic size-4 rounded border-slate-400/70 checked:bg-primary checked:border-primary" />
-                                {{ $permiso->modulo }}
+                                    @change="$event.target.checked ? permisosSeleccionados.push({{ $permiso->id_permiso }}) : permisosSeleccionados = permisosSeleccionados.filter(i => i !== {{ $permiso->id_permiso }})"
+                                    class="form-checkbox is-basic size-5 rounded-sm border-slate-400/70 checked:bg-primary checked:border-primary hover:border-primary focus:border-primary dark:border-navy-400 dark:checked:bg-accent dark:checked:border-accent dark:hover:border-accent dark:focus:border-accent" />
+                                <p>{{ $permiso->modulo }}</p>
                             </label>
                             @endforeach
                         </div>
@@ -180,13 +175,13 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             Swal.fire({
-                title: '¿Cambiar estado del rol?',
-                text: 'Se activara o desactivara este rol',
+                title: '¿Eliminar este rol?',
+                text: 'Se eliminara permanentemente si no tiene usuarios asignados',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
+                confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Si, cambiar',
+                confirmButtonText: 'Si, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then(result => { if (result.isConfirmed) form.submit(); });
         });

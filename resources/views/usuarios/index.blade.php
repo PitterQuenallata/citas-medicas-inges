@@ -97,6 +97,8 @@
                     <td class="whitespace-nowrap px-3 py-3 sm:px-5">
                         @if($usuario->estado === 'activo')
                             <span class="badge rounded-full bg-success/10 text-success dark:bg-success/15">Activo</span>
+                        @elseif($usuario->estado === 'eliminado')
+                            <span class="badge rounded-full bg-slate-200 text-slate-500 dark:bg-navy-500 dark:text-navy-200">Eliminado</span>
                         @elseif($usuario->estado === 'bloqueado')
                             <span class="badge rounded-full bg-warning/10 text-warning dark:bg-warning/15">Bloqueado</span>
                         @else
@@ -105,21 +107,21 @@
                     </td>
                     <td class="whitespace-nowrap px-3 py-3 sm:px-5">
                         <div class="flex gap-2">
+                            @if($usuario->estado !== 'eliminado')
                             <button @click="abrirEditar({{ $usuario->load('roles')->toJson() }})"
                                 class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
                                 <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </button>
-                            @if($usuario->estado === 'activo')
-                            <form method="POST" action="{{ route('usuarios.destroy', $usuario->id) }}" class="swal-desactivar">
+                            <form method="POST" action="{{ route('usuarios.destroy', $usuario->id) }}" class="swal-eliminar">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Desactivar">
-                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Eliminar">
+                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
                             @else
                             <form method="POST" action="{{ route('usuarios.activar', $usuario->id) }}">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="btn size-8 rounded-full p-0 text-success hover:bg-success/10" title="Activar">
+                                <button type="submit" class="btn size-8 rounded-full p-0 text-success hover:bg-success/10" title="Restaurar">
                                     <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </button>
                             </form>
@@ -199,11 +201,12 @@
                         <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Roles</span>
                         <div class="mt-2 flex flex-wrap gap-3">
                             @foreach($roles as $rol)
-                            <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-navy-200">
+                            <label class="inline-flex items-center space-x-2">
                                 <input type="checkbox" name="roles[]" value="{{ $rol->id_rol }}"
                                     :checked="rolesSeleccionados.includes({{ $rol->id_rol }})"
-                                    class="form-checkbox is-basic size-4 rounded border-slate-400/70 checked:bg-primary checked:border-primary" />
-                                {{ $rol->nombre_rol }}
+                                    @change="$event.target.checked ? rolesSeleccionados.push({{ $rol->id_rol }}) : rolesSeleccionados = rolesSeleccionados.filter(i => i !== {{ $rol->id_rol }})"
+                                    class="form-checkbox is-basic size-5 rounded-sm border-slate-400/70 checked:bg-primary checked:border-primary hover:border-primary focus:border-primary dark:border-navy-400 dark:checked:bg-accent dark:checked:border-accent dark:hover:border-accent dark:focus:border-accent" />
+                                <p>{{ $rol->nombre_rol }}</p>
                             </label>
                             @endforeach
                         </div>
@@ -241,17 +244,17 @@ document.addEventListener('DOMContentLoaded', () => {
         Swal.fire({ title: 'Error', text: @json(session('swal_error')), icon: 'error', confirmButtonColor: '#4f46e5' });
     @endif
 
-    document.querySelectorAll('.swal-desactivar').forEach(form => {
+    document.querySelectorAll('.swal-eliminar').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             Swal.fire({
-                title: '¿Desactivar usuario?',
-                text: 'El usuario no podra acceder al sistema',
+                title: '¿Eliminar este usuario?',
+                text: 'Si tiene datos asociados se marcara como eliminado, caso contrario se eliminara permanentemente',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
+                confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Si, desactivar',
+                confirmButtonText: 'Si, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then(result => { if (result.isConfirmed) form.submit(); });
         });

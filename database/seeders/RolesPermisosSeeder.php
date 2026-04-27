@@ -52,10 +52,17 @@ class RolesPermisosSeeder extends Seeder
         $medicoPermisos = Permiso::whereIn('modulo', ['dashboard', 'citas', 'pacientes'])->pluck('id_permiso')->toArray();
         $medico->permisos()->sync($medicoPermisos);
 
-        // Asignar rol Administrador al primer usuario (Mallku)
+        // SuperAdmin - oculto, solo asignable desde BD
+        $superAdmin = Rol::firstOrCreate(
+            ['nombre_rol' => 'SuperAdmin'],
+            ['descripcion' => 'Acceso total incluyendo usuarios eliminados. Solo asignable desde BD.', 'estado' => 'activo']
+        );
+        $superAdmin->permisos()->sync($todosIds);
+
+        // Asignar rol SuperAdmin al primer usuario (Mallku)
         $primerUsuario = User::first();
         if ($primerUsuario) {
-            $primerUsuario->roles()->syncWithoutDetaching([$admin->id_rol]);
+            $primerUsuario->roles()->syncWithoutDetaching([$superAdmin->id_rol]);
         }
     }
 }
