@@ -3,89 +3,128 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Rol;
+use App\Models\Auditoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsuariosController extends Controller
 {
     public function index(Request $request)
     {
         $buscar = $request->buscar;
+        $esSuperAdmin = Auth::user()->esSuperAdmin();
 
-        $usuarios = User::when($buscar, function ($q) use ($buscar) {
-            $q->where(function ($query) use ($buscar) {
-                $query->where('nombre', 'like', "%{$buscar}%")
-                    ->orWhere('apellido', 'like', "%{$buscar}%")
-                    ->orWhere('email', 'like', "%{$buscar}%")
-                    ->orWhere('telefono', 'like', "%{$buscar}%");
-            });
-        })
-        ->orderBy('id', 'desc')
-        ->paginate(10)
-        ->withQueryString();
+        $usuarios = User::with('roles')
+            ->when(!$esSuperAdmin, function ($q) {
+                $q->where('estado', '!=', 'eliminado');
+            })
+            ->when(!$esSuperAdmin, function ($q) {
+                $q->whereDoesntHave('roles', fn($r) => $r->where('nombre_rol', 'SuperAdmin'));
+            })
+            ->when($buscar, function ($q) use ($buscar) {
+                $q->where(function ($query) use ($buscar) {
+                    $query->where('nombre', 'like', "%$buscar%")
+                        ->orWhere('apellido', 'like', "%$buscar%")
+                        ->orWhere('email', 'like', "%$buscar%");
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('usuarios.index', compact('usuarios'));
-    }
+        $roles = Rol::where('estado', 'activo')
+            ->where('nombre_rol', '!=', 'SuperAdmin')
+            ->orderBy('nombre_rol')->get();
 
-    public function create()
-    {
-        return view('usuarios.create');
+        return view('usuarios.index', compact('usuarios', 'roles', 'buscar', 'esSuperAdmin'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:100',
+            'nombre'   => 'required|string|max:100',
             'apellido' => 'required|string|max:100',
-            'email' => 'required|email|max:150|unique:users,email',
+            'email'    => 'required|email|max:150|unique:users,email',
             'telefono' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
-            'estado' => 'nullable|in:activo,inactivo,bloqueado',
+            'roles'    => 'array',
         ]);
 
-        User::create([
-            'nombre' => $request->nombre,
+        $usuario = User::create([
+            'nombre'   => $request->nombre,
             'apellido' => $request->apellido,
-            'email' => $request->email,
+            'email'    => $request->email,
             'telefono' => $request->telefono,
             'password' => $request->password,
-            'estado' => $request->estado ?? 'activo',
+            'estado'   => 'activo',
         ]);
 
-        return redirect()->route('usuarios.index')
-            ->with('success', 'Usuario creado correctamente');
+        $usuario->roles()->sync($request->roles ?? []);
+
+        Auditoria::registrar('crear', 'users', $usuario->id, null, $usuario->toArray());
+
+        return redirect()->route('usuarios.index')->with('swal_success', 'Usuario creado correctamente');
     }
 
-    public function edit(User $usuario)
+    public function update(Request $request, $id)
     {
-        return view('usuarios.edit', compact('usuario'));
-    }
+        $usuario = User::findOrFail($id);
+        $datosAnteriores = $usuario->toArray();
 
-    public function update(Request $request, User $usuario)
-    {
         $request->validate([
-            'nombre' => 'required|string|max:100',
+            'nombre'   => 'required|string|max:100',
             'apellido' => 'required|string|max:100',
-            'email' => 'required|email|max:150|unique:users,email,' . $usuario->id,
+            'email'    => 'required|email|max:150|unique:users,email,' . $id,
             'telefono' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6',
-            'estado' => 'required|in:activo,inactivo,bloqueado',
+            'roles'    => 'array',
         ]);
 
-        $data = $request->only([
-            'nombre',
-            'apellido',
-            'email',
-            'telefono',
-            'estado',
-        ]);
+        $datos = [
+            'nombre'   => $request->nombre,
+            'apellido' => $request->apellido,
+            'email'    => $request->email,
+            'telefono' => $request->telefono,
+        ];
 
         if ($request->filled('password')) {
-            $data['password'] = $request->password;
+            $datos['password'] = $request->password;
         }
 
-        $usuario->update($data);
+        $usuario->update($datos);
+        $usuario->roles()->sync($request->roles ?? []);
 
-        return redirect()->route('usuarios.index')
-            ->with('success', 'Usuario actualizado correctamente');
+        Auditoria::registrar('editar', 'users', $usuario->id, $datosAnteriores, $usuario->fresh()->toArray());
+
+        return redirect()->route('usuarios.index')->with('swal_success', 'Usuario actualizado correctamente');
+    }
+
+    public function destroy($id)
+    {
+        $usuario = User::findOrFail($id);
+        $datosAnteriores = $usuario->toArray();
+
+        if ($usuario->tieneRelaciones()) {
+            $usuario->update(['estado' => 'eliminado']);
+            Auditoria::registrar('eliminar_logico', 'users', $usuario->id, $datosAnteriores, ['estado' => 'eliminado']);
+            return redirect()->route('usuarios.index')->with('swal_success', 'Usuario eliminado logicamente (tiene datos asociados)');
+        }
+
+        $usuario->roles()->detach();
+        $usuario->delete();
+        Auditoria::registrar('eliminar', 'users', $id, $datosAnteriores, null);
+        return redirect()->route('usuarios.index')->with('swal_success', 'Usuario eliminado permanentemente');
+    }
+
+    public function activar($id)
+    {
+        $usuario = User::findOrFail($id);
+        $estadoAnterior = $usuario->estado;
+        $usuario->update(['estado' => 'activo']);
+
+        Auditoria::registrar('activar', 'users', $usuario->id, ['estado' => $estadoAnterior], ['estado' => 'activo']);
+
+        return redirect()->route('usuarios.index')->with('swal_success', 'Usuario activado correctamente');
     }
 }

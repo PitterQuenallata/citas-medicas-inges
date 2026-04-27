@@ -50,8 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::get('historial/consultas/{consulta}/edit', [HistorialController::class, 'edit'])->name('historial.consultas.edit');
     Route::put('historial/consultas/{consulta}', [HistorialController::class, 'update'])->name('historial.consultas.update');
 
-    Route::resource('usuarios', UsuariosController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-    Route::resource('roles', RolController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('usuarios', UsuariosController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::patch('usuarios/{usuario}/activar', [UsuariosController::class, 'activar'])->name('usuarios.activar');
+    Route::resource('roles', RolController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('permisos', PermisoController::class)->only(['index']);
     Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
     Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');
