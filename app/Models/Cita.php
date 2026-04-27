@@ -9,6 +9,11 @@ class Cita extends Model
     protected $table      = 'citas';
     protected $primaryKey = 'id_cita';
 
+    public function getRouteKeyName()
+    {
+        return 'id_cita';
+    }
+
     protected $fillable = [
         'codigo_cita', 'id_paciente', 'id_medico', 'id_usuario_registra',
         'fecha_cita', 'hora_inicio', 'hora_fin', 'motivo_consulta',

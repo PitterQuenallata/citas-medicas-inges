@@ -62,14 +62,29 @@ class User extends Authenticatable
     {
         if ($this->esSuperAdmin()) return true;
 
-        return $this->roles()->whereHas('permisos', function ($q) use ($permiso) {
-            $q->where('nombre_permiso', $permiso);
-        })->exists();
+        return $this->cargarPermisos()->contains($permiso);
     }
 
     public function esSuperAdmin(): bool
     {
-        return $this->roles()->where('nombre_rol', 'SuperAdmin')->exists();
+        if (!isset($this->esSuperAdminCache)) {
+            $this->esSuperAdminCache = $this->roles()->where('nombre_rol', 'SuperAdmin')->exists();
+        }
+        return $this->esSuperAdminCache;
+    }
+
+    protected function cargarPermisos(): \Illuminate\Support\Collection
+    {
+        if (!isset($this->permisosCache)) {
+            $this->permisosCache = $this->roles()
+                ->with('permisos')
+                ->get()
+                ->pluck('permisos')
+                ->flatten()
+                ->pluck('nombre_permiso')
+                ->unique();
+        }
+        return $this->permisosCache;
     }
 
     public function tieneRelaciones(): bool
