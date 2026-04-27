@@ -320,7 +320,30 @@ git commit -m "actualizar tabla de notificaciones"
 
 ---
 
-## 10. Resumen rapido del contexto del proyecto
+## 10. Auditoria (logs de acciones)
+
+Cada accion importante debe registrarse en la tabla `auditorias`. Usar el helper:
+
+```php
+use App\Models\Auditoria;
+
+// Crear
+Auditoria::registrar('crear', 'nombre_tabla', $registro->id, null, $registro->toArray());
+
+// Editar
+$antes = $registro->toArray();
+$registro->update($datos);
+Auditoria::registrar('editar', 'nombre_tabla', $registro->id, $antes, $registro->fresh()->toArray());
+
+// Eliminar
+Auditoria::registrar('eliminar', 'nombre_tabla', $id, $registro->toArray(), null);
+```
+
+El helper guarda automaticamente el usuario logueado y la IP.
+
+---
+
+## 11. Resumen rapido del contexto del proyecto
 
 Si alguien nuevo entra al proyecto, esto es lo minimo que debe saber:
 
