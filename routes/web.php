@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('citas', CitasController::class);
     Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
+    Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
+    Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
     Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
     Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
 
