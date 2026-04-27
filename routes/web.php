@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'create', 'store', 'edit', 'update']);
 
     Route::resource('pacientes', PacienteController::class);
+    Route::patch('pacientes/{paciente}/activar', [PacienteController::class, 'activar'])->name('pacientes.activar');
     Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');
 
     Route::resource('citas', CitasController::class);
@@ -44,8 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('historial', HistorialController::class)->only(['index', 'show']);
 
-    Route::resource('usuarios', UsuariosController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-    Route::resource('roles', RolController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('usuarios', UsuariosController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::patch('usuarios/{usuario}/activar', [UsuariosController::class, 'activar'])->name('usuarios.activar');
+    Route::resource('roles', RolController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('permisos', PermisoController::class)->only(['index']);
     Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
     Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');

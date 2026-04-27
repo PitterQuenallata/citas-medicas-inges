@@ -267,14 +267,46 @@ git commit -m "agregar vista de mi modulo"
 git push origin feature/mi-modulo-minombre
 ```
 
-### Asignacion de modulos nuevos (por definir)
+### Division de trabajo por secciones
 
-| Compañero | Rama nueva | Modulo |
-|-----------|-----------|--------|
-| Alvaro    | `feature/especialidades-alvaro` | Especialidades |
-| Josue     | `feature/horarios-josue` | Horarios Medicos |
-| Walter    | `feature/usuarios-walter` | Usuarios / Roles / Permisos |
-| Pitter    | `feature/notificaciones-pitter` | Notificaciones WhatsApp |
+**Pitter (lider)** — Seccion: Citas + Administracion + Notificaciones
+| Modulo | Dificultad | Estado |
+|--------|-----------|--------|
+| Citas (mejorar) | Alta | Funcional base |
+| Agenda Medica | Alta | Funcional base |
+| Pagos (efectivo + QR futuro) | Alta | Nuevo |
+| Usuarios / Roles / Permisos | Media | Placeholder |
+| Notificaciones WhatsApp (kapso.ai) | Alta | Placeholder |
+
+**Josue** — Seccion: Pacientes + Sistema (Reportes)
+| Modulo | Rama | Nota |
+|--------|------|------|
+| Pacientes | `feature/pacientes-josue-v2` | Ya tiene SweetAlert, validaciones |
+| Historial Clinico | misma rama | Extension de pacientes |
+| Reportes | misma rama | Reportes del sistema |
+
+**Alvaro** — Seccion: Medicos (toda la seccion)
+| Modulo | Rama | Nota |
+|--------|------|------|
+| Medicos (corregir) | `feature/medicos-alvaro-v2` | Adaptar a plantilla nueva |
+| Especialidades | misma rama | ABM de especialidades |
+| Horarios Medicos | misma rama | Horarios por medico y dia |
+
+**Walter** — Seccion: Dashboard + Sistema (Auditoria) + Login
+| Modulo | Rama | Nota |
+|--------|------|------|
+| Login (mantener/mejorar) | `feature/login-dashboard-walter` | Ya lo tiene |
+| Dashboard (stats reales) | misma rama | Mejorar con datos reales |
+| Auditoria | misma rama | Log de acciones del sistema |
+
+### Resumen rapido
+
+```
+Pitter:  Citas + Agenda + Pagos + Usuarios/Roles/Permisos + WhatsApp
+Josue:   Pacientes + Historial Clinico + Reportes
+Alvaro:  Medicos + Especialidades + Horarios Medicos
+Walter:  Login + Dashboard + Auditoria
+```
 
 ### Convenciones de commits
 
@@ -288,7 +320,30 @@ git commit -m "actualizar tabla de notificaciones"
 
 ---
 
-## 10. Resumen rapido del contexto del proyecto
+## 10. Auditoria (logs de acciones)
+
+Cada accion importante debe registrarse en la tabla `auditorias`. Usar el helper:
+
+```php
+use App\Models\Auditoria;
+
+// Crear
+Auditoria::registrar('crear', 'nombre_tabla', $registro->id, null, $registro->toArray());
+
+// Editar
+$antes = $registro->toArray();
+$registro->update($datos);
+Auditoria::registrar('editar', 'nombre_tabla', $registro->id, $antes, $registro->fresh()->toArray());
+
+// Eliminar
+Auditoria::registrar('eliminar', 'nombre_tabla', $id, $registro->toArray(), null);
+```
+
+El helper guarda automaticamente el usuario logueado y la IP.
+
+---
+
+## 11. Resumen rapido del contexto del proyecto
 
 Si alguien nuevo entra al proyecto, esto es lo minimo que debe saber:
 
