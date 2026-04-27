@@ -357,24 +357,18 @@ class CitasController extends Controller
     {
         $medicos  = Medico::where('estado', 'activo')->orderBy('apellidos')->get();
         $fecha    = $request->input('fecha', today()->format('Y-m-d'));
-        $medicoId = $request->input('id_medico');
+        $medicoId = $request->input('medico_id');
 
-        $citas = collect();
-        $horarios = collect();
+        $query = Cita::with(['paciente', 'medico.especialidades'])
+            ->where('fecha_cita', $fecha)
+            ->orderBy('hora_inicio');
 
         if ($medicoId) {
-            $citas = Cita::with('paciente')
-                ->where('id_medico', $medicoId)
-                ->where('fecha_cita', $fecha)
-                ->orderBy('hora_inicio')
-                ->get();
-
-            $diaSemana = \Carbon\Carbon::parse($fecha)->dayOfWeekIso;
-            $horarios  = \App\Models\HorarioMedico::where('id_medico', $medicoId)
-                ->where('dia_semana', $diaSemana)
-                ->where('activo', true)
-                ->get();
+            $query->where('id_medico', $medicoId);
         }
+
+        $citas    = $query->get();
+        $horarios = collect();
 
         return view('agenda.index', compact('medicos', 'fecha', 'medicoId', 'citas', 'horarios'));
     }
