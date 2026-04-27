@@ -27,35 +27,49 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('medicos', MedicoController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update']);
+    // Citas
+    Route::middleware('permiso:acceso_citas')->group(function () {
+        Route::resource('citas', CitasController::class);
+        Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
+        Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
+        Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
+        Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
+        Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
+        Route::get('agenda', [CitasController::class, 'agenda'])->name('agenda');
+        Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
+        Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');
+        Route::get('api/especialidades/{especialidad}/medicos', [CitasController::class, 'medicosPorEspecialidad'])->name('api.medicos.por.especialidad');
+    });
 
-    Route::resource('pacientes', PacienteController::class);
-    Route::patch('pacientes/{paciente}/activar', [PacienteController::class, 'activar'])->name('pacientes.activar');
-    Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');
+    // Medicos, Especialidades, Horarios
+    Route::middleware('permiso:acceso_medicos')->group(function () {
+        Route::resource('medicos', MedicoController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    });
 
-    Route::resource('citas', CitasController::class);
-    Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
-    Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
-    Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
-    Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
-    Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
+    // Pacientes, Historial
+    Route::middleware('permiso:acceso_pacientes')->group(function () {
+        Route::resource('pacientes', PacienteController::class);
+        Route::patch('pacientes/{paciente}/activar', [PacienteController::class, 'activar'])->name('pacientes.activar');
+        Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');
+        Route::resource('historial', HistorialController::class)->only(['index', 'show']);
+    });
 
-    Route::get('agenda', [CitasController::class, 'agenda'])->name('agenda');
+    // Administracion: Usuarios, Roles, Permisos
+    Route::middleware('permiso:acceso_usuarios')->group(function () {
+        Route::resource('usuarios', UsuariosController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::patch('usuarios/{usuario}/activar', [UsuariosController::class, 'activar'])->name('usuarios.activar');
+        Route::resource('roles', RolController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('permisos', PermisoController::class)->only(['index']);
+    });
 
-    Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-    Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-    Route::resource('historial', HistorialController::class)->only(['index', 'show']);
+    // Reportes
+    Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index')->middleware('permiso:acceso_reportes');
 
-    Route::resource('usuarios', UsuariosController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::patch('usuarios/{usuario}/activar', [UsuariosController::class, 'activar'])->name('usuarios.activar');
-    Route::resource('roles', RolController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::resource('permisos', PermisoController::class)->only(['index']);
-    Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
-    Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');
-    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+    // Auditoria
+    Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index')->middleware('permiso:acceso_auditoria');
 
-    Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
-    Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');
-    Route::get('api/especialidades/{especialidad}/medicos', [CitasController::class, 'medicosPorEspecialidad'])->name('api.medicos.por.especialidad');
+    // Notificaciones
+    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index')->middleware('permiso:acceso_notificaciones');
 });
