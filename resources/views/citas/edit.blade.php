@@ -9,12 +9,23 @@
     <span class="text-sm text-slate-500 dark:text-navy-300">Volver a Citas</span>
 </div>
 
-<div class="card flex flex-col items-center justify-center py-16 text-center">
-    <svg class="size-16 text-primary/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-    </svg>
-    <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">Editar Cita</h2>
-    <p class="mt-2 text-sm text-slate-400 dark:text-navy-300">Módulo en desarrollo</p>
-    <span class="mt-4 badge rounded-full bg-warning/10 px-4 py-1.5 text-sm text-warning">En Desarrollo</span>
+<div class="card p-4 sm:p-5">
+    <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-6">Editar Cita</h3>
+
+    <form method="POST" action="{{ route('citas.update', $cita->id_cita) }}">
+        @csrf
+        @method('PUT')
+
+        @include('citas._form', ['cita' => $cita, 'pacientes' => $pacientes, 'especialidades' => $especialidades])
+
+        <div class="mt-6 flex gap-3">
+            <button type="submit" class="btn bg-primary px-5 text-sm font-medium text-white hover:bg-primary-focus">
+                Actualizar
+            </button>
+            <a href="{{ route('citas.show', $cita->id_cita) }}" class="btn border border-slate-300 px-5 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
 @endsection

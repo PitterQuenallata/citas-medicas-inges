@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Cita extends Model
 {
@@ -44,6 +45,11 @@ class Cita extends Model
     public function reprogramaciones()
     {
         return $this->hasMany(Cita::class, 'id_cita_reprogramada_desde', 'id_cita');
+    }
+
+    public function consultaMedica(): HasOne
+    {
+        return $this->hasOne(ConsultaMedica::class, 'id_cita', 'id_cita');
     }
 
     public function getBadgeClassAttribute(): string

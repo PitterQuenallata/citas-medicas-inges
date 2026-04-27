@@ -169,11 +169,12 @@ class DisponibilidadService
             ->get();
 
         $slots = [];
+        $slotsIndex = [];
 
         foreach ($horarios as $horario) {
             $cursor   = Carbon::createFromFormat('H:i:s', $horario->hora_inicio);
             $fin      = Carbon::createFromFormat('H:i:s', $horario->hora_fin);
-            $duracion = (int) $horario->duracion_cita_minutos;
+            $duracion = 60;
 
             while ($cursor->copy()->addMinutes($duracion)->lessThanOrEqualTo($fin)) {
                 $slotIni    = $cursor->format('H:i');
@@ -210,9 +211,23 @@ class DisponibilidadService
                     'disponible'  => !$ocupado,
                 ];
 
+                $key = $slotIni . '-' . $slotFin;
+                if (!isset($slotsIndex[$key]) || $slotsIndex[$key]['disponible'] === true) {
+                    $slotsIndex[$key] = [
+                        'hora_inicio' => $slotIni,
+                        'hora_fin'    => $slotFin,
+                        'disponible'  => !$ocupado,
+                    ];
+                }
+
                 $cursor->addMinutes($duracion);
             }
         }
+
+        $slots = array_values($slotsIndex);
+        usort($slots, function ($a, $b) {
+            return strcmp($a['hora_inicio'], $b['hora_inicio']);
+        });
 
         return $slots;
     }

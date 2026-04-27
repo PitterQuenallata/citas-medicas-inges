@@ -4,24 +4,34 @@
 @section('content')
 <div class="flex items-center justify-between py-2 pb-4">
     <form method="GET" class="flex flex-wrap gap-2">
-        <select name="medico_id" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
+        <select name="medico" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
             <option value="">Todos los médicos</option>
             @foreach($medicos as $m)
-                <option value="{{ $m->id_medico }}" {{ request('medico_id') == $m->id_medico ? 'selected' : '' }}>
+                <option value="{{ $m->id_medico }}" {{ request('medico') == $m->id_medico ? 'selected' : '' }}>
                     Dr. {{ $m->nombres }} {{ $m->apellidos }}
                 </option>
             @endforeach
         </select>
-        <select name="especialidad_id" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
+        <select name="especialidad" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
             <option value="">Todas las especialidades</option>
             @foreach($especialidades as $e)
-                <option value="{{ $e->id_especialidad }}" {{ request('especialidad_id') == $e->id_especialidad ? 'selected' : '' }}>
+                <option value="{{ $e->id_especialidad }}" {{ request('especialidad') == $e->id_especialidad ? 'selected' : '' }}>
                     {{ $e->nombre_especialidad }}
+                </option>
+            @endforeach
+        </select>
+        <select name="estado" class="form-select h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
+            <option value="">Todos los estados</option>
+            @foreach(['pendiente','confirmada','atendida','cancelada','reprogramada','no_asistio'] as $est)
+                <option value="{{ $est }}" {{ request('estado') === $est ? 'selected' : '' }}>
+                    {{ ucfirst(str_replace('_', ' ', $est)) }}
                 </option>
             @endforeach
         </select>
         <input type="date" name="fecha" value="{{ request('fecha') }}"
             class="form-input h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100" />
+        <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar paciente (nombre/CI)"
+            class="form-input h-9 w-64 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 placeholder-slate-400 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100" />
         <button type="submit" class="btn h-9 bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">Filtrar</button>
     </form>
     <a href="{{ route('citas.create') }}" class="btn h-9 bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">

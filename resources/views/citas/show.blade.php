@@ -9,12 +9,101 @@
     <span class="text-sm text-slate-500 dark:text-navy-300">Volver a Citas</span>
 </div>
 
-<div class="card flex flex-col items-center justify-center py-16 text-center">
-    <svg class="size-16 text-primary/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-    </svg>
-    <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">Detalle Cita</h2>
-    <p class="mt-2 text-sm text-slate-400 dark:text-navy-300">Módulo en desarrollo</p>
-    <span class="mt-4 badge rounded-full bg-warning/10 px-4 py-1.5 text-sm text-warning">En Desarrollo</span>
+<div class="card p-4 sm:p-5">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+            <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">{{ $cita->codigo_cita }}</h3>
+            <p class="text-sm text-slate-500 dark:text-navy-300">
+                {{ $cita->fecha_cita?->format('d/m/Y') }}
+                {{ $cita->hora_inicio ? substr($cita->hora_inicio, 0, 5) : '' }} - {{ $cita->hora_fin ? substr($cita->hora_fin, 0, 5) : '' }}
+            </p>
+        </div>
+
+        <div class="flex gap-2">
+            @if(!in_array($cita->estado_cita, ['cancelada','atendida','reprogramada']))
+                <a href="{{ route('citas.edit', $cita->id_cita) }}" class="btn bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
+                    Editar
+                </a>
+                <a href="{{ route('citas.reprogramar', $cita->id_cita) }}" class="btn border border-slate-300 px-4 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
+                    Reprogramar
+                </a>
+            @endif
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Paciente</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-navy-100">
+                {{ $cita->paciente?->nombres }} {{ $cita->paciente?->apellidos }}
+            </p>
+            <p class="text-sm text-slate-500 dark:text-navy-300">CI: {{ $cita->paciente?->ci ?? '—' }}</p>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Médico</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-navy-100">
+                Dr. {{ $cita->medico?->nombres }} {{ $cita->medico?->apellidos }}
+            </p>
+            <p class="text-sm text-slate-500 dark:text-navy-300">Código: {{ $cita->medico?->codigo_medico ?? '—' }}</p>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Estado</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-navy-100">{{ $cita->estado_label }}</p>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Registrada por</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-navy-100">
+                {{ $cita->usuarioRegistra?->nombre }} {{ $cita->usuarioRegistra?->apellido }}
+            </p>
+            <p class="text-sm text-slate-500 dark:text-navy-300">{{ $cita->created_at?->format('d/m/Y H:i') }}</p>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Motivo</p>
+            <p class="text-sm text-slate-700 dark:text-navy-100">{{ $cita->motivo_consulta ?? '—' }}</p>
+        </div>
+        <div class="rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Observaciones</p>
+            <p class="text-sm text-slate-700 dark:text-navy-100">{{ $cita->observaciones ?? '—' }}</p>
+        </div>
+    </div>
+
+    @if($cita->estado_cita === 'cancelada')
+        <div class="mt-6 rounded-lg border border-error/30 bg-error/5 p-4">
+            <p class="text-xs uppercase text-error">Cancelación</p>
+            <p class="text-sm text-slate-700">{{ $cita->motivo_cancelacion ?? '—' }}</p>
+            <p class="text-sm text-slate-500">{{ $cita->fecha_cancelacion?->format('d/m/Y H:i') }}</p>
+        </div>
+    @endif
+
+    @if($cita->citaOriginal)
+        <div class="mt-6 rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <p class="text-xs uppercase text-slate-400">Reprogramada desde</p>
+            <a class="text-sm font-medium text-primary" href="{{ route('citas.show', $cita->citaOriginal->id_cita) }}">
+                {{ $cita->citaOriginal->codigo_cita }}
+            </a>
+        </div>
+    @endif
+
+    @if(!in_array($cita->estado_cita, ['cancelada','atendida']))
+        <div class="mt-6 rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+            <h4 class="text-sm font-medium text-slate-700 dark:text-navy-100 mb-3">Cancelar cita</h4>
+            <form method="POST" action="{{ route('citas.cancelar', $cita->id_cita) }}" onsubmit="return confirm('¿Cancelar esta cita?')" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                @csrf
+                @method('PATCH')
+                <input type="text" name="motivo_cancelacion" required placeholder="Motivo de cancelación"
+                    class="form-input h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('motivo_cancelacion') border-error @enderror" />
+                <button type="submit" class="btn h-9 bg-error px-4 text-sm font-medium text-white hover:bg-error-focus">
+                    Cancelar
+                </button>
+            </form>
+            @error('motivo_cancelacion')<p class="mt-2 text-xs text-error">{{ $message }}</p>@enderror
+        </div>
+    @endif
 </div>
 @endsection

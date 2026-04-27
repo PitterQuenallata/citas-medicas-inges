@@ -2,15 +2,64 @@
 @section('title', 'Lista de Historial Clinico')
 
 @section('content')
-<div class="card flex flex-col items-center justify-center py-16 text-center">
-    <svg class="size-16 text-primary/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-    </svg>
-    <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">Lista de Historial Clinico</h2>
-    <p class="mt-2 text-sm text-slate-400 dark:text-navy-300">Este modulo esta en desarrollo</p>
-    <span class="mt-4 badge rounded-full bg-warning/10 px-4 py-1.5 text-sm text-warning">En Desarrollo</span>
-    <a href="{{ route('historial.index') }}" class="mt-6 btn border border-slate-300 px-5 text-sm hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
-        Volver
-    </a>
+<div class="card p-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-lg font-semibold text-slate-700 dark:text-navy-100">Historial Clínico</h2>
+            <p class="text-sm text-slate-500 dark:text-navy-300">Busca un paciente para ver su historial de consultas médicas.</p>
+        </div>
+
+        <form method="GET" class="flex w-full gap-2 md:w-auto">
+            <input
+                type="text"
+                name="buscar"
+                value="{{ $buscar }}"
+                placeholder="Buscar por nombre, CI o código"
+                class="form-input w-full md:w-80"
+            />
+            <button class="btn bg-primary px-4 text-white hover:bg-primary-focus" type="submit">Buscar</button>
+        </form>
+    </div>
+
+    <div class="mt-6 overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-slate-200 dark:border-navy-500">
+                <tr class="text-slate-600 dark:text-navy-200">
+                    <th class="px-3 py-2">Código</th>
+                    <th class="px-3 py-2">Paciente</th>
+                    <th class="px-3 py-2">CI</th>
+                    <th class="px-3 py-2">Estado</th>
+                    <th class="px-3 py-2 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-navy-600">
+                @forelse ($pacientes as $paciente)
+                    <tr>
+                        <td class="px-3 py-2 font-medium text-slate-700 dark:text-navy-100">{{ $paciente->codigo_paciente }}</td>
+                        <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $paciente->nombre_completo }}</td>
+                        <td class="px-3 py-2 text-slate-600 dark:text-navy-200">{{ $paciente->ci }}</td>
+                        <td class="px-3 py-2">
+                            <span class="badge rounded-full {{ ($paciente->estado ?? 'activo') === 'activo' ? 'bg-success/10 text-success' : 'bg-slate-200 text-slate-700 dark:bg-navy-600 dark:text-navy-100' }} px-3 py-1 text-xs">
+                                {{ ($paciente->estado ?? 'activo') === 'activo' ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                            <a href="{{ route('historial.show', $paciente) }}" class="btn border border-slate-300 px-3 text-xs hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
+                                Ver historial
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-3 py-10 text-center text-slate-500 dark:text-navy-300">No se encontraron pacientes.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        {{ $pacientes->links() }}
+    </div>
 </div>
 @endsection

@@ -43,7 +43,12 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-    Route::resource('historial', HistorialController::class)->only(['index', 'show']);
+    Route::get('historial', [HistorialController::class, 'index'])->name('historial.index');
+    Route::get('historial/{paciente}', [HistorialController::class, 'show'])->name('historial.show');
+    Route::get('historial/{paciente}/consultas/create', [HistorialController::class, 'create'])->name('historial.consultas.create');
+    Route::post('historial/{paciente}/consultas', [HistorialController::class, 'store'])->name('historial.consultas.store');
+    Route::get('historial/consultas/{consulta}/edit', [HistorialController::class, 'edit'])->name('historial.consultas.edit');
+    Route::put('historial/consultas/{consulta}', [HistorialController::class, 'update'])->name('historial.consultas.update');
 
     Route::resource('usuarios', UsuariosController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::resource('roles', RolController::class)->only(['index', 'create', 'store', 'edit', 'update']);

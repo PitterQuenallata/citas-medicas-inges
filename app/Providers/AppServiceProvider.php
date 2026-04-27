@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Paginator::useBootstrapFive();
+        Paginator::useTailwind();
 
         View::composer(
             ['components.app-partials.main-sidebar', 'components.app-partials.header', 'components.app-partials.sidebar-panel'],

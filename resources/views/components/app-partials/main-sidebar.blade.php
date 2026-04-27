@@ -61,6 +61,16 @@
                 </svg>
             </a>
 
+            {{-- Historial Clínico --}}
+            <a href="{{ route('historial.index') }}"
+                class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
+                    {{ request()->routeIs('historial.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
+                x-tooltip.placement.right="'Historial Clínico'">
+                <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m-7 5h8a2 2 0 002-2V7a2 2 0 00-2-2h-3l-1-1H8a2 2 0 00-2 2v13a2 2 0 002 2z" />
+                </svg>
+            </a>
+
             {{-- Administración --}}
             <a href="{{ route('usuarios.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200

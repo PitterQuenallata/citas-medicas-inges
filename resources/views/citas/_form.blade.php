@@ -27,31 +27,29 @@
     $excluirCitaId      = isset($cita) ? $cita->id_cita : null;
 @endphp
 
-<div class="row g-4">
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
     {{-- Paciente --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_paciente">Paciente</label>
-        <select name="id_paciente" id="id_paciente"
-                class="form-select @error('id_paciente') is-invalid @enderror" required>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Paciente <span class="text-error">*</span></span>
+        <select name="id_paciente" id="id_paciente" required
+                class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('id_paciente') border-error @enderror">
             <option value="">— Seleccionar paciente —</option>
             @foreach($pacientes as $pac)
                 <option value="{{ $pac->id_paciente }}"
                     {{ old('id_paciente', $cita->id_paciente ?? '') == $pac->id_paciente ? 'selected' : '' }}>
-                    {{ $pac->apellidos }}, {{ $pac->nombres }}
-                    @if($pac->ci) ({{ $pac->ci }}) @endif
+                    {{ $pac->apellidos }}, {{ $pac->nombres }}@if($pac->ci) ({{ $pac->ci }}) @endif
                 </option>
             @endforeach
         </select>
-        @error('id_paciente')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+        @error('id_paciente')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+    </label>
 
     {{-- Especialidad --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_especialidad">Especialidad</label>
-        <select id="id_especialidad" class="form-select">
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Especialidad</span>
+        <select id="id_especialidad"
+                class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
             <option value="">— Seleccionar especialidad —</option>
             @foreach($especialidades as $esp)
                 <option value="{{ $esp->id_especialidad }}"
@@ -60,87 +58,73 @@
                 </option>
             @endforeach
         </select>
-        <div id="esp-msg" class="form-text text-muted" style="display:none;">Sin médicos activos para esta especialidad.</div>
-    </div>
+        <p id="esp-msg" class="mt-1 text-xs text-slate-500" style="display:none;">Sin médicos activos para esta especialidad.</p>
+    </label>
 
     {{-- Médico (se llena por AJAX) --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_medico">Médico</label>
-        <select name="id_medico" id="id_medico"
-                class="form-select @error('id_medico') is-invalid @enderror" required
-                {{ !$editMedicoId ? 'disabled' : '' }}>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Médico <span class="text-error">*</span></span>
+        <select name="id_medico" id="id_medico" required {{ !$editMedicoId ? 'disabled' : '' }}
+                class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('id_medico') border-error @enderror">
             <option value="">— Primero selecciona una especialidad —</option>
         </select>
-        @error('id_medico')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+        @error('id_medico')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+    </label>
 
     {{-- Fecha --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="fecha_cita">Fecha de la cita</label>
-        <input type="date" name="fecha_cita" id="fecha_cita"
-               class="form-control @error('fecha_cita') is-invalid @enderror"
-               value="{{ $editFecha }}"
-               min="{{ date('Y-m-d') }}" required
-               {{ !$editMedicoId ? 'disabled' : '' }}>
-        @error('fecha_cita')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Fecha de la cita <span class="text-error">*</span></span>
+        <input type="date" name="fecha_cita" id="fecha_cita" value="{{ $editFecha }}" min="{{ date('Y-m-d') }}" required {{ !$editMedicoId ? 'disabled' : '' }}
+               class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('fecha_cita') border-error @enderror">
+        @error('fecha_cita')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+    </label>
 
     {{-- Slots de horario --}}
-    <div class="col-12">
-        <label class="form-label-citas">Horario disponible</label>
+    <div class="sm:col-span-2">
+        <p class="text-sm font-medium text-slate-600 dark:text-navy-100">Horario disponible <span class="text-error">*</span></p>
 
         {{-- Hidden inputs que se envían al servidor --}}
         <input type="hidden" name="hora_inicio" id="hora_inicio" value="{{ $editHoraInicio }}" required>
         <input type="hidden" name="hora_fin"    id="hora_fin"    value="{{ $editHoraFin }}"    required>
 
-        <div id="slots-container">
+        <div id="slots-container" class="mt-2">
+            <div id="slot-selected-label" class="mb-2"></div>
             @if($editHoraInicio && $editHoraFin)
-                <div id="slot-selected-label" class="mb-2">
-                    <span class="badge-estado badge-confirmada" style="font-size:.875rem;padding:.4em .8em;">
-                        ✓ {{ $editHoraInicio }} – {{ $editHoraFin }}
-                    </span>
-                </div>
+                <script>
+                    window.__citaSlotPrefill = { hi: @json($editHoraInicio), hf: @json($editHoraFin) };
+                </script>
             @endif
-            <div id="slots-grid" class="d-flex flex-wrap gap-2"></div>
-            <div id="slots-msg" class="text-muted small mt-1"></div>
+            <div id="slots-grid" class="flex flex-wrap gap-2"></div>
+            <p id="slots-msg" class="mt-2 text-xs text-slate-500"></p>
         </div>
 
-        @error('hora_inicio')
-            <div class="text-danger small mt-1">{{ $message }}</div>
-        @enderror
+        @error('hora_inicio')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
     </div>
 
     {{-- Motivo --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="motivo_consulta">Motivo de consulta</label>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Motivo de consulta</span>
         <textarea name="motivo_consulta" id="motivo_consulta" rows="3"
-                  class="form-control @error('motivo_consulta') is-invalid @enderror"
+                  class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('motivo_consulta') border-error @enderror"
                   placeholder="Describa brevemente el motivo de la consulta…">{{ old('motivo_consulta', $cita->motivo_consulta ?? '') }}</textarea>
-        @error('motivo_consulta')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+        @error('motivo_consulta')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+    </label>
 
     {{-- Observaciones --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="observaciones">Observaciones</label>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Observaciones</span>
         <textarea name="observaciones" id="observaciones" rows="3"
-                  class="form-control @error('observaciones') is-invalid @enderror"
+                  class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('observaciones') border-error @enderror"
                   placeholder="Notas adicionales…">{{ old('observaciones', $cita->observaciones ?? '') }}</textarea>
-        @error('observaciones')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+        @error('observaciones')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+    </label>
 
     {{-- Estado (solo edición) --}}
     @if(isset($cita))
-    <div class="col-md-4">
-        <label class="form-label-citas" for="estado_cita">Estado</label>
-        <select name="estado_cita" id="estado_cita" class="form-select">
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Estado</span>
+        <select name="estado_cita" id="estado_cita"
+                class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
             @foreach(['pendiente','confirmada','atendida','no_asistio'] as $est)
                 <option value="{{ $est }}"
                     {{ old('estado_cita', $cita->estado_cita) === $est ? 'selected' : '' }}>
@@ -148,7 +132,7 @@
                 </option>
             @endforeach
         </select>
-    </div>
+    </label>
     @endif
 
 </div>
@@ -246,14 +230,14 @@
             const btn = document.createElement('button');
             btn.type  = 'button';
             btn.textContent = `${s.hora_inicio} – ${s.hora_fin}`;
-            btn.className   = 'btn btn-sm slot-btn';
+            btn.className   = 'h-9 px-3 text-xs font-medium rounded-lg border slot-btn';
 
             if (!s.disponible) {
                 btn.disabled  = true;
-                btn.classList.add('slot-ocupado');
+                btn.classList.add('bg-error/10', 'text-error', 'border-error/30', 'line-through', 'cursor-not-allowed', 'opacity-70', 'slot-ocupado');
                 btn.title     = 'Horario ocupado';
             } else {
-                btn.classList.add('slot-libre');
+                btn.classList.add('bg-success/10', 'text-success', 'border-success/30', 'hover:bg-success/20', 'slot-libre');
                 btn.addEventListener('click', () => seleccionarSlot(btn, s.hora_inicio, s.hora_fin));
 
                 // Pre-seleccionar slot en edición
@@ -273,11 +257,18 @@
     function seleccionarSlot(btn, hi, hf) {
         document.querySelectorAll('.slot-btn.slot-seleccionado').forEach(b => {
             b.classList.remove('slot-seleccionado');
+            b.classList.remove('bg-primary', 'text-white', 'border-primary');
         });
         btn.classList.add('slot-seleccionado');
+        btn.classList.add('bg-primary', 'text-white', 'border-primary');
         inpHi.value = hi;
         inpHf.value = hf;
         slotsMsg.textContent = '';
+
+        const label = document.getElementById('slot-selected-label');
+        if (label) {
+            label.innerHTML = `<span class="badge rounded-full bg-info/10 text-info dark:bg-info/15">✓ ${hi} – ${hf}</span>`;
+        }
     }
 
     function resetMedico() {
@@ -292,6 +283,9 @@
         slotsMsg.textContent = '';
         inpHi.value = '';
         inpHf.value = '';
+
+        const label = document.getElementById('slot-selected-label');
+        if (label) label.innerHTML = '';
     }
 
     // ── Inicializar en modo edición ───────────────────────────────────────
