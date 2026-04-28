@@ -5,6 +5,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon_192.png') }}" />
+    <link rel="apple-touch-icon" href="{{ asset('favicon_192.png') }}" />
+
     <title>{{ config('app.name') }} @hasSection('title') - @yield('title') @endif</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

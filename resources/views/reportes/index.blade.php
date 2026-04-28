@@ -1,256 +1,160 @@
 @extends('layouts.app')
-@section('title', 'Reportes')
+@section('title', 'Reportes del Sistema')
+
 @section('content')
-<div class="space-y-6">
-    <div class="card p-6">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-                <h2 class="text-lg font-semibold text-slate-700 dark:text-navy-100">Reportes</h2>
-                <p class="text-sm text-slate-500 dark:text-navy-300">Reporte de citas con filtros por fecha, estado, médico y especialidad.</p>
-            </div>
+{{-- KPIs rápidos del mes actual --}}
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-6">
+    <div class="card p-4 flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-xl bg-primary/10">
+            <svg class="size-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-            <a href="{{ route('reportes.index', array_merge(request()->except('page'), ['tipo' => 'citas'])) }}"
-                class="btn h-9 px-4 text-sm {{ ($tipo ?? 'citas') === 'citas' ? 'bg-primary text-white hover:bg-primary-focus' : 'border border-slate-300 hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600' }}">
-                Citas
-            </a>
-            <a href="{{ route('reportes.index', array_merge(request()->except('page'), ['tipo' => 'pacientes'])) }}"
-                class="btn h-9 px-4 text-sm {{ ($tipo ?? 'citas') === 'pacientes' ? 'bg-primary text-white hover:bg-primary-focus' : 'border border-slate-300 hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600' }}">
-                Pacientes
-            </a>
-            <a href="{{ route('reportes.index', array_merge(request()->except('page'), ['tipo' => 'medicos'])) }}"
-                class="btn h-9 px-4 text-sm {{ ($tipo ?? 'citas') === 'medicos' ? 'bg-primary text-white hover:bg-primary-focus' : 'border border-slate-300 hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600' }}">
-                Médicos
-            </a>
+        <div>
+            <p class="text-xs text-slate-400 dark:text-navy-300">Citas este mes</p>
+            <p class="text-xl font-bold text-slate-700 dark:text-navy-100">{{ number_format($stats['total_citas_mes']) }}</p>
         </div>
-
-        <form method="GET" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-12">
-            <input type="hidden" name="tipo" value="{{ $tipo ?? 'citas' }}" />
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Desde</label>
-                <input type="date" name="desde" value="{{ $desde }}" class="form-input mt-1 w-full" />
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Hasta</label>
-                <input type="date" name="hasta" value="{{ $hasta }}" class="form-input mt-1 w-full" />
-            </div>
-
-            @if (($tipo ?? 'citas') === 'citas')
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Estado</label>
-                    <select name="estado" class="form-select mt-1 w-full">
-                        <option value="">Todos</option>
-                        @foreach (['pendiente','confirmada','atendida','cancelada','reprogramada','no_asistio'] as $st)
-                            <option value="{{ $st }}" @selected($estado === $st)>{{ $st }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="md:col-span-3">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Médico</label>
-                    <select name="id_medico" class="form-select mt-1 w-full">
-                        <option value="">Todos</option>
-                        @foreach ($medicos as $medico)
-                            <option value="{{ $medico->id_medico }}" @selected((string) $idMedico === (string) $medico->id_medico)>
-                                {{ $medico->nombre_completo }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="md:col-span-3">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Especialidad</label>
-                    <select name="id_especialidad" class="form-select mt-1 w-full">
-                        <option value="">Todas</option>
-                        @foreach ($especialidades as $esp)
-                            <option value="{{ $esp->id_especialidad }}" @selected((string) $idEspecialidad === (string) $esp->id_especialidad)>
-                                {{ $esp->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-
-            @if (($tipo ?? 'citas') === 'medicos')
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-navy-100">Estado</label>
-                    <select name="estado" class="form-select mt-1 w-full">
-                        <option value="">Todos</option>
-                        @foreach (['pendiente','confirmada','atendida','cancelada','reprogramada','no_asistio'] as $st)
-                            <option value="{{ $st }}" @selected($estado === $st)>{{ $st }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-
-            <div class="md:col-span-12 flex justify-end gap-2">
-                <a href="{{ route('reportes.index', ['tipo' => ($tipo ?? 'citas')]) }}" class="btn border border-slate-300 px-4 hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">Limpiar</a>
-                <button type="submit" class="btn bg-primary px-4 text-white hover:bg-primary-focus">Aplicar filtros</button>
-            </div>
-        </form>
     </div>
-
-    @if (($tipo ?? 'citas') === 'citas')
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-6">
-            @php
-                $estados = ['pendiente','confirmada','atendida','cancelada','reprogramada','no_asistio'];
-            @endphp
-            @foreach ($estados as $st)
-                <div class="card p-4">
-                    <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-navy-300">{{ $st }}</p>
-                    <p class="mt-2 text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $totales[$st] ?? 0 }}</p>
-                </div>
-            @endforeach
+    <div class="card p-4 flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-xl bg-success/10">
+            <svg class="size-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </div>
-
-        <div class="card p-6">
-            <h3 class="text-base font-semibold text-slate-700 dark:text-navy-100">Citas</h3>
-
-            <div class="mt-4 overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
-                    <thead class="border-b border-slate-200 dark:border-navy-500">
-                        <tr class="text-slate-600 dark:text-navy-200">
-                            <th class="px-3 py-2">Código</th>
-                            <th class="px-3 py-2">Fecha</th>
-                            <th class="px-3 py-2">Paciente</th>
-                            <th class="px-3 py-2">Médico</th>
-                            <th class="px-3 py-2">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-navy-600">
-                        @forelse ($citas as $cita)
-                            <tr>
-                                <td class="px-3 py-2 font-medium text-slate-700 dark:text-navy-100">{{ $cita->codigo_cita }}</td>
-                                <td class="px-3 py-2 text-slate-600 dark:text-navy-200">{{ $cita->fecha_cita }} {{ $cita->hora_inicio }} - {{ $cita->hora_fin }}</td>
-                                <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $cita->paciente?->nombre_completo ?? '—' }}</td>
-                                <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $cita->medico?->nombre_completo ?? '—' }}</td>
-                                <td class="px-3 py-2">
-                                    <span class="badge rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-700 dark:bg-navy-600 dark:text-navy-100">
-                                        {{ $cita->estado_cita }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-3 py-10 text-center text-slate-500 dark:text-navy-300">No hay datos para los filtros seleccionados.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-4">
-                {{ $citas->links() }}
-            </div>
+        <div>
+            <p class="text-xs text-slate-400 dark:text-navy-300">Pacientes activos</p>
+            <p class="text-xl font-bold text-slate-700 dark:text-navy-100">{{ number_format($stats['total_pacientes']) }}</p>
         </div>
-    @endif
-
-    @if (($tipo ?? 'citas') === 'pacientes')
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="card p-4">
-                <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-navy-300">Activos</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $pacientesTotales['activo'] ?? 0 }}</p>
-            </div>
-            <div class="card p-4">
-                <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-navy-300">Inactivos</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ $pacientesTotales['inactivo'] ?? 0 }}</p>
-            </div>
-            <div class="card p-4">
-                <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-navy-300">Total</p>
-                <p class="mt-2 text-2xl font-semibold text-slate-700 dark:text-navy-100">{{ ($pacientesTotales['activo'] ?? 0) + ($pacientesTotales['inactivo'] ?? 0) }}</p>
-            </div>
+    </div>
+    <div class="card p-4 flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-xl bg-info/10">
+            <svg class="size-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         </div>
-
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div class="card p-6">
-                <h3 class="text-base font-semibold text-slate-700 dark:text-navy-100">Pacientes</h3>
-                <div class="mt-4 overflow-x-auto">
-                    <table class="min-w-full text-left text-sm">
-                        <thead class="border-b border-slate-200 dark:border-navy-500">
-                            <tr class="text-slate-600 dark:text-navy-200">
-                                <th class="px-3 py-2">Código</th>
-                                <th class="px-3 py-2">Paciente</th>
-                                <th class="px-3 py-2">CI</th>
-                                <th class="px-3 py-2">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-navy-600">
-                            @forelse ($pacientes as $pac)
-                                <tr>
-                                    <td class="px-3 py-2 font-medium text-slate-700 dark:text-navy-100">{{ $pac->codigo_paciente }}</td>
-                                    <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $pac->nombre_completo }}</td>
-                                    <td class="px-3 py-2 text-slate-600 dark:text-navy-200">{{ $pac->ci }}</td>
-                                    <td class="px-3 py-2 text-slate-600 dark:text-navy-200">{{ $pac->estado }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-3 py-10 text-center text-slate-500 dark:text-navy-300">No hay pacientes en el rango seleccionado.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-4">
-                    {{ $pacientes->links() }}
-                </div>
-            </div>
-
-            <div class="card p-6">
-                <h3 class="text-base font-semibold text-slate-700 dark:text-navy-100">Top 10 pacientes por número de citas</h3>
-                <div class="mt-4 overflow-x-auto">
-                    <table class="min-w-full text-left text-sm">
-                        <thead class="border-b border-slate-200 dark:border-navy-500">
-                            <tr class="text-slate-600 dark:text-navy-200">
-                                <th class="px-3 py-2">Paciente</th>
-                                <th class="px-3 py-2 text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-navy-600">
-                            @forelse ($topPacientes as $row)
-                                <tr>
-                                    <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $row->paciente?->nombre_completo ?? '—' }}</td>
-                                    <td class="px-3 py-2 text-right font-medium text-slate-700 dark:text-navy-100">{{ $row->total }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="2" class="px-3 py-10 text-center text-slate-500 dark:text-navy-300">Sin datos.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div>
+            <p class="text-xs text-slate-400 dark:text-navy-300">Médicos activos</p>
+            <p class="text-xl font-bold text-slate-700 dark:text-navy-100">{{ number_format($stats['total_medicos']) }}</p>
         </div>
-    @endif
-
-    @if (($tipo ?? 'citas') === 'medicos')
-        <div class="card p-6">
-            <h3 class="text-base font-semibold text-slate-700 dark:text-navy-100">Citas por médico</h3>
-
-            <div class="mt-4 overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
-                    <thead class="border-b border-slate-200 dark:border-navy-500">
-                        <tr class="text-slate-600 dark:text-navy-200">
-                            <th class="px-3 py-2">Médico</th>
-                            <th class="px-3 py-2 text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-navy-600">
-                        @forelse ($reporteMedicos as $row)
-                            <tr>
-                                <td class="px-3 py-2 text-slate-700 dark:text-navy-100">{{ $row->medico?->nombre_completo ?? '—' }}</td>
-                                <td class="px-3 py-2 text-right font-medium text-slate-700 dark:text-navy-100">{{ $row->total }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="2" class="px-3 py-10 text-center text-slate-500 dark:text-navy-300">Sin datos para el rango/filtros.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    </div>
+    <div class="card p-4 flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-xl bg-warning/10">
+            <svg class="size-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-    @endif
+        <div>
+            <p class="text-xs text-slate-400 dark:text-navy-300">Ingresos este mes</p>
+            <p class="text-xl font-bold text-slate-700 dark:text-navy-100">Bs. {{ number_format($stats['ingresos_mes'], 2) }}</p>
+        </div>
+    </div>
 </div>
+
+{{-- Grid de reportes --}}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+    @php
+    $reportes = [
+        [
+            'titulo'      => 'Citas por Período',
+            'descripcion' => 'Detalle de citas con estados, médicos y pacientes en un rango de fechas.',
+            'color'       => 'primary',
+            'icon'        => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+            'route_ver'   => 'reportes.citas',
+            'route_pdf'   => ['reportes.pdf', 'citas'],
+        ],
+        [
+            'titulo'      => 'Actividad de Médicos',
+            'descripcion' => 'Citas atendidas, canceladas y tasa de atención por médico.',
+            'color'       => 'info',
+            'icon'        => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
+            'route_ver'   => 'reportes.medicos',
+            'route_pdf'   => ['reportes.pdf', 'medicos'],
+        ],
+        [
+            'titulo'      => 'Pacientes',
+            'descripcion' => 'Lista de pacientes con historial de citas, distribución por sexo y estado.',
+            'color'       => 'success',
+            'icon'        => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+            'route_ver'   => 'reportes.pacientes',
+            'route_pdf'   => ['reportes.pdf', 'pacientes'],
+        ],
+        [
+            'titulo'      => 'Ingresos y Pagos',
+            'descripcion' => 'Total recaudado, desglose por método de pago y estado de cobros.',
+            'color'       => 'warning',
+            'icon'        => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+            'route_ver'   => 'reportes.pagos',
+            'route_pdf'   => ['reportes.pdf', 'pagos'],
+        ],
+        [
+            'titulo'      => 'Por Especialidad',
+            'descripcion' => 'Citas e ingresos por especialidad médica en el período seleccionado.',
+            'color'       => 'secondary',
+            'icon'        => 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
+            'route_ver'   => 'reportes.especialidades',
+            'route_pdf'   => ['reportes.pdf', 'especialidades'],
+        ],
+        [
+            'titulo'      => 'Notificaciones',
+            'descripcion' => 'Historial de notificaciones por canal (WhatsApp, email, SMS) y estado de envío.',
+            'color'       => 'error',
+            'icon'        => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+            'route_ver'   => 'reportes.notificaciones',
+            'route_pdf'   => ['reportes.pdf', 'notificaciones'],
+        ],
+        [
+            'titulo'      => 'Canceladas / No Asistidas',
+            'descripcion' => 'Análisis de citas canceladas y pacientes que no asistieron a su cita.',
+            'color'       => 'error',
+            'icon'        => 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
+            'route_ver'   => 'reportes.canceladas',
+            'route_pdf'   => ['reportes.pdf', 'canceladas'],
+        ],
+        [
+            'titulo'      => 'Resumen Mensual',
+            'descripcion' => 'KPIs del mes: citas, ingresos, tasa de asistencia y médico destacado.',
+            'color'       => 'primary',
+            'badge'       => 'Ejecutivo',
+            'icon'        => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+            'route_ver'   => 'reportes.resumen-mensual',
+            'route_pdf'   => ['reportes.pdf', 'resumen-mensual'],
+            'destacado'   => true,
+        ],
+    ];
+    @endphp
+
+    @foreach($reportes as $r)
+    <div class="card flex flex-col {{ !empty($r['destacado']) ? 'ring-2 ring-primary/25' : '' }}">
+        {{-- Cuerpo superior --}}
+        <div class="flex flex-col p-4 sm:p-5 flex-1">
+            {{-- Icono + Título lado a lado --}}
+            <div class="flex items-center gap-3 mb-3">
+                <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-{{ $r['color'] }}/10">
+                    <svg class="size-6 text-{{ $r['color'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $r['icon'] }}"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="font-semibold text-slate-700 dark:text-navy-100 leading-tight">{{ $r['titulo'] }}</h3>
+                    @if(!empty($r['badge']))
+                        <span class="badge rounded-full bg-{{ $r['color'] }}/10 px-2 py-0.5 text-xs text-{{ $r['color'] }} mt-0.5 inline-block">{{ $r['badge'] }}</span>
+                    @endif
+                </div>
+            </div>
+            {{-- Descripción --}}
+            <p class="text-xs text-slate-400 dark:text-navy-300 leading-relaxed">{{ $r['descripcion'] }}</p>
+        </div>
+
+        {{-- Botones de acción — patrón user-card-6 --}}
+        <div class="flex divide-x divide-slate-150 border-t border-slate-150 dark:divide-navy-500 dark:border-navy-500">
+            <a href="{{ route($r['route_ver']) }}"
+               class="btn h-10 w-full rounded-none rounded-bl-lg text-xs font-medium text-{{ $r['color'] }} hover:bg-{{ $r['color'] }}/10 focus:bg-{{ $r['color'] }}/10 active:bg-{{ $r['color'] }}/15 dark:hover:bg-{{ $r['color'] }}/20">
+                Ver reporte
+            </a>
+            <a href="{{ route($r['route_pdf'][0], $r['route_pdf'][1]) }}"
+               class="btn h-10 rounded-none rounded-br-lg px-4 font-medium text-slate-500 hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25 dark:text-navy-200 dark:hover:bg-navy-300/20"
+               title="Exportar PDF">
+                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    @endforeach
+
+</div>
+
 @endsection
