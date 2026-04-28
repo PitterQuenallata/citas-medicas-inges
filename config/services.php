@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'veripagos' => [
+        'base_url'    => env('VERIPAGOS_BASE_URL', 'https://api.veripagos.com/v1'),
+        'api_token'   => env('VERIPAGOS_API_TOKEN', ''),
+        'comercio_id' => env('VERIPAGOS_COMERCIO_ID', ''),
+    ],
+
 ];

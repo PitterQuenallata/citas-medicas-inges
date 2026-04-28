@@ -44,6 +44,16 @@ class SidebarComposer
         ];
     }
 
+    private static function seccionPagos(): array
+    {
+        return [
+            'title' => 'Pagos',
+            'items' => [[
+                ['title' => 'Lista de Pagos',   'route_name' => 'pagos.index'],
+            ]],
+        ];
+    }
+
     private static function seccionAdmin(): array
     {
         return [
@@ -94,6 +104,8 @@ class SidebarComposer
                 => self::seccionMedicos(),
             (str_starts_with($pageName, 'pacientes') || str_starts_with($pageName, 'historial')) && $user?->tienePermiso('acceso_pacientes')
                 => self::seccionPacientes(),
+            str_starts_with($pageName, 'pagos') && $user?->tienePermiso('acceso_citas')
+                => self::seccionPagos(),
             (str_starts_with($pageName, 'usuarios') || str_starts_with($pageName, 'roles') || str_starts_with($pageName, 'permisos')) && $user?->tienePermiso('acceso_usuarios')
                 => self::seccionAdmin(),
             str_starts_with($pageName, 'notificaciones') && $user?->tienePermiso('acceso_notificaciones')

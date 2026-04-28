@@ -21,7 +21,7 @@ class CitasController extends Controller
     // -------------------------------------------------------------------------
     public function index(Request $request)
     {
-        $query = Cita::with(['paciente', 'medico'])
+        $query = Cita::with(['paciente', 'medico', 'pago'])
             ->orderBy('fecha_cita', 'desc')
             ->orderBy('hora_inicio', 'asc');
 
@@ -111,7 +111,7 @@ class CitasController extends Controller
     // -------------------------------------------------------------------------
     public function show(Cita $cita)
     {
-        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal', 'reprogramaciones']);
+        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal', 'reprogramaciones', 'pago']);
         return view('citas.show', compact('cita'));
     }
 
@@ -306,6 +306,11 @@ class CitasController extends Controller
         if ($cita->estado_cita !== 'confirmada') {
             return redirect()->route('citas.show', $cita)
                 ->with('error', 'Solo se pueden atender citas confirmadas.');
+        }
+
+        if (!$cita->esta_pagada) {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'No se puede atender la cita sin pago confirmado. Registre el pago primero.');
         }
 
         $datosAnteriores = $cita->toArray();

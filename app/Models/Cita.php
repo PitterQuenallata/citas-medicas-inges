@@ -51,6 +51,23 @@ class Cita extends Model
         return $this->hasMany(Cita::class, 'id_cita_reprogramada_desde', 'id_cita');
     }
 
+    public function pago()
+    {
+        return $this->hasOne(Pago::class, 'id_cita', 'id_cita')
+                    ->whereIn('estado_pago', ['pendiente', 'pagado'])
+                    ->latest();
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'id_cita', 'id_cita');
+    }
+
+    public function getEstaPagadaAttribute(): bool
+    {
+        return $this->pago && $this->pago->estado_pago === 'pagado';
+    }
+
     public function getBadgeClassAttribute(): string
     {
         return match ($this->estado_cita) {

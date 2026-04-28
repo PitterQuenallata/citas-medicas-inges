@@ -15,6 +15,7 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\PagoController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -62,6 +63,16 @@ Route::middleware('auth')->group(function () {
         Route::patch('usuarios/{usuario}/activar', [UsuariosController::class, 'activar'])->name('usuarios.activar');
         Route::resource('roles', RolController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('permisos', PermisoController::class)->only(['index']);
+    });
+
+    // Pagos
+    Route::middleware('permiso:acceso_citas')->group(function () {
+        Route::get('pagos', [PagoController::class, 'index'])->name('pagos.index');
+        Route::get('pagos/{pago}', [PagoController::class, 'show'])->name('pagos.show');
+        Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
+        Route::patch('pagos/{pago}/anular', [PagoController::class, 'anular'])->name('pagos.anular');
+        Route::post('api/pagos/generar-qr', [PagoController::class, 'generarQR'])->name('api.pagos.generar-qr');
+        Route::get('api/pagos/verificar-qr/{movimientoId}', [PagoController::class, 'verificarQR'])->name('api.pagos.verificar-qr');
     });
 
     // Reportes
