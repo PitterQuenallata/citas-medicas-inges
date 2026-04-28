@@ -47,7 +47,9 @@ Route::middleware('auth')->group(function () {
 
     // Medicos, Especialidades, Horarios
     Route::middleware('permiso:acceso_medicos')->group(function () {
-        Route::resource('medicos', MedicoController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::resource('medicos', MedicoController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+        Route::patch('medicos/{medico}/desactivar', [MedicoController::class, 'desactivar'])->name('medicos.desactivar');
+        Route::patch('medicos/{medico}/activar', [MedicoController::class, 'activar'])->name('medicos.activar');
         Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
         Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     });
