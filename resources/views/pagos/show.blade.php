@@ -18,6 +18,10 @@
             <button type="button" id="btn-verificar-qr-show" class="btn h-8 rounded-full bg-info px-4 text-xs font-medium text-white hover:bg-info/90" data-movimiento="{{ $pago->referencia_externa }}">Verificar QR</button>
         @endif
         @if($pago->estado_pago === 'pagado')
+            <a href="{{ route('pagos.recibo', $pago->id_pago) }}" target="_blank" class="btn h-8 rounded-full border border-success px-4 text-xs font-medium text-success hover:bg-success/10">
+                <svg class="mr-1 inline size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Imprimir Recibo
+            </a>
             <button type="button" class="btn h-8 rounded-full bg-error px-4 text-xs font-medium text-white hover:bg-error/90 btn-anular-pago" data-id="{{ $pago->id_pago }}">Anular Pago</button>
         @endif
         <a href="{{ route('citas.show', $pago->cita->id_cita) }}" class="btn h-8 rounded-full border border-primary px-4 text-xs font-medium text-primary hover:bg-primary/10">Ver Cita</a>

@@ -6,6 +6,7 @@ use App\Models\Auditoria;
 use App\Models\Cita;
 use App\Models\Pago;
 use App\Services\VeriPagosService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class PagoController extends Controller
@@ -272,5 +273,18 @@ class PagoController extends Controller
         }
 
         return response()->json(['message' => 'OK']);
+    }
+
+    // -------------------------------------------------------------------------
+    // RECIBO PDF — genera recibo de pago inline en el navegador
+    // -------------------------------------------------------------------------
+    public function recibo(Pago $pago)
+    {
+        $pago->load(['cita.paciente', 'cita.medico.especialidades', 'usuarioRegistra']);
+
+        $pdf = Pdf::loadView('pdf.recibo-pago', compact('pago'))
+            ->setPaper([0, 0, 396, 612]);
+
+        return $pdf->stream("recibo-{$pago->codigo_pago}.pdf");
     }
 }

@@ -11,6 +11,7 @@ use App\Models\Paciente;
 use App\Models\Auditoria;
 use App\Services\DisponibilidadService;
 use App\Services\WhatsAppService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class CitasController extends Controller
@@ -493,5 +494,18 @@ class CitasController extends Controller
             'disponible' => empty($errores),
             'errores'    => $errores,
         ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // TICKET PDF — genera ticket de cita inline en el navegador
+    // -------------------------------------------------------------------------
+    public function ticket(Cita $cita)
+    {
+        $cita->load(['paciente', 'medico.especialidades', 'pago']);
+
+        $pdf = Pdf::loadView('pdf.ticket-cita', compact('cita'))
+            ->setPaper([0, 0, 396, 612]);
+
+        return $pdf->stream("ticket-{$cita->codigo_cita}.pdf");
     }
 }

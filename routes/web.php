@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
         Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
         Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
+        Route::get('citas/{cita}/ticket', [CitasController::class, 'ticket'])->name('citas.ticket');
         Route::get('agenda', [CitasController::class, 'agenda'])->name('agenda');
         Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
         Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');
@@ -73,6 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::get('pagos/{pago}', [PagoController::class, 'show'])->name('pagos.show');
         Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
         Route::patch('pagos/{pago}/anular', [PagoController::class, 'anular'])->name('pagos.anular');
+        Route::get('pagos/{pago}/recibo', [PagoController::class, 'recibo'])->name('pagos.recibo');
         Route::post('api/pagos/generar-qr', [PagoController::class, 'generarQR'])->name('api.pagos.generar-qr');
         Route::get('api/pagos/verificar-qr/{movimientoId}', [PagoController::class, 'verificarQR'])->name('api.pagos.verificar-qr');
     });
