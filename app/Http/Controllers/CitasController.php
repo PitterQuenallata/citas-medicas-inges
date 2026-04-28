@@ -10,11 +10,15 @@ use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\Auditoria;
 use App\Services\DisponibilidadService;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 
 class CitasController extends Controller
 {
-    public function __construct(protected DisponibilidadService $disponibilidad) {}
+    public function __construct(
+        protected DisponibilidadService $disponibilidad,
+        protected WhatsAppService $whatsapp
+    ) {}
 
     // -------------------------------------------------------------------------
     // INDEX — lista paginada con filtros
@@ -101,6 +105,12 @@ class CitasController extends Controller
         ]);
 
         Auditoria::registrar('crear', 'citas', $cita->id_cita, null, $cita->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($cita, 'reserva');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
 
         return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita registrada exitosamente.');
@@ -204,6 +214,12 @@ class CitasController extends Controller
 
         Auditoria::registrar('cancelar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
 
+        try {
+            $this->whatsapp->notificarCita($cita, 'cancelacion', $request->motivo_cancelacion);
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
         return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita cancelada correctamente.');
     }
@@ -276,6 +292,12 @@ class CitasController extends Controller
         Auditoria::registrar('reprogramar', 'citas', $cita->id_cita, ['estado_cita' => 'pendiente'], ['estado_cita' => 'reprogramada']);
         Auditoria::registrar('crear', 'citas', $nuevaCita->id_cita, null, $nuevaCita->toArray());
 
+        try {
+            $this->whatsapp->notificarCita($nuevaCita, 'reprogramacion');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
         return redirect()->route('citas.show', $nuevaCita)
             ->with('success', 'Cita reprogramada exitosamente.');
     }
@@ -293,6 +315,12 @@ class CitasController extends Controller
         $datosAnteriores = $cita->toArray();
         $cita->update(['estado_cita' => 'confirmada']);
         Auditoria::registrar('confirmar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($cita, 'confirmacion');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
 
         return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita confirmada exitosamente.');

@@ -51,6 +51,11 @@ class Cita extends Model
         return $this->hasMany(Cita::class, 'id_cita_reprogramada_desde', 'id_cita');
     }
 
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'id_cita', 'id_cita');
+    }
+
     public function pago()
     {
         return $this->hasOne(Pago::class, 'id_cita', 'id_cita')

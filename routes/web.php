@@ -82,5 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index')->middleware('permiso:acceso_auditoria');
 
     // Notificaciones
-    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index')->middleware('permiso:acceso_notificaciones');
+    Route::middleware('permiso:acceso_notificaciones')->group(function () {
+        Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+        Route::post('notificaciones/enviar/{cita}', [NotificacionController::class, 'enviar'])->name('notificaciones.enviar');
+        Route::post('notificaciones/enviar-hoy', [NotificacionController::class, 'enviarHoy'])->name('notificaciones.enviar-hoy');
+    });
 });

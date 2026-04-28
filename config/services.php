@@ -35,6 +35,11 @@ return [
         ],
     ],
 
+    'wapix' => [
+        'api_key' => env('WAPIX_API_KEY', ''),
+        'url'     => env('WAPIX_URL', 'https://wapix.blakor.tech/api/send-message'),
+    ],
+
     'veripagos' => [
         'secret_key'        => env('VERIPAGOS_SECRET_KEY', ''),
         'usuario'           => env('VERIPAGOS_USUARIO', ''),
