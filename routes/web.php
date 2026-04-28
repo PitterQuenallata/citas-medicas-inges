@@ -82,10 +82,24 @@ Route::middleware('auth')->group(function () {
     });
 
     // Reportes
-    Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index')->middleware('permiso:acceso_reportes');
+    Route::middleware('permiso:acceso_reportes')->prefix('reportes')->name('reportes.')->group(function () {
+        Route::get('/',                  [ReportesController::class, 'index'])->name('index');
+        Route::get('/citas',             [ReportesController::class, 'citas'])->name('citas');
+        Route::get('/medicos',           [ReportesController::class, 'medicos'])->name('medicos');
+        Route::get('/pacientes',         [ReportesController::class, 'pacientes'])->name('pacientes');
+        Route::get('/pagos',             [ReportesController::class, 'pagos'])->name('pagos');
+        Route::get('/especialidades',    [ReportesController::class, 'especialidades'])->name('especialidades');
+        Route::get('/notificaciones',    [ReportesController::class, 'notificaciones'])->name('notificaciones');
+        Route::get('/canceladas',        [ReportesController::class, 'canceladas'])->name('canceladas');
+        Route::get('/resumen-mensual',   [ReportesController::class, 'resumenMensual'])->name('resumen-mensual');
+        Route::get('/pdf/{tipo}',        [ReportesController::class, 'exportarPdf'])->name('pdf');
+    });
 
     // Auditoria
-    Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index')->middleware('permiso:acceso_auditoria');
+    Route::middleware('permiso:acceso_auditoria')->prefix('auditoria')->name('auditoria.')->group(function () {
+        Route::get('/',    [AuditoriaController::class, 'index'])->name('index');
+        Route::get('/pdf', [AuditoriaController::class, 'exportarPdf'])->name('pdf');
+    });
 
     // Notificaciones
     Route::middleware('permiso:acceso_notificaciones')->group(function () {

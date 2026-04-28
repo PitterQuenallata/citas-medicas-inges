@@ -5,7 +5,7 @@
             <div class="flex">
                 <a href="/">
                     <img class="size-11 transition-transform duration-500 ease-in-out hover:rotate-[360deg]"
-                        src="{{ asset('images/app-logo.svg') }}" alt="logo" />
+                        src="{{ asset('img/logo-clinica.svg') }}" alt="Logo Clínica" />
                 </a>
             </div>
             <button @click="$store.global.isSidebarExpanded = false"

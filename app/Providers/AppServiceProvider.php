@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\HeaderComposer;
 use App\Http\View\Composers\SidebarComposer;
 use App\Models\User;
 use Illuminate\Pagination\Paginator;
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer(
             ['components.app-partials.main-sidebar', 'components.app-partials.header', 'components.app-partials.sidebar-panel'],
             SidebarComposer::class
+        );
+
+        View::composer(
+            'components.app-partials.header',
+            HeaderComposer::class
         );
 
         $this->registrarGates();
