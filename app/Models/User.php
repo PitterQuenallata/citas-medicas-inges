@@ -87,6 +87,19 @@ class User extends Authenticatable
         return $this->permisosCache;
     }
 
+    public function esMedico(): bool
+    {
+        if (!isset($this->esMedicoCache)) {
+            $this->esMedicoCache = $this->roles()->where('nombre_rol', 'Medico')->exists();
+        }
+        return $this->esMedicoCache;
+    }
+
+    public function medicoProfile(): ?Medico
+    {
+        return $this->medico;
+    }
+
     public function tieneRelaciones(): bool
     {
         return $this->medico()->exists()
