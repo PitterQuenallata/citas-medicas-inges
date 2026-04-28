@@ -13,6 +13,7 @@ class SidebarComposer
             'title' => 'Citas',
             'items' => [[
                 ['title' => 'Lista de Citas',    'route_name' => 'citas.index'],
+                ['title' => 'Calendario',        'route_name' => 'citas.calendario'],
                 ['title' => 'Nueva Cita',        'route_name' => 'citas.create'],
                 ['title' => 'Agenda Medica',     'route_name' => 'agenda'],
             ]],
@@ -40,6 +41,16 @@ class SidebarComposer
                 ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
                 ['title' => 'Nuevo Paciente',    'route_name' => 'pacientes.create'],
                 ['title' => 'Historial Clinico', 'route_name' => 'historial.index'],
+            ]],
+        ];
+    }
+
+    private static function seccionPagos(): array
+    {
+        return [
+            'title' => 'Pagos',
+            'items' => [[
+                ['title' => 'Lista de Pagos',   'route_name' => 'pagos.index'],
             ]],
         ];
     }
@@ -94,6 +105,8 @@ class SidebarComposer
                 => self::seccionMedicos(),
             (str_starts_with($pageName, 'pacientes') || str_starts_with($pageName, 'historial')) && $user?->tienePermiso('acceso_pacientes')
                 => self::seccionPacientes(),
+            str_starts_with($pageName, 'pagos') && $user?->tienePermiso('acceso_citas')
+                => self::seccionPagos(),
             (str_starts_with($pageName, 'usuarios') || str_starts_with($pageName, 'roles') || str_starts_with($pageName, 'permisos')) && $user?->tienePermiso('acceso_usuarios')
                 => self::seccionAdmin(),
             str_starts_with($pageName, 'notificaciones') && $user?->tienePermiso('acceso_notificaciones')
