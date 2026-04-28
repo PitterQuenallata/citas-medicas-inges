@@ -8,6 +8,7 @@ use App\Models\Cita;
 use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\Paciente;
+use App\Models\Auditoria;
 use App\Services\DisponibilidadService;
 use Illuminate\Http\Request;
 
@@ -86,7 +87,7 @@ class CitasController extends Controller
             return back()->withInput()->withErrors(['disponibilidad' => $errores]);
         }
 
-        Cita::create([
+        $cita = Cita::create([
             'codigo_cita'        => Cita::generarCodigo(),
             'id_paciente'        => $request->id_paciente,
             'id_medico'          => $request->id_medico,
@@ -99,7 +100,9 @@ class CitasController extends Controller
             'estado_cita'        => 'pendiente',
         ]);
 
-        return redirect()->route('citas.index')
+        Auditoria::registrar('crear', 'citas', $cita->id_cita, null, $cita->toArray());
+
+        return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita registrada exitosamente.');
     }
 
@@ -108,7 +111,7 @@ class CitasController extends Controller
     // -------------------------------------------------------------------------
     public function show(Cita $cita)
     {
-        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal']);
+        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal', 'reprogramaciones']);
         return view('citas.show', compact('cita'));
     }
 
@@ -156,6 +159,8 @@ class CitasController extends Controller
             return back()->withInput()->withErrors(['disponibilidad' => $errores]);
         }
 
+        $datosAnteriores = $cita->toArray();
+
         $cita->update([
             'id_paciente'     => $request->id_paciente,
             'id_medico'       => $request->id_medico,
@@ -166,6 +171,8 @@ class CitasController extends Controller
             'observaciones'   => $request->observaciones,
             'estado_cita'     => $request->estado_cita ?? $cita->estado_cita,
         ]);
+
+        Auditoria::registrar('editar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
 
         return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita actualizada exitosamente.');
@@ -187,13 +194,17 @@ class CitasController extends Controller
             'motivo_cancelacion.required' => 'Debe indicar el motivo de cancelación.',
         ]);
 
+        $datosAnteriores = $cita->toArray();
+
         $cita->update([
             'estado_cita'       => 'cancelada',
             'fecha_cancelacion' => now(),
             'motivo_cancelacion'=> $request->motivo_cancelacion,
         ]);
 
-        return redirect()->route('citas.index')
+        Auditoria::registrar('cancelar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita cancelada correctamente.');
     }
 
@@ -262,8 +273,47 @@ class CitasController extends Controller
 
         $cita->update(['estado_cita' => 'reprogramada']);
 
+        Auditoria::registrar('reprogramar', 'citas', $cita->id_cita, ['estado_cita' => 'pendiente'], ['estado_cita' => 'reprogramada']);
+        Auditoria::registrar('crear', 'citas', $nuevaCita->id_cita, null, $nuevaCita->toArray());
+
         return redirect()->route('citas.show', $nuevaCita)
             ->with('success', 'Cita reprogramada exitosamente.');
+    }
+
+    // -------------------------------------------------------------------------
+    // CONFIRMAR
+    // -------------------------------------------------------------------------
+    public function confirmar(Cita $cita)
+    {
+        if ($cita->estado_cita !== 'pendiente') {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden confirmar citas pendientes.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'confirmada']);
+        Auditoria::registrar('confirmar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita confirmada exitosamente.');
+    }
+
+    // -------------------------------------------------------------------------
+    // ATENDER
+    // -------------------------------------------------------------------------
+    public function atender(Cita $cita)
+    {
+        if ($cita->estado_cita !== 'confirmada') {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden atender citas confirmadas.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'atendida']);
+        Auditoria::registrar('atender', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita marcada como atendida.');
     }
 
     // -------------------------------------------------------------------------
@@ -307,24 +357,18 @@ class CitasController extends Controller
     {
         $medicos  = Medico::where('estado', 'activo')->orderBy('apellidos')->get();
         $fecha    = $request->input('fecha', today()->format('Y-m-d'));
-        $medicoId = $request->input('id_medico');
+        $medicoId = $request->input('medico_id');
 
-        $citas = collect();
-        $horarios = collect();
+        $query = Cita::with(['paciente', 'medico.especialidades'])
+            ->where('fecha_cita', $fecha)
+            ->orderBy('hora_inicio');
 
         if ($medicoId) {
-            $citas = Cita::with('paciente')
-                ->where('id_medico', $medicoId)
-                ->where('fecha_cita', $fecha)
-                ->orderBy('hora_inicio')
-                ->get();
-
-            $diaSemana = \Carbon\Carbon::parse($fecha)->dayOfWeekIso;
-            $horarios  = \App\Models\HorarioMedico::where('id_medico', $medicoId)
-                ->where('dia_semana', $diaSemana)
-                ->where('activo', true)
-                ->get();
+            $query->where('id_medico', $medicoId);
         }
+
+        $citas    = $query->get();
+        $horarios = collect();
 
         return view('agenda.index', compact('medicos', 'fecha', 'medicoId', 'citas', 'horarios'));
     }

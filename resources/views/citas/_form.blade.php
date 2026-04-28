@@ -1,13 +1,13 @@
 {{-- ============================================================
-     Partial: _form.blade.php
+     Partial: _form.blade.php (Line One / TailwindCSS)
      Variables esperadas: $pacientes, $especialidades
      Opcional: $cita (para edición, incluye medico.especialidades cargado)
      ============================================================ --}}
 
 @if($errors->has('disponibilidad'))
-    <div class="alert-disponibilidad mb-4 p-3">
+    <div class="mb-4 rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
         <strong>Conflicto de disponibilidad:</strong>
-        <ul class="mb-0 mt-1 ps-3">
+        <ul class="mt-1 list-disc pl-4">
             @foreach($errors->get('disponibilidad') as $err)
                 @foreach((array)$err as $msg)
                     <li>{{ $msg }}</li>
@@ -17,7 +17,6 @@
     </div>
 @endif
 
-{{-- Valores de pre-llenado para modo edición --}}
 @php
     $editMedicoId       = old('id_medico',   isset($cita) ? $cita->id_medico : '');
     $editFecha          = old('fecha_cita',  isset($cita) ? $cita->fecha_cita->format('Y-m-d') : '');
@@ -27,13 +26,13 @@
     $excluirCitaId      = isset($cita) ? $cita->id_cita : null;
 @endphp
 
-<div class="row g-4">
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
     {{-- Paciente --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_paciente">Paciente</label>
-        <select name="id_paciente" id="id_paciente"
-                class="form-select @error('id_paciente') is-invalid @enderror" required>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Paciente <span class="text-error">*</span></span>
+        <select name="id_paciente" id="id_paciente" required
+            class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400">
             <option value="">— Seleccionar paciente —</option>
             @foreach($pacientes as $pac)
                 <option value="{{ $pac->id_paciente }}"
@@ -44,14 +43,15 @@
             @endforeach
         </select>
         @error('id_paciente')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <span class="text-xs text-error">{{ $message }}</span>
         @enderror
-    </div>
+    </label>
 
     {{-- Especialidad --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_especialidad">Especialidad</label>
-        <select id="id_especialidad" class="form-select">
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Especialidad <span class="text-error">*</span></span>
+        <select id="id_especialidad"
+            class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400">
             <option value="">— Seleccionar especialidad —</option>
             @foreach($especialidades as $esp)
                 <option value="{{ $esp->id_especialidad }}"
@@ -60,87 +60,76 @@
                 </option>
             @endforeach
         </select>
-        <div id="esp-msg" class="form-text text-muted" style="display:none;">Sin médicos activos para esta especialidad.</div>
-    </div>
+        <span id="esp-msg" class="hidden text-xs text-warning mt-1">Sin medicos activos para esta especialidad.</span>
+    </label>
 
-    {{-- Médico (se llena por AJAX) --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="id_medico">Médico</label>
-        <select name="id_medico" id="id_medico"
-                class="form-select @error('id_medico') is-invalid @enderror" required
-                {{ !$editMedicoId ? 'disabled' : '' }}>
+    {{-- Médico (AJAX) --}}
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Medico <span class="text-error">*</span></span>
+        <select name="id_medico" id="id_medico" required {{ !$editMedicoId ? 'disabled' : '' }}
+            class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400 disabled:opacity-60">
             <option value="">— Primero selecciona una especialidad —</option>
         </select>
         @error('id_medico')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <span class="text-xs text-error">{{ $message }}</span>
         @enderror
-    </div>
+    </label>
 
     {{-- Fecha --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="fecha_cita">Fecha de la cita</label>
-        <input type="date" name="fecha_cita" id="fecha_cita"
-               class="form-control @error('fecha_cita') is-invalid @enderror"
-               value="{{ $editFecha }}"
-               min="{{ date('Y-m-d') }}" required
-               {{ !$editMedicoId ? 'disabled' : '' }}>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Fecha de la cita <span class="text-error">*</span></span>
+        <input type="date" name="fecha_cita" id="fecha_cita" required
+            value="{{ $editFecha }}" min="{{ date('Y-m-d') }}"
+            {{ !$editMedicoId ? 'disabled' : '' }}
+            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400 disabled:opacity-60" />
         @error('fecha_cita')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <span class="text-xs text-error">{{ $message }}</span>
         @enderror
-    </div>
+    </label>
 
     {{-- Slots de horario --}}
-    <div class="col-12">
-        <label class="form-label-citas">Horario disponible</label>
+    <div class="sm:col-span-2">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Horario disponible <span class="text-error">*</span></span>
+        <input type="hidden" name="hora_inicio" id="hora_inicio" value="{{ $editHoraInicio }}">
+        <input type="hidden" name="hora_fin"    id="hora_fin"    value="{{ $editHoraFin }}">
 
-        {{-- Hidden inputs que se envían al servidor --}}
-        <input type="hidden" name="hora_inicio" id="hora_inicio" value="{{ $editHoraInicio }}" required>
-        <input type="hidden" name="hora_fin"    id="hora_fin"    value="{{ $editHoraFin }}"    required>
-
-        <div id="slots-container">
-            @if($editHoraInicio && $editHoraFin)
-                <div id="slot-selected-label" class="mb-2">
-                    <span class="badge-estado badge-confirmada" style="font-size:.875rem;padding:.4em .8em;">
-                        ✓ {{ $editHoraInicio }} – {{ $editHoraFin }}
-                    </span>
-                </div>
-            @endif
-            <div id="slots-grid" class="d-flex flex-wrap gap-2"></div>
-            <div id="slots-msg" class="text-muted small mt-1"></div>
+        <div id="slots-container" class="mt-2">
+            <div id="slots-grid" class="flex flex-wrap gap-2"></div>
+            <div id="slots-msg" class="mt-2 text-xs text-slate-400 dark:text-navy-300"></div>
         </div>
-
         @error('hora_inicio')
-            <div class="text-danger small mt-1">{{ $message }}</div>
+            <span class="text-xs text-error mt-1">{{ $message }}</span>
         @enderror
     </div>
 
     {{-- Motivo --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="motivo_consulta">Motivo de consulta</label>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Motivo de consulta</span>
         <textarea name="motivo_consulta" id="motivo_consulta" rows="3"
-                  class="form-control @error('motivo_consulta') is-invalid @enderror"
-                  placeholder="Describa brevemente el motivo de la consulta…">{{ old('motivo_consulta', $cita->motivo_consulta ?? '') }}</textarea>
+            placeholder="Describa brevemente el motivo..."
+            class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400">{{ old('motivo_consulta', $cita->motivo_consulta ?? '') }}</textarea>
         @error('motivo_consulta')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <span class="text-xs text-error">{{ $message }}</span>
         @enderror
-    </div>
+    </label>
 
     {{-- Observaciones --}}
-    <div class="col-md-6">
-        <label class="form-label-citas" for="observaciones">Observaciones</label>
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Observaciones</span>
         <textarea name="observaciones" id="observaciones" rows="3"
-                  class="form-control @error('observaciones') is-invalid @enderror"
-                  placeholder="Notas adicionales…">{{ old('observaciones', $cita->observaciones ?? '') }}</textarea>
+            placeholder="Notas adicionales..."
+            class="form-textarea mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400">{{ old('observaciones', $cita->observaciones ?? '') }}</textarea>
         @error('observaciones')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <span class="text-xs text-error">{{ $message }}</span>
         @enderror
-    </div>
+    </label>
 
     {{-- Estado (solo edición) --}}
     @if(isset($cita))
-    <div class="col-md-4">
-        <label class="form-label-citas" for="estado_cita">Estado</label>
-        <select name="estado_cita" id="estado_cita" class="form-select">
+    <label class="block">
+        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Estado</span>
+        <select name="estado_cita" id="estado_cita"
+            class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:bg-navy-700 dark:hover:border-navy-400">
             @foreach(['pendiente','confirmada','atendida','no_asistio'] as $est)
                 <option value="{{ $est }}"
                     {{ old('estado_cita', $cita->estado_cita) === $est ? 'selected' : '' }}>
@@ -148,9 +137,8 @@
                 </option>
             @endforeach
         </select>
-    </div>
+    </label>
     @endif
-
 </div>
 
 @push('scripts')
@@ -166,15 +154,13 @@
     const espMsg    = document.getElementById('esp-msg');
     const excluirId = {{ $excluirCitaId ?? 'null' }};
 
-    // ── Especialidad cambia → cargar médicos ──────────────────────────────
     selEsp.addEventListener('change', async () => {
         const espId = selEsp.value;
         resetMedico();
         resetSlots();
-
         if (!espId) return;
 
-        selMedico.innerHTML = '<option value="">Cargando…</option>';
+        selMedico.innerHTML = '<option value="">Cargando...</option>';
         selMedico.disabled  = true;
 
         try {
@@ -182,40 +168,37 @@
             const lista = await res.json();
 
             if (!lista.length) {
-                selMedico.innerHTML = '<option value="">Sin médicos para esta especialidad</option>';
-                espMsg.style.display = 'block';
+                selMedico.innerHTML = '<option value="">Sin medicos para esta especialidad</option>';
+                espMsg.classList.remove('hidden');
                 return;
             }
 
-            espMsg.style.display = 'none';
-            selMedico.innerHTML  = '<option value="">— Seleccionar médico —</option>';
+            espMsg.classList.add('hidden');
+            selMedico.innerHTML = '<option value="">— Seleccionar medico —</option>';
             lista.forEach(m => {
-                const opt    = document.createElement('option');
-                opt.value    = m.id;
+                const opt = document.createElement('option');
+                opt.value = m.id;
                 opt.textContent = m.nombre;
                 selMedico.appendChild(opt);
             });
             selMedico.disabled = false;
             inpFecha.disabled  = false;
 
-            // En modo edición: pre-seleccionar médico si corresponde
             const premedico = '{{ $editMedicoId }}';
             if (premedico) {
                 selMedico.value = premedico;
-                // Cargar slots si ya hay fecha
                 if (inpFecha.value) cargarSlots();
             }
         } catch (e) {
-            selMedico.innerHTML = '<option value="">Error al cargar médicos</option>';
+            selMedico.innerHTML = '<option value="">Error al cargar medicos</option>';
         }
     });
 
-    // ── Médico o fecha cambia → cargar slots ─────────────────────────────
     selMedico.addEventListener('change', () => { resetSlots(); if (selMedico.value && inpFecha.value) cargarSlots(); });
     inpFecha.addEventListener('change',  () => { resetSlots(); if (selMedico.value && inpFecha.value) cargarSlots(); });
 
     async function cargarSlots() {
-        slotsGrid.innerHTML = '<span class="text-muted small">Cargando horarios…</span>';
+        slotsGrid.innerHTML = '<span class="text-xs text-slate-400">Cargando horarios...</span>';
         slotsMsg.textContent = '';
 
         const params = new URLSearchParams({ fecha: inpFecha.value });
@@ -226,11 +209,10 @@
             const slots = await res.json();
 
             if (!slots.length) {
-                slotsGrid.innerHTML  = '';
-                slotsMsg.textContent = 'El médico no tiene horario configurado para este día.';
+                slotsGrid.innerHTML = '';
+                slotsMsg.textContent = 'El medico no tiene horario configurado para este dia.';
                 return;
             }
-
             renderSlots(slots);
         } catch (e) {
             slotsGrid.innerHTML = '';
@@ -244,37 +226,34 @@
 
         slots.forEach(s => {
             const btn = document.createElement('button');
-            btn.type  = 'button';
+            btn.type = 'button';
             btn.textContent = `${s.hora_inicio} – ${s.hora_fin}`;
-            btn.className   = 'btn btn-sm slot-btn';
 
             if (!s.disponible) {
-                btn.disabled  = true;
-                btn.classList.add('slot-ocupado');
-                btn.title     = 'Horario ocupado';
+                btn.className = 'btn rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-400 line-through cursor-not-allowed dark:border-navy-500 dark:text-navy-400';
+                btn.disabled = true;
+                btn.title = 'Horario ocupado';
             } else {
-                btn.classList.add('slot-libre');
+                btn.className = 'btn rounded-full border border-primary px-3 py-1.5 text-xs text-primary hover:bg-primary hover:text-white dark:border-accent dark:text-accent dark:hover:bg-accent dark:hover:text-white transition-colors slot-libre';
                 btn.addEventListener('click', () => seleccionarSlot(btn, s.hora_inicio, s.hora_fin));
 
-                // Pre-seleccionar slot en edición
                 if (preHi && preHi === s.hora_inicio) {
                     seleccionarSlot(btn, s.hora_inicio, s.hora_fin);
                 }
             }
-
             slotsGrid.appendChild(btn);
         });
 
         if (!slots.some(s => s.disponible)) {
-            slotsMsg.textContent = 'No hay horarios disponibles para este día.';
+            slotsMsg.textContent = 'No hay horarios disponibles para este dia.';
         }
     }
 
     function seleccionarSlot(btn, hi, hf) {
-        document.querySelectorAll('.slot-btn.slot-seleccionado').forEach(b => {
-            b.classList.remove('slot-seleccionado');
+        document.querySelectorAll('.slot-libre').forEach(b => {
+            b.className = 'btn rounded-full border border-primary px-3 py-1.5 text-xs text-primary hover:bg-primary hover:text-white dark:border-accent dark:text-accent dark:hover:bg-accent dark:hover:text-white transition-colors slot-libre';
         });
-        btn.classList.add('slot-seleccionado');
+        btn.className = 'btn rounded-full bg-primary px-3 py-1.5 text-xs text-white dark:bg-accent slot-libre slot-selected';
         inpHi.value = hi;
         inpHf.value = hf;
         slotsMsg.textContent = '';
@@ -282,19 +261,18 @@
 
     function resetMedico() {
         selMedico.innerHTML = '<option value="">— Primero selecciona una especialidad —</option>';
-        selMedico.disabled  = true;
-        inpFecha.disabled   = true;
-        espMsg.style.display = 'none';
+        selMedico.disabled = true;
+        inpFecha.disabled = true;
+        espMsg.classList.add('hidden');
     }
 
     function resetSlots() {
-        slotsGrid.innerHTML  = '';
+        slotsGrid.innerHTML = '';
         slotsMsg.textContent = '';
         inpHi.value = '';
         inpHf.value = '';
     }
 
-    // ── Inicializar en modo edición ───────────────────────────────────────
     const preEsp = '{{ $editEspId }}';
     if (preEsp) {
         selEsp.value = preEsp;
