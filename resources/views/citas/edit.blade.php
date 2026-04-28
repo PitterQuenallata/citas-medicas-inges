@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Editar Cita')
+@section('title', 'Modificar Cita')
 
 @section('content')
 <div class="flex items-center gap-2 pb-4">
@@ -10,7 +10,7 @@
 </div>
 
 <div class="card p-4 sm:p-5">
-    <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-6">Editar Cita</h3>
+    <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-6">Modificar cita</h3>
 
     <form method="POST" action="{{ route('citas.update', $cita->id_cita) }}">
         @csrf
@@ -23,7 +23,7 @@
                 Actualizar
             </button>
             <a href="{{ route('citas.show', $cita->id_cita) }}" class="btn border border-slate-300 px-5 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
-                Cancelar
+                Regresar
             </a>
         </div>
     </form>

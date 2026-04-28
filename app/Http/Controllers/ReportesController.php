@@ -62,7 +62,10 @@ class ReportesController extends Controller
                 ->toArray();
 
             $medicos = Medico::query()->orderBy('nombres')->orderBy('apellidos')->get();
-            $especialidades = Especialidad::query()->orderBy('nombre')->get();
+            $especialidades = Especialidad::query()
+                ->select(['id_especialidad', 'nombre_especialidad as nombre'])
+                ->orderBy('nombre_especialidad')
+                ->get();
         }
 
         if ($tipo === 'pacientes') {

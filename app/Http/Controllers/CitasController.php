@@ -128,7 +128,7 @@ class CitasController extends Controller
         $especialidades = Especialidad::where('estado', 'activo')
             ->orderBy('nombre_especialidad')->get();
 
-        return view('citas.edit', compact('cita', 'pacientes', 'especialidades'));
+        return view('citas.modificar', compact('cita', 'pacientes', 'especialidades'));
     }
 
     // -------------------------------------------------------------------------
@@ -167,7 +167,7 @@ class CitasController extends Controller
             'estado_cita'     => $request->estado_cita ?? $cita->estado_cita,
         ]);
 
-        return redirect()->route('citas.show', $cita)
+        return redirect()->route('citas.index')
             ->with('success', 'Cita actualizada exitosamente.');
     }
 

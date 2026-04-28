@@ -37,7 +37,14 @@ class HistorialController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('historial.show', compact('paciente', 'consultas'));
+        $citas = Cita::with(['medico'])
+            ->where('id_paciente', $paciente->id_paciente)
+            ->orderByDesc('fecha_cita')
+            ->orderByDesc('hora_inicio')
+            ->limit(20)
+            ->get();
+
+        return view('historial.show', compact('paciente', 'consultas', 'citas'));
     }
 
     public function create(Paciente $paciente)

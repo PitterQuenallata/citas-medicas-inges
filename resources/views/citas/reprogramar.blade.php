@@ -64,7 +64,7 @@
             <button type="submit" class="btn bg-primary px-5 text-sm font-medium text-white hover:bg-primary-focus">
                 Reprogramar
             </button>
-            <a href="{{ route('citas.show', $cita->id_cita) }}" class="btn border border-slate-300 px-5 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
+            <a href="{{ route('citas.index') }}" class="btn border border-slate-300 px-5 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
                 Cancelar
             </a>
         </div>

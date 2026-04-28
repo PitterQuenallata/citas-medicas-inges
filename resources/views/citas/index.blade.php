@@ -82,15 +82,18 @@
                                 <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
                             @if(!in_array($cita->estado_cita, ['cancelada','atendida']))
-                            <a href="{{ route('citas.edit', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
+                            <a href="{{ route('citas.edit', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Modificar horario">
                                 <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
-                            <form method="POST" action="{{ route('citas.cancelar', $cita->id_cita) }}" onsubmit="return confirm('¿Cancelar esta cita?')">
-                                @csrf @method('PATCH')
-                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Cancelar">
-                                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                            </form>
+                            <a href="{{ route('citas.reprogramar', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-slate-500 hover:bg-slate-100" title="Reprogramar">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-2.636-6.364"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 3v6h-6"/>
+                                </svg>
+                            </a>
+                            <a href="{{ route('citas.show', $cita->id_cita) }}" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Cancelar cita">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </a>
                             @endif
                         </div>
                     </td>

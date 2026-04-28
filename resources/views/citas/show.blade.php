@@ -18,17 +18,6 @@
                 {{ $cita->hora_inicio ? substr($cita->hora_inicio, 0, 5) : '' }} - {{ $cita->hora_fin ? substr($cita->hora_fin, 0, 5) : '' }}
             </p>
         </div>
-
-        <div class="flex gap-2">
-            @if(!in_array($cita->estado_cita, ['cancelada','atendida','reprogramada']))
-                <a href="{{ route('citas.edit', $cita->id_cita) }}" class="btn bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
-                    Editar
-                </a>
-                <a href="{{ route('citas.reprogramar', $cita->id_cita) }}" class="btn border border-slate-300 px-4 text-sm font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
-                    Reprogramar
-                </a>
-            @endif
-        </div>
     </div>
 
     <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -90,20 +79,15 @@
         </div>
     @endif
 
-    @if(!in_array($cita->estado_cita, ['cancelada','atendida']))
-        <div class="mt-6 rounded-lg border border-slate-200 p-4 dark:border-navy-500">
-            <h4 class="text-sm font-medium text-slate-700 dark:text-navy-100 mb-3">Cancelar cita</h4>
-            <form method="POST" action="{{ route('citas.cancelar', $cita->id_cita) }}" onsubmit="return confirm('¿Cancelar esta cita?')" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                @csrf
-                @method('PATCH')
-                <input type="text" name="motivo_cancelacion" required placeholder="Motivo de cancelación"
-                    class="form-input h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('motivo_cancelacion') border-error @enderror" />
-                <button type="submit" class="btn h-9 bg-error px-4 text-sm font-medium text-white hover:bg-error-focus">
-                    Cancelar
-                </button>
-            </form>
-            @error('motivo_cancelacion')<p class="mt-2 text-xs text-error">{{ $message }}</p>@enderror
-        </div>
-    @endif
+    <div class="mt-6 rounded-lg border border-slate-200 p-4 dark:border-navy-500">
+        <h4 class="text-sm font-medium text-slate-700 dark:text-navy-100 mb-3">Historial clínico</h4>
+        @if($cita->paciente)
+            <a href="{{ route('historial.show', $cita->paciente->id_paciente) }}" class="btn bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
+                Ver historial
+            </a>
+        @else
+            <p class="text-sm text-slate-500 dark:text-navy-300">No se encontró paciente para esta cita.</p>
+        @endif
+    </div>
 </div>
 @endsection

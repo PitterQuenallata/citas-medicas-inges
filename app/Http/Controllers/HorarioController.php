@@ -52,7 +52,7 @@ class HorarioController extends Controller
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
             'duracion_cita_minutos' => $request->duracion_cita_minutos,
-            'activo' => (bool) $request->activo,
+            'activo' => $request->boolean('activo'),
         ]);
 
         return redirect()->route('horarios.index')
@@ -84,7 +84,7 @@ class HorarioController extends Controller
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
             'duracion_cita_minutos' => $request->duracion_cita_minutos,
-            'activo' => (bool) $request->activo,
+            'activo' => $request->boolean('activo'),
         ]);
 
         return redirect()->route('horarios.index')
