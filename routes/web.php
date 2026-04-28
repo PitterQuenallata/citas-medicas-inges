@@ -15,6 +15,7 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\PagoController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -29,12 +30,15 @@ Route::middleware('auth')->group(function () {
 
     // Citas
     Route::middleware('permiso:acceso_citas')->group(function () {
+        Route::get('citas/calendario', [CitasController::class, 'calendario'])->name('citas.calendario');
+        Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
         Route::resource('citas', CitasController::class);
         Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
         Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
         Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
         Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
         Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
+        Route::get('citas/{cita}/ticket', [CitasController::class, 'ticket'])->name('citas.ticket');
         Route::get('agenda', [CitasController::class, 'agenda'])->name('agenda');
         Route::get('api/medicos/{medico}/disponibilidad',       [CitasController::class, 'disponibilidad'])->name('api.disponibilidad');
         Route::get('api/medicos/{medico}/slots',                [CitasController::class, 'slots'])->name('api.slots');
@@ -53,7 +57,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('pacientes', PacienteController::class);
         Route::patch('pacientes/{paciente}/activar', [PacienteController::class, 'activar'])->name('pacientes.activar');
         Route::get('/validar-ci', [PacienteController::class, 'validarCI'])->name('validar.ci');
-        Route::resource('historial', HistorialController::class)->only(['index', 'show']);
+        Route::get('historial', [HistorialController::class, 'index'])->name('historial.index');
+        Route::get('historial/{paciente}', [HistorialController::class, 'show'])->name('historial.show');
+        Route::get('historial/{paciente}/consultas/create', [HistorialController::class, 'create'])->name('historial.consultas.create');
+        Route::post('historial/{paciente}/consultas', [HistorialController::class, 'store'])->name('historial.consultas.store');
+        Route::get('historial/consultas/{consulta}/edit', [HistorialController::class, 'edit'])->name('historial.consultas.edit');
+        Route::put('historial/consultas/{consulta}', [HistorialController::class, 'update'])->name('historial.consultas.update');
     });
 
     // Administracion: Usuarios, Roles, Permisos
@@ -64,6 +73,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('permisos', PermisoController::class)->only(['index']);
     });
 
+    // Pagos
+    Route::middleware('permiso:acceso_citas')->group(function () {
+        Route::get('pagos', [PagoController::class, 'index'])->name('pagos.index');
+        Route::get('pagos/{pago}', [PagoController::class, 'show'])->name('pagos.show');
+        Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
+        Route::patch('pagos/{pago}/anular', [PagoController::class, 'anular'])->name('pagos.anular');
+        Route::get('pagos/{pago}/recibo', [PagoController::class, 'recibo'])->name('pagos.recibo');
+        Route::post('api/pagos/generar-qr', [PagoController::class, 'generarQR'])->name('api.pagos.generar-qr');
+        Route::get('api/pagos/verificar-qr/{movimientoId}', [PagoController::class, 'verificarQR'])->name('api.pagos.verificar-qr');
+    });
+
     // Reportes
     Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index')->middleware('permiso:acceso_reportes');
 
@@ -71,5 +91,9 @@ Route::middleware('auth')->group(function () {
     Route::get('auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index')->middleware('permiso:acceso_auditoria');
 
     // Notificaciones
-    Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index')->middleware('permiso:acceso_notificaciones');
+    Route::middleware('permiso:acceso_notificaciones')->group(function () {
+        Route::get('notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+        Route::post('notificaciones/enviar/{cita}', [NotificacionController::class, 'enviar'])->name('notificaciones.enviar');
+        Route::post('notificaciones/enviar-hoy', [NotificacionController::class, 'enviarHoy'])->name('notificaciones.enviar-hoy');
+    });
 });

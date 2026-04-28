@@ -13,7 +13,12 @@ class Especialidad extends Model
     protected $fillable = [
         'nombre_especialidad',
         'descripcion',
+        'costo_consulta',
         'estado',
+    ];
+
+    protected $casts = [
+        'costo_consulta' => 'decimal:2',
     ];
 
     public function medicos(): BelongsToMany
