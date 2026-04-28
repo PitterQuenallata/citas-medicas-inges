@@ -70,6 +70,11 @@
                             <a href="{{ route('pagos.show', $pago->id_pago) }}" class="btn size-8 rounded-full p-0 text-slate-500 hover:bg-slate-100" title="Ver detalle">
                                 <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
+                            @if($pago->estado_pago === 'pendiente' && $pago->metodo_pago === 'qr' && $pago->referencia_externa)
+                            <button type="button" class="btn size-8 rounded-full p-0 text-info hover:bg-info/10 btn-verificar-qr" data-movimiento="{{ $pago->referencia_externa }}" title="Verificar QR">
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </button>
+                            @endif
                             @if($pago->estado_pago === 'pagado')
                             <button type="button" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10 btn-anular-pago" data-id="{{ $pago->id_pago }}" title="Anular">
                                 <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -107,6 +112,52 @@ document.addEventListener('DOMContentLoaded', () => {
         Swal.fire({ title: 'Error', text: @json(session('error')), icon: 'error', confirmButtonColor: '#4f46e5' });
     @endif
 
+    // ── Verificar QR ──
+    document.querySelectorAll('.btn-verificar-qr').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const movId = this.dataset.movimiento;
+            const btnEl = this;
+
+            // Spinner en el botón
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<svg class="size-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>';
+
+            try {
+                const res = await fetch(`/api/pagos/verificar-qr/${movId}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+
+                if (data.success && data.estado === 'pagado') {
+                    Swal.fire({
+                        title: 'Pago confirmado',
+                        html: 'El QR fue pagado exitosamente.<br>La pagina se recargara.',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5',
+                    }).then(() => location.reload());
+                } else if (data.success) {
+                    Swal.fire({
+                        title: 'QR aun no pagado',
+                        text: `Estado actual: ${data.estado || 'pendiente'}`,
+                        icon: 'info',
+                        confirmButtonColor: '#4f46e5',
+                    });
+                } else {
+                    Swal.fire('Error', data.error || 'No se pudo verificar', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Error de conexion al verificar QR', 'error');
+            } finally {
+                btnEl.disabled = false;
+                btnEl.innerHTML = '<svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            }
+        });
+    });
+
+    // ── Anular pago ──
     document.querySelectorAll('.btn-anular-pago').forEach(btn => {
         btn.addEventListener('click', function() {
             const pagoId = this.dataset.id;

@@ -89,9 +89,10 @@ class VeriPagosService
             if ($result && ($result['Codigo'] ?? -1) === 0) {
                 $data = $result['Data'] ?? [];
                 return [
-                    'success' => true,
-                    'data'    => $data,
-                    'estado'  => $data['estado'] ?? $data['Estado'] ?? 'pendiente',
+                    'success'   => true,
+                    'data'      => $data,
+                    'estado'    => $data['estado'] ?? $data['Estado'] ?? 'pendiente',
+                    'remitente' => $data['remitente'] ?? null,
                 ];
             }
 

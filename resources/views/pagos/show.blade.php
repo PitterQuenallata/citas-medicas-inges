@@ -14,6 +14,9 @@
     </div>
 
     <div class="flex items-center gap-2">
+        @if($pago->estado_pago === 'pendiente' && $pago->metodo_pago === 'qr' && $pago->referencia_externa)
+            <button type="button" id="btn-verificar-qr-show" class="btn h-8 rounded-full bg-info px-4 text-xs font-medium text-white hover:bg-info/90" data-movimiento="{{ $pago->referencia_externa }}">Verificar QR</button>
+        @endif
         @if($pago->estado_pago === 'pagado')
             <button type="button" class="btn h-8 rounded-full bg-error px-4 text-xs font-medium text-white hover:bg-error/90 btn-anular-pago" data-id="{{ $pago->id_pago }}">Anular Pago</button>
         @endif
@@ -148,6 +151,51 @@ document.addEventListener('DOMContentLoaded', () => {
         Swal.fire({ title: 'Error', text: @json(session('error')), icon: 'error', confirmButtonColor: '#4f46e5' });
     @endif
 
+    // ── Verificar QR ──
+    const btnVerificar = document.getElementById('btn-verificar-qr-show');
+    if (btnVerificar) {
+        btnVerificar.addEventListener('click', async function() {
+            const movId = this.dataset.movimiento;
+            const originalText = this.textContent;
+            this.disabled = true;
+            this.textContent = 'Verificando...';
+
+            try {
+                const res = await fetch(`/api/pagos/verificar-qr/${movId}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+
+                if (data.success && data.estado === 'pagado') {
+                    Swal.fire({
+                        title: 'Pago confirmado',
+                        html: 'El QR fue pagado exitosamente.<br>La pagina se recargara.',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5',
+                    }).then(() => location.reload());
+                } else if (data.success) {
+                    Swal.fire({
+                        title: 'QR aun no pagado',
+                        text: `Estado actual: ${data.estado || 'pendiente'}`,
+                        icon: 'info',
+                        confirmButtonColor: '#4f46e5',
+                    });
+                } else {
+                    Swal.fire('Error', data.error || 'No se pudo verificar', 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', 'Error de conexion al verificar QR', 'error');
+            } finally {
+                this.disabled = false;
+                this.textContent = originalText;
+            }
+        });
+    }
+
+    // ── Anular pago ──
     document.querySelectorAll('.btn-anular-pago').forEach(btn => {
         btn.addEventListener('click', function() {
             const pagoId = this.dataset.id;

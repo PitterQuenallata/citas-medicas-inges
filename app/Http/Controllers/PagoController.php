@@ -205,12 +205,11 @@ class PagoController extends Controller
 
         if (in_array($estadoVP, ['completado', 'pagado', 'aprobado'])) {
             $datosAnteriores = $pago->toArray();
-            $dataVP = $resultado['data'] ?? [];
 
             $pago->update([
                 'estado_pago'     => 'pagado',
                 'fecha_pago'      => now(),
-                'datos_remitente' => $dataVP['remitente'] ?? $dataVP['datos_remitente'] ?? null,
+                'datos_remitente' => $resultado['remitente'] ?? null,
             ]);
 
             Auditoria::registrar('confirmar_pago_qr', 'pagos', $pago->id_pago, $datosAnteriores, $pago->fresh()->toArray());
@@ -231,16 +230,28 @@ class PagoController extends Controller
     // -------------------------------------------------------------------------
     // WEBHOOK — callback de VeriPagos (opcional)
     // -------------------------------------------------------------------------
+    /**
+     * Webhook de VeriPagos — recibe notificación cuando un QR es pagado.
+     * Formato esperado:
+     * {
+     *   "movimiento_id": 99,
+     *   "monto": 1000,
+     *   "detalle": "...",
+     *   "estado": "Completado",
+     *   "data": [],
+     *   "remitente": { "nombre": "...", "banco": "...", "documento": "...", "cuenta": "..." }
+     * }
+     */
     public function webhook(Request $request)
     {
-        $movimientoId = $request->input('movimiento_id') ?? $request->input('id');
+        $movimientoId = $request->input('movimiento_id');
         $estado       = $request->input('estado');
 
         if (!$movimientoId || !$estado) {
             return response()->json(['message' => 'Datos incompletos'], 400);
         }
 
-        $pago = Pago::where('referencia_externa', $movimientoId)
+        $pago = Pago::where('referencia_externa', (string) $movimientoId)
             ->where('estado_pago', 'pendiente')
             ->first();
 
@@ -248,13 +259,13 @@ class PagoController extends Controller
             return response()->json(['message' => 'Pago no encontrado'], 404);
         }
 
-        if (in_array(strtolower($estado), ['completado', 'pagado', 'aprobado'])) {
+        if (strtolower($estado) === 'completado') {
             $datosAnteriores = $pago->toArray();
 
             $pago->update([
                 'estado_pago'     => 'pagado',
                 'fecha_pago'      => now(),
-                'datos_remitente' => $request->input('remitente') ?? $request->input('datos_remitente'),
+                'datos_remitente' => $request->input('remitente'),
             ]);
 
             Auditoria::registrar('webhook_pago_qr', 'pagos', $pago->id_pago, $datosAnteriores, $pago->fresh()->toArray());
