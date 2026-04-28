@@ -13,6 +13,7 @@ class SidebarComposer
             'title' => 'Citas',
             'items' => [[
                 ['title' => 'Lista de Citas',    'route_name' => 'citas.index'],
+                ['title' => 'Calendario',        'route_name' => 'citas.calendario'],
                 ['title' => 'Nueva Cita',        'route_name' => 'citas.create'],
                 ['title' => 'Agenda Medica',     'route_name' => 'agenda'],
             ]],

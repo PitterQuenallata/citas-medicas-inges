@@ -384,6 +384,66 @@ class CitasController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // CALENDARIO — vista mensual con FullCalendar
+    // -------------------------------------------------------------------------
+    public function calendario()
+    {
+        return view('citas.calendario');
+    }
+
+    // -------------------------------------------------------------------------
+    // API — eventos para FullCalendar (AJAX)
+    // -------------------------------------------------------------------------
+    public function calendarEvents(Request $request)
+    {
+        $request->validate([
+            'start' => ['required', 'date'],
+            'end'   => ['required', 'date'],
+        ]);
+
+        $citas = Cita::with(['paciente', 'medico'])
+            ->whereBetween('fecha_cita', [$request->start, $request->end])
+            ->orderBy('hora_inicio')
+            ->get();
+
+        $colores = [
+            'pendiente'    => '#f59e0b',
+            'confirmada'   => '#0ea5e9',
+            'atendida'     => '#22c55e',
+            'cancelada'    => '#ef4444',
+            'reprogramada' => '#94a3b8',
+            'no_asistio'   => '#f97316',
+        ];
+
+        $eventos = $citas->map(function ($cita) use ($colores) {
+            $horaInicio = $cita->fecha_cita->format('Y-m-d') . 'T' . $cita->hora_inicio;
+            $horaFin    = $cita->fecha_cita->format('Y-m-d') . 'T' . $cita->hora_fin;
+
+            return [
+                'id'              => $cita->id_cita,
+                'title'           => ($cita->paciente?->nombres ?? '') . ' ' . ($cita->paciente?->apellidos ?? ''),
+                'start'           => $horaInicio,
+                'end'             => $horaFin,
+                'color'           => $colores[$cita->estado_cita] ?? '#94a3b8',
+                'extendedProps'   => [
+                    'codigo'       => $cita->codigo_cita,
+                    'paciente'     => ($cita->paciente?->nombres ?? '') . ' ' . ($cita->paciente?->apellidos ?? ''),
+                    'medico'       => 'Dr. ' . ($cita->medico?->nombres ?? '') . ' ' . ($cita->medico?->apellidos ?? ''),
+                    'hora_inicio'  => substr($cita->hora_inicio, 0, 5),
+                    'hora_fin'     => substr($cita->hora_fin, 0, 5),
+                    'motivo'       => $cita->motivo_consulta ?? '—',
+                    'estado'       => $cita->estado_cita,
+                    'estado_label' => $cita->estado_label,
+                    'url_show'     => route('citas.show', $cita->id_cita),
+                    'url_edit'     => route('citas.edit', $cita->id_cita),
+                ],
+            ];
+        });
+
+        return response()->json($eventos);
+    }
+
+    // -------------------------------------------------------------------------
     // Agenda médica
     // -------------------------------------------------------------------------
     public function agenda(Request $request)

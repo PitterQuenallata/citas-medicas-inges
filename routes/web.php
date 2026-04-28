@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
 
     // Citas
     Route::middleware('permiso:acceso_citas')->group(function () {
+        Route::get('citas/calendario', [CitasController::class, 'calendario'])->name('citas.calendario');
+        Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
         Route::resource('citas', CitasController::class);
         Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
         Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
