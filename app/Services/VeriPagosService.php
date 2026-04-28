@@ -7,15 +7,19 @@ use Illuminate\Support\Facades\Log;
 
 class VeriPagosService
 {
-    protected string $baseUrl;
-    protected string $apiToken;
-    protected string $comercioId;
+    protected string $secretKey;
+    protected string $usuario;
+    protected string $password;
+    protected string $urlGenerarQR;
+    protected string $urlVerificarQR;
 
     public function __construct()
     {
-        $this->baseUrl    = rtrim(config('services.veripagos.base_url', 'https://api.veripagos.com/v1'), '/');
-        $this->apiToken   = config('services.veripagos.api_token', '');
-        $this->comercioId = config('services.veripagos.comercio_id', '');
+        $this->secretKey     = config('services.veripagos.secret_key', '');
+        $this->usuario       = config('services.veripagos.usuario', '');
+        $this->password      = config('services.veripagos.password', '');
+        $this->urlGenerarQR  = config('services.veripagos.url_generar_qr', 'https://veripagos.com/api/bcp/generar-qr');
+        $this->urlVerificarQR = config('services.veripagos.url_verificar_qr', 'https://veripagos.com/api/bcp/verificar-estado-qr');
     }
 
     /**
@@ -23,26 +27,27 @@ class VeriPagosService
      *
      * @return array{success: bool, qr_url?: string, movimiento_id?: string, error?: string}
      */
-    public function generarQR(float $monto, string $concepto, string $referencia): array
+    public function generarQR(float $monto, string $detalle = 'Pago'): array
     {
         try {
-            $response = Http::withToken($this->apiToken)
+            $response = Http::withBasicAuth($this->usuario, $this->password)
                 ->timeout(15)
-                ->post("{$this->baseUrl}/qr/generar", [
-                    'comercio_id' => $this->comercioId,
-                    'monto'       => $monto,
-                    'moneda'      => 'BOB',
-                    'concepto'    => $concepto,
-                    'referencia'  => $referencia,
+                ->post($this->urlGenerarQR, [
+                    'secret_key' => $this->secretKey,
+                    'monto'      => $monto,
+                    'vigencia'   => '0/00:15',
+                    'uso_unico'  => true,
+                    'detalle'    => $detalle,
                 ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
+            $result = $response->json();
+
+            if ($result && ($result['Codigo'] ?? -1) === 0) {
+                $data = $result['Data'] ?? [];
                 return [
-                    'success'        => true,
-                    'qr_url'         => $data['qr_image_url'] ?? $data['qr_url'] ?? null,
-                    'movimiento_id'  => $data['movimiento_id'] ?? $data['id'] ?? null,
-                    'qr_data'        => $data,
+                    'success'       => true,
+                    'qr_url'        => $data['qr_url'] ?? $data['qr'] ?? null,
+                    'movimiento_id' => $data['movimiento_id'] ?? null,
                 ];
             }
 
@@ -53,13 +58,13 @@ class VeriPagosService
 
             return [
                 'success' => false,
-                'error'   => $response->json('message', 'Error al generar QR'),
+                'error'   => $result['Mensaje'] ?? 'Error al generar el QR.',
             ];
         } catch (\Exception $e) {
             Log::error('VeriPagos generarQR exception', ['msg' => $e->getMessage()]);
             return [
                 'success' => false,
-                'error'   => 'No se pudo conectar con VeriPagos: ' . $e->getMessage(),
+                'error'   => 'Error en el servidor: ' . $e->getMessage(),
             ];
         }
     }
@@ -67,34 +72,38 @@ class VeriPagosService
     /**
      * Verifica el estado de un movimiento/QR.
      *
-     * @return array{success: bool, estado?: string, datos_remitente?: array, error?: string}
+     * @return array{success: bool, estado?: string, data?: array, error?: string}
      */
     public function verificarEstado(string $movimientoId): array
     {
         try {
-            $response = Http::withToken($this->apiToken)
+            $response = Http::withBasicAuth($this->usuario, $this->password)
                 ->timeout(10)
-                ->get("{$this->baseUrl}/qr/verificar/{$movimientoId}");
+                ->post($this->urlVerificarQR, [
+                    'secret_key'    => $this->secretKey,
+                    'movimiento_id' => $movimientoId,
+                ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
+            $result = $response->json();
+
+            if ($result && ($result['Codigo'] ?? -1) === 0) {
+                $data = $result['Data'] ?? [];
                 return [
-                    'success'         => true,
-                    'estado'          => $data['estado'] ?? 'pendiente',
-                    'datos_remitente' => $data['remitente'] ?? $data['datos_remitente'] ?? null,
-                    'data'            => $data,
+                    'success' => true,
+                    'data'    => $data,
+                    'estado'  => $data['estado'] ?? $data['Estado'] ?? 'pendiente',
                 ];
             }
 
             return [
                 'success' => false,
-                'error'   => $response->json('message', 'Error al verificar estado'),
+                'error'   => $result['Mensaje'] ?? 'Error al verificar el estado del QR.',
             ];
         } catch (\Exception $e) {
             Log::error('VeriPagos verificarEstado exception', ['msg' => $e->getMessage()]);
             return [
                 'success' => false,
-                'error'   => 'No se pudo conectar con VeriPagos.',
+                'error'   => 'Error en el servidor: ' . $e->getMessage(),
             ];
         }
     }

@@ -159,8 +159,7 @@ class PagoController extends Controller
         // Llamar a VeriPagos
         $resultado = $this->veriPagos->generarQR(
             (float) $request->monto,
-            "Pago cita {$cita->codigo_cita}",
-            $pago->codigo_pago
+            "Pago cita {$cita->codigo_cita}"
         );
 
         if (!$resultado['success']) {
@@ -206,11 +205,12 @@ class PagoController extends Controller
 
         if (in_array($estadoVP, ['completado', 'pagado', 'aprobado'])) {
             $datosAnteriores = $pago->toArray();
+            $dataVP = $resultado['data'] ?? [];
 
             $pago->update([
                 'estado_pago'     => 'pagado',
                 'fecha_pago'      => now(),
-                'datos_remitente' => $resultado['datos_remitente'] ?? null,
+                'datos_remitente' => $dataVP['remitente'] ?? $dataVP['datos_remitente'] ?? null,
             ]);
 
             Auditoria::registrar('confirmar_pago_qr', 'pagos', $pago->id_pago, $datosAnteriores, $pago->fresh()->toArray());

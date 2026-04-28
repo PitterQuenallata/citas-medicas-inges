@@ -36,9 +36,11 @@ return [
     ],
 
     'veripagos' => [
-        'base_url'    => env('VERIPAGOS_BASE_URL', 'https://api.veripagos.com/v1'),
-        'api_token'   => env('VERIPAGOS_API_TOKEN', ''),
-        'comercio_id' => env('VERIPAGOS_COMERCIO_ID', ''),
+        'secret_key'        => env('VERIPAGOS_SECRET_KEY', ''),
+        'usuario'           => env('VERIPAGOS_USUARIO', ''),
+        'password'          => env('VERIPAGOS_PASSWORD', ''),
+        'url_generar_qr'    => env('VERIPAGOS_URL_GENERAR_QR', 'https://veripagos.com/api/bcp/generar-qr'),
+        'url_verificar_qr'  => env('VERIPAGOS_URL_VERIFICAR_QR', 'https://veripagos.com/api/bcp/verificar-estado-qr'),
     ],
 
 ];
