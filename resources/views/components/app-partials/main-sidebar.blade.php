@@ -15,7 +15,7 @@
             {{-- Dashboard --}}
             <a href="{{ route('dashboard') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
-                    {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
+                    {{ request()->routeIs('dashboard') || request()->routeIs('dashboard.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
                 x-tooltip.placement.right="'Dashboard'">
                 <svg class="size-7" fill="none" viewBox="0 0 24 24">
                     <path fill="currentColor" fill-opacity=".3" d="M5 14.059c0-1.01 0-1.514.222-1.945.221-.43.632-.724 1.453-1.31l4.163-2.974c.56-.4.842-.601 1.162-.601.32 0 .601.2 1.162.601l4.163 2.974c.821.586 1.232.88 1.453 1.31.222.43.222.935.222 1.945V19c0 .943 0 1.414-.293 1.707C18.414 21 17.943 21 17 21H7c-.943 0-1.414 0-1.707-.293C5 20.414 5 19.943 5 19v-4.94Z"/>
@@ -67,7 +67,8 @@
             </a>
             @endcan
 
-            {{-- Pagos --}}
+            {{-- Pagos (oculto para médicos) --}}
+            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
             @can('acceso_citas')
             <a href="{{ route('pagos.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
@@ -78,6 +79,7 @@
                 </svg>
             </a>
             @endcan
+            @endif
 
             {{-- Administración --}}
             @can('acceso_usuarios')
@@ -92,7 +94,8 @@
             </a>
             @endcan
 
-            {{-- Notificaciones --}}
+            {{-- Notificaciones (oculto para médicos) --}}
+            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
             @can('acceso_notificaciones')
             <a href="{{ route('notificaciones.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
@@ -103,8 +106,10 @@
                 </svg>
             </a>
             @endcan
+            @endif
 
-            {{-- Sistema (Reportes / Auditoria) --}}
+            {{-- Sistema (Reportes / Auditoria) (oculto para médicos) --}}
+            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
             @if(auth()->user()->tienePermiso('acceso_reportes') || auth()->user()->tienePermiso('acceso_auditoria'))
             <a href="{{ route('reportes.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
@@ -114,6 +119,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </a>
+            @endif
             @endif
 
         </div>

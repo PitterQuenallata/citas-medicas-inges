@@ -27,15 +27,21 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+    Route::get('/dashboard/agenda', [DashboardController::class, 'agenda'])->name('dashboard.agenda');
+    Route::get('/dashboard/calendario', [DashboardController::class, 'calendario'])->name('dashboard.calendario');
+
+    // API calendario (accesible desde Dashboard y Citas)
+    Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
 
     // Citas
     Route::middleware('permiso:acceso_citas')->group(function () {
         Route::get('citas/calendario', [CitasController::class, 'calendario'])->name('citas.calendario');
-        Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
         Route::resource('citas', CitasController::class);
         Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
         Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
         Route::patch('citas/{cita}/atender',     [CitasController::class, 'atender'])->name('citas.atender');
+        Route::patch('citas/{cita}/no-asistio', [CitasController::class, 'noAsistio'])->name('citas.noAsistio');
         Route::get('citas/{cita}/reprogramar',   [CitasController::class, 'showReprogramar'])->name('citas.reprogramar');
         Route::patch('citas/{cita}/reprogramar', [CitasController::class, 'storeReprogramar'])->name('citas.storeReprogramar');
         Route::get('citas/{cita}/ticket', [CitasController::class, 'ticket'])->name('citas.ticket');

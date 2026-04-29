@@ -7,6 +7,19 @@ use Illuminate\View\View;
 
 class SidebarComposer
 {
+    private static function seccionDashboard(): array
+    {
+        return [
+            'title' => 'Dashboard',
+            'items' => [[
+                ['title' => 'Principal',             'route_name' => 'dashboard'],
+                ['title' => 'Estadísticas Médicas',  'route_name' => 'dashboard.analytics'],
+                ['title' => 'Agenda Médica',          'route_name' => 'dashboard.agenda'],
+                ['title' => 'Calendario',             'route_name' => 'dashboard.calendario'],
+            ]],
+        ];
+    }
+
     private static function seccionCitas(): array
     {
         return [
@@ -35,13 +48,20 @@ class SidebarComposer
 
     private static function seccionPacientes(): array
     {
+        $user = Auth::user();
+        $soloVista = $user && $user->esMedico() && !$user->esSuperAdmin();
+
+        $items = [
+            ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
+        ];
+        if (!$soloVista) {
+            $items[] = ['title' => 'Nuevo Paciente', 'route_name' => 'pacientes.create'];
+        }
+        $items[] = ['title' => 'Historial Clinico', 'route_name' => 'historial.index'];
+
         return [
             'title' => 'Pacientes',
-            'items' => [[
-                ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
-                ['title' => 'Nuevo Paciente',    'route_name' => 'pacientes.create'],
-                ['title' => 'Historial Clinico', 'route_name' => 'historial.index'],
-            ]],
+            'items' => [$items],
         ];
     }
 
@@ -99,6 +119,8 @@ class SidebarComposer
         $user = Auth::user();
 
         $menu = match(true) {
+            (str_starts_with($pageName, 'dashboard')) && $user?->tienePermiso('acceso_dashboard')
+                => self::seccionDashboard(),
             (str_starts_with($pageName, 'citas') || $pageName === 'agenda') && $user?->tienePermiso('acceso_citas')
                 => self::seccionCitas(),
             (str_starts_with($pageName, 'medicos') || str_starts_with($pageName, 'especialidades') || str_starts_with($pageName, 'horarios')) && $user?->tienePermiso('acceso_medicos')

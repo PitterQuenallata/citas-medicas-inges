@@ -40,12 +40,14 @@
                 <dd class="text-sm text-slate-700 dark:text-navy-100">{{ $paciente->created_at?->format('d/m/Y') }}</dd>
             </div>
         </dl>
+        @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
         <div class="mt-6 flex gap-2">
             <a href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
                 class="btn bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
                 Editar
             </a>
         </div>
+        @endif
     </div>
 
     <div class="card p-4 sm:p-5">

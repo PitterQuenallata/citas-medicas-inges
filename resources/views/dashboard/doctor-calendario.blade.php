@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Calendario de Citas')
+@section('title', 'Calendario')
 
 @push('styles')
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
@@ -17,8 +17,6 @@
         --fc-neutral-bg-color: #1e293b;
         color: #c8d2dc;
     }
-
-    /* ── View buttons: Mes / Semana / Dia / Hoy ── */
     #calendar-container .fc .fc-button {
         background-color: var(--color-primary, #6366f1);
         border-color: var(--color-primary, #6366f1);
@@ -37,9 +35,6 @@
         background-color: var(--color-primary-focus, #4f46e5);
         border-color: var(--color-primary-focus, #4f46e5);
     }
-    #calendar-container .fc .fc-button:active {
-        opacity: 0.9;
-    }
     #calendar-container .fc .fc-button-active {
         background-color: var(--color-primary-focus, #4338ca) !important;
         border-color: var(--color-primary-focus, #4338ca) !important;
@@ -53,8 +48,6 @@
         background-color: var(--color-accent-focus, #4d47f5);
         border-color: var(--color-accent-focus, #4d47f5);
     }
-
-    /* ── Prev / Next nav buttons ── */
     #calendar-container .fc .fc-prev-button,
     #calendar-container .fc .fc-next-button {
         background-color: rgba(14, 165, 233, 0.1) !important;
@@ -72,28 +65,15 @@
     #calendar-container .fc .fc-next-button:hover {
         background-color: rgba(14, 165, 233, 0.2) !important;
     }
-    #calendar-container .fc .fc-prev-button:focus,
-    #calendar-container .fc .fc-next-button:focus {
-        background-color: rgba(14, 165, 233, 0.2) !important;
-        box-shadow: none;
-    }
-    #calendar-container .fc .fc-prev-button:active,
-    #calendar-container .fc .fc-next-button:active {
-        background-color: rgba(14, 165, 233, 0.25) !important;
-    }
     #calendar-container .fc .fc-prev-button .fc-icon,
     #calendar-container .fc .fc-next-button .fc-icon {
         font-size: 1.1rem;
     }
-
-    /* ── Toolbar title ── */
     #calendar-container .fc .fc-toolbar-title {
         font-size: 1.15rem;
         font-weight: 600;
         text-transform: capitalize;
     }
-
-    /* ── Toolbar spacing ── */
     #calendar-container .fc .fc-toolbar {
         gap: 0.5rem;
         padding: 0.75rem 0;
@@ -101,8 +81,6 @@
     #calendar-container .fc .fc-toolbar .fc-button-group {
         gap: 0.25rem;
     }
-
-    /* ── Events ── */
     #calendar-container .fc .fc-daygrid-event {
         border-radius: 0.375rem;
         padding: 1px 4px;
@@ -115,8 +93,6 @@
         cursor: pointer;
     }
     .fc-event-title { font-weight: 500; }
-
-    /* ── Day cells ── */
     #calendar-container .fc .fc-daygrid-day-number {
         font-size: 0.85rem;
         padding: 4px 8px;
@@ -136,6 +112,27 @@
 @endpush
 
 @section('content')
+{{-- Filtro de médico (admin/recepcionista) --}}
+@include('dashboard._filtro-medico')
+
+{{-- Header --}}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+    <div>
+        <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">
+            Calendario - Dr. {{ $medico->nombres }} {{ $medico->apellidos }}
+        </h2>
+    </div>
+    <div class="flex gap-2">
+        <a href="{{ route('dashboard', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+            <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Dashboard
+        </a>
+        <a href="{{ route('dashboard.agenda', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+            Agenda
+        </a>
+    </div>
+</div>
+
 <div x-data="calendarioApp()" x-init="initCalendar()">
     {{-- Leyenda de estados --}}
     <div class="card mb-4 px-4 py-3 sm:px-5">
@@ -157,19 +154,10 @@
                 <div class="size-2 rounded-full bg-current"></div>
                 <span>Cancelada</span>
             </div>
-            <div class="badge space-x-2.5 text-slate-800 dark:text-navy-100">
-                <div class="size-2 rounded-full bg-current"></div>
-                <span>Reprogramada</span>
-            </div>
             <div class="badge space-x-2.5 text-secondary dark:text-secondary-light">
                 <div class="size-2 rounded-full bg-current"></div>
                 <span>No asistio</span>
             </div>
-            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
-            <a href="{{ route('citas.create') }}" class="btn ml-auto h-6 rounded-sm bg-primary px-3 text-xs font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                + Nueva Cita
-            </a>
-            @endif
         </div>
     </div>
 
@@ -191,7 +179,6 @@
                  x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
                  class="w-full max-w-lg rounded-xl bg-white shadow-xl dark:bg-navy-700" @click.stop>
 
-                {{-- Header --}}
                 <div class="flex items-center justify-between rounded-t-xl border-b border-slate-200 px-5 py-4 dark:border-navy-500">
                     <h3 class="text-base font-semibold text-slate-700 dark:text-navy-100">Detalle de Cita</h3>
                     <button @click="showModal = false" class="btn size-7 rounded-full p-0 text-slate-400 hover:bg-slate-200 dark:hover:bg-navy-500">
@@ -199,9 +186,7 @@
                     </button>
                 </div>
 
-                {{-- Body --}}
                 <div class="space-y-3 px-5 py-4">
-                    {{-- Estado badge --}}
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono text-slate-400 dark:text-navy-300" x-text="modalData.codigo"></span>
                         <span class="badge rounded-full text-xs px-2.5 py-0.5"
@@ -217,7 +202,6 @@
                         </span>
                     </div>
 
-                    {{-- Info rows --}}
                     <div class="grid grid-cols-[auto,1fr] gap-x-4 gap-y-2.5 text-sm">
                         <span class="font-medium text-slate-500 dark:text-navy-300">Paciente</span>
                         <span class="text-slate-700 dark:text-navy-100" x-text="modalData.paciente"></span>
@@ -233,18 +217,10 @@
                     </div>
                 </div>
 
-                {{-- Footer --}}
                 <div class="flex flex-wrap items-center justify-end gap-2 rounded-b-xl border-t border-slate-200 px-5 py-3 dark:border-navy-500">
                     <a :href="modalData.url_show"
                        class="btn h-8 rounded-lg bg-slate-150 px-3 text-xs font-medium text-slate-800 hover:bg-slate-200 dark:bg-navy-500 dark:text-navy-50 dark:hover:bg-navy-450">
-                        <svg class="mr-1.5 size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         Ver detalle
-                    </a>
-                    <a :href="modalData.url_edit"
-                       x-show="!['cancelada','atendida','reprogramada'].includes(modalData.estado)"
-                       class="btn h-8 rounded-lg bg-primary px-3 text-xs font-medium text-white hover:bg-primary-focus">
-                        <svg class="mr-1.5 size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Editar
                     </a>
                 </div>
             </div>
@@ -267,6 +243,7 @@ function calendarioApp() {
         initCalendar() {
             const calendarEl = document.getElementById('fullcalendar');
             const self = this;
+            const medicoId = {{ $medico->id_medico }};
 
             this.calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'es',
@@ -286,13 +263,16 @@ function calendarioApp() {
                 height: 'auto',
                 navLinks: true,
                 editable: false,
-                selectable: true,
+                selectable: false,
                 dayMaxEvents: 3,
                 moreLinkText: function(num) {
                     return '+' + num + ' mas';
                 },
                 events: function(info, successCallback, failureCallback) {
-                    fetch('{{ route("api.citas.eventos") }}?start=' + info.startStr.split('T')[0] + '&end=' + info.endStr.split('T')[0], {
+                    const url = '{{ route("api.citas.eventos") }}?start=' + info.startStr.split('T')[0]
+                              + '&end=' + info.endStr.split('T')[0]
+                              + '&medico_id=' + medicoId;
+                    fetch(url, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json',
@@ -322,12 +302,6 @@ function calendarioApp() {
                     };
                     self.showModal = true;
                 },
-                @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
-                dateClick: function(info) {
-                    const fecha = info.dateStr.split('T')[0];
-                    window.location.href = '{{ route("citas.create") }}?fecha=' + fecha;
-                },
-                @endif
                 eventDidMount: function(info) {
                     info.el.title = info.event.extendedProps.hora_inicio + ' – ' + info.event.extendedProps.hora_fin + ' | ' + info.event.title;
                 },

@@ -3,7 +3,6 @@
 
 @section('content')
 <div class="flex items-center justify-between py-2 pb-4">
-    <h2 class="text-base font-medium tracking-wide text-slate-700 dark:text-navy-100">Permisos del Sistema</h2>
     <span class="badge rounded-full bg-slate-150 text-slate-800 px-3 py-1 text-xs dark:bg-navy-500 dark:text-navy-100">
         {{ $permisos->count() }} permisos registrados
     </span>
