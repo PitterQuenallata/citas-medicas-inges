@@ -16,9 +16,11 @@
             </a>
         @endif
     </form>
+    @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
     <a href="{{ route('pacientes.create') }}" class="btn h-9 bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
         + Nuevo Paciente
     </a>
+    @endif
 </div>
 
 <div class="card px-4 pb-4 sm:px-5">
@@ -56,6 +58,7 @@
                                 class="btn size-8 rounded-full p-0 text-slate-500 hover:bg-slate-100 dark:hover:bg-navy-500" title="Ver">
                                 <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
+                            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
                             <a href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
                                 class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
                                 <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -74,6 +77,7 @@
                                         <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </button>
                                 </form>
+                            @endif
                             @endif
                         </div>
                     </td>

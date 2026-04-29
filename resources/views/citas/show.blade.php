@@ -59,6 +59,7 @@
         @endif
         @endif {{-- fin ocultar ticket/recibo/whatsapp para médicos --}}
 
+        @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
         @if(!in_array($cita->estado_cita, ['cancelada', 'atendida', 'reprogramada']))
             @if(!$cita->pago || $cita->pago->estado_pago !== 'pagado')
                 <button type="button" id="btn-registrar-pago" class="btn h-8 rounded-full bg-secondary px-4 text-xs font-medium text-white hover:bg-secondary/90" style="background-color: #8b5cf6;">
@@ -93,6 +94,7 @@
                 </button>
             </form>
         @endif
+        @endif {{-- fin ocultar acciones para médicos --}}
     </div>
 </div>
 

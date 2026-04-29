@@ -255,6 +255,7 @@ feature/login-walter
 # 1. Asegurate de estar en develop actualizado
 git checkout develop
 git pull origin develop
+git checkout feature/tu-rama && git merge develop --no-edit # Mergear develop en tu rama y con tus cambios
 
 # 2. Crear tu rama nueva
 git checkout -b feature/mi-modulo-minombre

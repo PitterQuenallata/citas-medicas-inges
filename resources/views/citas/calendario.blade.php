@@ -165,9 +165,11 @@
                 <div class="size-2 rounded-full bg-current"></div>
                 <span>No asistio</span>
             </div>
+            @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
             <a href="{{ route('citas.create') }}" class="btn ml-auto h-6 rounded-sm bg-primary px-3 text-xs font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
                 + Nueva Cita
             </a>
+            @endif
         </div>
     </div>
 
@@ -321,10 +323,12 @@ function calendarioApp() {
                     };
                     self.showModal = true;
                 },
+                @if(!auth()->user()->esMedico() || auth()->user()->esSuperAdmin())
                 dateClick: function(info) {
                     const fecha = info.dateStr.split('T')[0];
                     window.location.href = '{{ route("citas.create") }}?fecha=' + fecha;
                 },
+                @endif
                 eventDidMount: function(info) {
                     info.el.title = info.event.extendedProps.hora_inicio + ' – ' + info.event.extendedProps.hora_fin + ' | ' + info.event.title;
                 },
