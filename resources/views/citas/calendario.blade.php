@@ -2,7 +2,7 @@
 @section('title', 'Calendario de Citas')
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/main.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
 <style>
     #calendar-container .fc {
         --fc-border-color: #e2e8f0;
@@ -254,7 +254,6 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
 <script>
 function calendarioApp() {
     return {
