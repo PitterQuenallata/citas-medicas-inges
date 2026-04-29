@@ -27,8 +27,8 @@ class CitasController extends Controller
     public function index(Request $request)
     {
         $query = Cita::with(['paciente', 'medico', 'pago'])
-            ->orderBy('fecha_cita', 'desc')
-            ->orderBy('hora_inicio', 'asc');
+            ->orderBy('id_cita', 'desc');
+
 
         if ($request->filled('estado')) {
             $query->where('estado_cita', $request->estado);
