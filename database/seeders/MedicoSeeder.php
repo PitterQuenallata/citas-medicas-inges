@@ -18,6 +18,10 @@ class MedicoSeeder extends Seeder
                 ['nombre_especialidad' => 'Pediatría',          'descripcion' => 'Atención médica infantil',            'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
                 ['nombre_especialidad' => 'Neurología',         'descripcion' => 'Sistema nervioso',                    'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
                 ['nombre_especialidad' => 'Traumatología',      'descripcion' => 'Huesos, músculos y articulaciones',   'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
+                ['nombre_especialidad' => 'Oftalmologia',       'descripcion' => 'Especilista, glaucoma, cataratas, errores refractivos y enfermedades de la retina',   'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
+                ['nombre_especialidad' => 'Podologo',           'descripcion' => 'prevención de enfermedades, deformidades y molestias de los pies, tobillos y extremidades inferiores',   'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
+                ['nombre_especialidad' => 'Dermatología',       'descripcion' => 'tratamiento de las enfermedades de la piel, cabello y uñas',   'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
+                ['nombre_especialidad' => 'Neumología',         'descripcion' => 'Especialidad centrada en las patologías del aparato respiratorio (pulmones)',   'estado' => 'activo', 'created_at' => now(), 'updated_at' => now()],
             ]);
             $this->command->info('✓ Especialidades insertadas');
         } else {

@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
 
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}" />
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon_192.png') }}" />
+    <link rel="apple-touch-icon" href="{{ asset('favicon_192.png') }}" />
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport"

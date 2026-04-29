@@ -5,7 +5,7 @@
         <div class="flex pt-4">
             <a href="{{ route('dashboard') }}">
                 <img class="size-11 transition-transform duration-500 ease-in-out hover:rotate-[360deg]"
-                    src="{{ asset('images/app-logo.svg') }}" alt="logo" />
+                    src="{{ asset('img/logo-clinica.svg') }}" alt="Logo Clínica" />
             </a>
         </div>
 
@@ -25,6 +25,7 @@
             </a>
 
             {{-- Citas --}}
+            @can('acceso_citas')
             <a href="{{ route('citas.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('citas.*') || request()->routeIs('agenda') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -37,8 +38,10 @@
                     <rect x="14" y="14" width="3" height="3" rx=".5" fill="currentColor" fill-opacity=".5"/>
                 </svg>
             </a>
+            @endcan
 
             {{-- Médicos --}}
+            @can('acceso_medicos')
             <a href="{{ route('medicos.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('medicos.*') || request()->routeIs('especialidades.*') || request()->routeIs('horarios.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -49,8 +52,10 @@
                     <path d="M17 13v2m0 2v2m-1-3h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
             </a>
+            @endcan
 
             {{-- Pacientes --}}
+            @can('acceso_pacientes')
             <a href="{{ route('pacientes.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('pacientes.*') || request()->routeIs('historial.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -60,8 +65,22 @@
                     <circle cx="12" cy="7" r="4" fill="currentColor"/>
                 </svg>
             </a>
+            @endcan
+
+            {{-- Pagos --}}
+            @can('acceso_citas')
+            <a href="{{ route('pagos.index') }}"
+                class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
+                    {{ request()->routeIs('pagos.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
+                x-tooltip.placement.right="'Pagos'">
+                <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+            </a>
+            @endcan
 
             {{-- Administración --}}
+            @can('acceso_usuarios')
             <a href="{{ route('usuarios.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('usuarios.*') || request()->routeIs('roles.*') || request()->routeIs('permisos.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -71,8 +90,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </a>
+            @endcan
 
             {{-- Notificaciones --}}
+            @can('acceso_notificaciones')
             <a href="{{ route('notificaciones.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('notificaciones.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -81,8 +102,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
             </a>
+            @endcan
 
-            {{-- Sistema --}}
+            {{-- Sistema (Reportes / Auditoria) --}}
+            @if(auth()->user()->tienePermiso('acceso_reportes') || auth()->user()->tienePermiso('acceso_auditoria'))
             <a href="{{ route('reportes.index') }}"
                 class="flex size-11 items-center justify-center rounded-lg outline-hidden transition-colors duration-200
                     {{ request()->routeIs('reportes.*') || request()->routeIs('auditoria.*') ? 'bg-primary/10 text-primary dark:bg-navy-600 dark:text-accent-light' : 'text-slate-400 hover:bg-primary/20 focus:bg-primary/20 dark:text-navy-300 dark:hover:bg-navy-300/20' }}"
@@ -91,6 +114,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </a>
+            @endif
 
         </div>
 

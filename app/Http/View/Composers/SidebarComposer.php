@@ -2,6 +2,7 @@
 
 namespace App\Http\View\Composers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class SidebarComposer
@@ -12,6 +13,7 @@ class SidebarComposer
             'title' => 'Citas',
             'items' => [[
                 ['title' => 'Lista de Citas',    'route_name' => 'citas.index'],
+                ['title' => 'Calendario',        'route_name' => 'citas.calendario'],
                 ['title' => 'Nueva Cita',        'route_name' => 'citas.create'],
                 ['title' => 'Agenda Medica',     'route_name' => 'agenda'],
             ]],
@@ -39,6 +41,16 @@ class SidebarComposer
                 ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
                 ['title' => 'Nuevo Paciente',    'route_name' => 'pacientes.create'],
                 ['title' => 'Historial Clinico', 'route_name' => 'historial.index'],
+            ]],
+        ];
+    }
+
+    private static function seccionPagos(): array
+    {
+        return [
+            'title' => 'Pagos',
+            'items' => [[
+                ['title' => 'Lista de Pagos',   'route_name' => 'pagos.index'],
             ]],
         ];
     }
@@ -84,19 +96,22 @@ class SidebarComposer
     public function compose(View $view)
     {
         $pageName = optional(request()->route())->getName() ?? '';
+        $user = Auth::user();
 
         $menu = match(true) {
-            str_starts_with($pageName, 'citas') || $pageName === 'agenda'
+            (str_starts_with($pageName, 'citas') || $pageName === 'agenda') && $user?->tienePermiso('acceso_citas')
                 => self::seccionCitas(),
-            str_starts_with($pageName, 'medicos') || str_starts_with($pageName, 'especialidades') || str_starts_with($pageName, 'horarios')
+            (str_starts_with($pageName, 'medicos') || str_starts_with($pageName, 'especialidades') || str_starts_with($pageName, 'horarios')) && $user?->tienePermiso('acceso_medicos')
                 => self::seccionMedicos(),
-            str_starts_with($pageName, 'pacientes') || str_starts_with($pageName, 'historial')
+            (str_starts_with($pageName, 'pacientes') || str_starts_with($pageName, 'historial')) && $user?->tienePermiso('acceso_pacientes')
                 => self::seccionPacientes(),
-            str_starts_with($pageName, 'usuarios') || str_starts_with($pageName, 'roles') || str_starts_with($pageName, 'permisos')
+            str_starts_with($pageName, 'pagos') && $user?->tienePermiso('acceso_citas')
+                => self::seccionPagos(),
+            (str_starts_with($pageName, 'usuarios') || str_starts_with($pageName, 'roles') || str_starts_with($pageName, 'permisos')) && $user?->tienePermiso('acceso_usuarios')
                 => self::seccionAdmin(),
-            str_starts_with($pageName, 'notificaciones')
+            str_starts_with($pageName, 'notificaciones') && $user?->tienePermiso('acceso_notificaciones')
                 => self::seccionNotificaciones(),
-            str_starts_with($pageName, 'reportes') || str_starts_with($pageName, 'auditoria')
+            (str_starts_with($pageName, 'reportes') || str_starts_with($pageName, 'auditoria')) && ($user?->tienePermiso('acceso_reportes') || $user?->tienePermiso('acceso_auditoria'))
                 => self::seccionSistema(),
             default => self::seccionDefault(),
         };

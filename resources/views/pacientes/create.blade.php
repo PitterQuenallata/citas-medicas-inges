@@ -11,40 +11,9 @@
 
 <div class="card max-w-2xl p-4 sm:p-5">
     <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-6">Registrar Nuevo Paciente</h3>
-    <form method="POST" action="{{ route('pacientes.store') }}" class="space-y-4">
+    <form id="paciente-create-form" method="POST" action="{{ route('pacientes.store') }}" class="space-y-4">
         @csrf
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label class="block">
-                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombres <span class="text-error">*</span></span>
-                <input type="text" name="nombres" value="{{ old('nombres') }}"
-                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('nombres') border-error @enderror" />
-                @error('nombres')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
-            </label>
-            <label class="block">
-                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Apellidos <span class="text-error">*</span></span>
-                <input type="text" name="apellidos" value="{{ old('apellidos') }}"
-                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('apellidos') border-error @enderror" />
-                @error('apellidos')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
-            </label>
-            <label class="block">
-                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">CI <span class="text-error">*</span></span>
-                <input type="text" name="ci" value="{{ old('ci') }}"
-                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('ci') border-error @enderror" />
-                @error('ci')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
-            </label>
-            <label class="block">
-                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Teléfono</span>
-                <input type="text" name="telefono" value="{{ old('telefono') }}"
-                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100" />
-            </label>
-            <label class="block">
-                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Estado</span>
-                <select name="estado" class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100">
-                    <option value="activo" {{ old('estado') === 'activo' ? 'selected' : '' }}>Activo</option>
-                    <option value="inactivo" {{ old('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                </select>
-            </label>
-        </div>
+        @include('pacientes.form', ['paciente' => null])
         <div class="flex gap-3 pt-2">
             <button type="submit" class="btn bg-primary px-5 text-sm font-medium text-white hover:bg-primary-focus">
                 Guardar Paciente

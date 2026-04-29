@@ -60,12 +60,21 @@
                                 class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
                                 <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
-                            <form method="POST" action="{{ route('pacientes.destroy', $paciente->id_paciente) }}" onsubmit="return confirm('¿Desactivar este paciente?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Desactivar">
-                                    <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                </button>
-                            </form>
+                            @if($paciente->estado === 'activo')
+                                <form method="POST" action="{{ route('pacientes.destroy', $paciente->id_paciente) }}">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn size-8 rounded-full p-0 text-error hover:bg-error/10" title="Desactivar">
+                                        <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('pacientes.activar', $paciente->id_paciente) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="btn size-8 rounded-full p-0 text-success hover:bg-success/10" title="Activar">
+                                        <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -84,3 +93,18 @@
     </div>
 </div>
 @endsection
+
+@if(session('swal_success'))
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                Swal.fire({
+                    title: 'Listo',
+                    text: @json(session('swal_success')),
+                    icon: 'success',
+                });
+            });
+        </script>
+    @endpush
+@endif

@@ -8,19 +8,25 @@ use App\Models\Cita;
 use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\Paciente;
+use App\Models\Auditoria;
 use App\Services\DisponibilidadService;
+use App\Services\WhatsAppService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class CitasController extends Controller
 {
-    public function __construct(protected DisponibilidadService $disponibilidad) {}
+    public function __construct(
+        protected DisponibilidadService $disponibilidad,
+        protected WhatsAppService $whatsapp
+    ) {}
 
     // -------------------------------------------------------------------------
     // INDEX — lista paginada con filtros
     // -------------------------------------------------------------------------
     public function index(Request $request)
     {
-        $query = Cita::with(['paciente', 'medico'])
+        $query = Cita::with(['paciente', 'medico', 'pago'])
             ->orderBy('fecha_cita', 'desc')
             ->orderBy('hora_inicio', 'asc');
 
@@ -86,7 +92,7 @@ class CitasController extends Controller
             return back()->withInput()->withErrors(['disponibilidad' => $errores]);
         }
 
-        Cita::create([
+        $cita = Cita::create([
             'codigo_cita'        => Cita::generarCodigo(),
             'id_paciente'        => $request->id_paciente,
             'id_medico'          => $request->id_medico,
@@ -99,7 +105,15 @@ class CitasController extends Controller
             'estado_cita'        => 'pendiente',
         ]);
 
-        return redirect()->route('citas.index')
+        Auditoria::registrar('crear', 'citas', $cita->id_cita, null, $cita->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($cita, 'reserva');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
+        return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita registrada exitosamente.');
     }
 
@@ -108,7 +122,7 @@ class CitasController extends Controller
     // -------------------------------------------------------------------------
     public function show(Cita $cita)
     {
-        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal']);
+        $cita->load(['paciente', 'medico.especialidades', 'usuarioRegistra', 'citaOriginal', 'reprogramaciones', 'pago']);
         return view('citas.show', compact('cita'));
     }
 
@@ -156,6 +170,8 @@ class CitasController extends Controller
             return back()->withInput()->withErrors(['disponibilidad' => $errores]);
         }
 
+        $datosAnteriores = $cita->toArray();
+
         $cita->update([
             'id_paciente'     => $request->id_paciente,
             'id_medico'       => $request->id_medico,
@@ -166,6 +182,8 @@ class CitasController extends Controller
             'observaciones'   => $request->observaciones,
             'estado_cita'     => $request->estado_cita ?? $cita->estado_cita,
         ]);
+
+        Auditoria::registrar('editar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
 
         return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita actualizada exitosamente.');
@@ -187,13 +205,23 @@ class CitasController extends Controller
             'motivo_cancelacion.required' => 'Debe indicar el motivo de cancelación.',
         ]);
 
+        $datosAnteriores = $cita->toArray();
+
         $cita->update([
             'estado_cita'       => 'cancelada',
             'fecha_cancelacion' => now(),
             'motivo_cancelacion'=> $request->motivo_cancelacion,
         ]);
 
-        return redirect()->route('citas.index')
+        Auditoria::registrar('cancelar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($cita, 'cancelacion', $request->motivo_cancelacion);
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
+        return redirect()->route('citas.show', $cita)
             ->with('success', 'Cita cancelada correctamente.');
     }
 
@@ -262,8 +290,64 @@ class CitasController extends Controller
 
         $cita->update(['estado_cita' => 'reprogramada']);
 
+        Auditoria::registrar('reprogramar', 'citas', $cita->id_cita, ['estado_cita' => 'pendiente'], ['estado_cita' => 'reprogramada']);
+        Auditoria::registrar('crear', 'citas', $nuevaCita->id_cita, null, $nuevaCita->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($nuevaCita, 'reprogramacion');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
         return redirect()->route('citas.show', $nuevaCita)
             ->with('success', 'Cita reprogramada exitosamente.');
+    }
+
+    // -------------------------------------------------------------------------
+    // CONFIRMAR
+    // -------------------------------------------------------------------------
+    public function confirmar(Cita $cita)
+    {
+        if ($cita->estado_cita !== 'pendiente') {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden confirmar citas pendientes.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'confirmada']);
+        Auditoria::registrar('confirmar', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        try {
+            $this->whatsapp->notificarCita($cita, 'confirmacion');
+        } catch (\Throwable $e) {
+            // No bloquear la acción si falla WhatsApp
+        }
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita confirmada exitosamente.');
+    }
+
+    // -------------------------------------------------------------------------
+    // ATENDER
+    // -------------------------------------------------------------------------
+    public function atender(Cita $cita)
+    {
+        if ($cita->estado_cita !== 'confirmada') {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden atender citas confirmadas.');
+        }
+
+        if (!$cita->esta_pagada) {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'No se puede atender la cita sin pago confirmado. Registre el pago primero.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'atendida']);
+        Auditoria::registrar('atender', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita marcada como atendida.');
     }
 
     // -------------------------------------------------------------------------
@@ -301,30 +385,84 @@ class CitasController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // CALENDARIO — vista mensual con FullCalendar
+    // -------------------------------------------------------------------------
+    public function calendario()
+    {
+        return view('citas.calendario');
+    }
+
+    // -------------------------------------------------------------------------
+    // API — eventos para FullCalendar (AJAX)
+    // -------------------------------------------------------------------------
+    public function calendarEvents(Request $request)
+    {
+        $request->validate([
+            'start' => ['required', 'date'],
+            'end'   => ['required', 'date'],
+        ]);
+
+        $citas = Cita::with(['paciente', 'medico'])
+            ->whereBetween('fecha_cita', [$request->start, $request->end])
+            ->orderBy('hora_inicio')
+            ->get();
+
+        $colores = [
+            'pendiente'    => '#f59e0b',
+            'confirmada'   => '#0ea5e9',
+            'atendida'     => '#22c55e',
+            'cancelada'    => '#ef4444',
+            'reprogramada' => '#94a3b8',
+            'no_asistio'   => '#f97316',
+        ];
+
+        $eventos = $citas->map(function ($cita) use ($colores) {
+            $horaInicio = $cita->fecha_cita->format('Y-m-d') . 'T' . $cita->hora_inicio;
+            $horaFin    = $cita->fecha_cita->format('Y-m-d') . 'T' . $cita->hora_fin;
+
+            return [
+                'id'              => $cita->id_cita,
+                'title'           => ($cita->paciente?->nombres ?? '') . ' ' . ($cita->paciente?->apellidos ?? ''),
+                'start'           => $horaInicio,
+                'end'             => $horaFin,
+                'color'           => $colores[$cita->estado_cita] ?? '#94a3b8',
+                'extendedProps'   => [
+                    'codigo'       => $cita->codigo_cita,
+                    'paciente'     => ($cita->paciente?->nombres ?? '') . ' ' . ($cita->paciente?->apellidos ?? ''),
+                    'medico'       => 'Dr. ' . ($cita->medico?->nombres ?? '') . ' ' . ($cita->medico?->apellidos ?? ''),
+                    'hora_inicio'  => substr($cita->hora_inicio, 0, 5),
+                    'hora_fin'     => substr($cita->hora_fin, 0, 5),
+                    'motivo'       => $cita->motivo_consulta ?? '—',
+                    'estado'       => $cita->estado_cita,
+                    'estado_label' => $cita->estado_label,
+                    'url_show'     => route('citas.show', $cita->id_cita),
+                    'url_edit'     => route('citas.edit', $cita->id_cita),
+                ],
+            ];
+        });
+
+        return response()->json($eventos);
+    }
+
+    // -------------------------------------------------------------------------
     // Agenda médica
     // -------------------------------------------------------------------------
     public function agenda(Request $request)
     {
         $medicos  = Medico::where('estado', 'activo')->orderBy('apellidos')->get();
         $fecha    = $request->input('fecha', today()->format('Y-m-d'));
-        $medicoId = $request->input('id_medico');
+        $medicoId = $request->input('medico_id');
 
-        $citas = collect();
-        $horarios = collect();
+        $query = Cita::with(['paciente', 'medico.especialidades'])
+            ->where('fecha_cita', $fecha)
+            ->orderBy('hora_inicio');
 
         if ($medicoId) {
-            $citas = Cita::with('paciente')
-                ->where('id_medico', $medicoId)
-                ->where('fecha_cita', $fecha)
-                ->orderBy('hora_inicio')
-                ->get();
-
-            $diaSemana = \Carbon\Carbon::parse($fecha)->dayOfWeekIso;
-            $horarios  = \App\Models\HorarioMedico::where('id_medico', $medicoId)
-                ->where('dia_semana', $diaSemana)
-                ->where('activo', true)
-                ->get();
+            $query->where('id_medico', $medicoId);
         }
+
+        $citas    = $query->get();
+        $horarios = collect();
 
         return view('agenda.index', compact('medicos', 'fecha', 'medicoId', 'citas', 'horarios'));
     }
@@ -356,5 +494,18 @@ class CitasController extends Controller
             'disponible' => empty($errores),
             'errores'    => $errores,
         ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // TICKET PDF — genera ticket de cita inline en el navegador
+    // -------------------------------------------------------------------------
+    public function ticket(Cita $cita)
+    {
+        $cita->load(['paciente', 'medico.especialidades', 'pago']);
+
+        $pdf = Pdf::loadView('pdf.ticket-cita', compact('cita'))
+            ->setPaper([0, 0, 396, 612]);
+
+        return $pdf->stream("ticket-{$cita->codigo_cita}.pdf");
     }
 }

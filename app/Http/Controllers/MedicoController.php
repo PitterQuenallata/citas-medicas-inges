@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Especialidad;
 use App\Models\HorarioMedico;
 use App\Models\Medico;
+use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,8 @@ class MedicoController extends Controller
                     'activo' => true,
                 ]);
             }
+
+            $this->asignarRolMedico($datos['id_usuario']);
         });
 
         return redirect()->route('medicos.index')
@@ -95,7 +98,7 @@ class MedicoController extends Controller
 
         $usuariosDisponibles = User::where(function ($q) use ($medico) {
                 $q->whereDoesntHave('medico')
-                  ->orWhere('id_usuario', $medico->id_usuario);
+                  ->orWhere('id', $medico->id_usuario);
             })
             ->where('estado', 'activo')
             ->orderBy('nombre')
@@ -143,10 +146,49 @@ class MedicoController extends Controller
                     'activo' => isset($horario['activo']) ? (bool) $horario['activo'] : true,
                 ]);
             }
+
+            $this->asignarRolMedico($datos['id_usuario']);
         });
 
         return redirect()->route('medicos.index')
             ->with('success', 'Médico actualizado correctamente.');
+    }
+
+    public function show(Medico $medico)
+    {
+        $medico->load('especialidades', 'horariosActivos', 'usuario', 'citas.paciente');
+        $diasSemana = HorarioMedico::DIAS;
+        $totalCitas = $medico->citas()->count();
+        $citasAtendidas = $medico->citas()->where('estado_cita', 'atendida')->count();
+        $citasPendientes = $medico->citas()->where('estado_cita', 'pendiente')->count();
+        $citasHoy = $medico->citas()->whereDate('fecha_cita', today())->count();
+
+        return view('medicos.show', compact('medico', 'diasSemana', 'totalCitas', 'citasAtendidas', 'citasPendientes', 'citasHoy'));
+    }
+
+    public function desactivar(Medico $medico)
+    {
+        $medico->update(['estado' => 'inactivo']);
+
+        return redirect()->route('medicos.index')
+            ->with('success', 'Médico desactivado correctamente.');
+    }
+
+    public function activar(Medico $medico)
+    {
+        $medico->update(['estado' => 'activo']);
+
+        return redirect()->route('medicos.index')
+            ->with('success', 'Médico activado correctamente.');
+    }
+
+    private function asignarRolMedico(int $idUsuario): void
+    {
+        $rolMedico = Rol::where('nombre_rol', 'Medico')->first();
+        if ($rolMedico) {
+            $usuario = User::find($idUsuario);
+            $usuario?->roles()->syncWithoutDetaching([$rolMedico->id_rol]);
+        }
     }
 
     private function validarMedico(Request $request, ?Medico $medico = null): array
@@ -154,7 +196,7 @@ class MedicoController extends Controller
         $rules = [
             'id_usuario' => [
                 'required',
-                'exists:usuarios,id_usuario',
+                'exists:users,id',
                 $medico
                     ? Rule::unique('medicos', 'id_usuario')->ignore($medico->id_medico, 'id_medico')
                     : 'unique:medicos,id_usuario',

@@ -9,6 +9,11 @@ class Cita extends Model
     protected $table      = 'citas';
     protected $primaryKey = 'id_cita';
 
+    public function getRouteKeyName()
+    {
+        return 'id_cita';
+    }
+
     protected $fillable = [
         'codigo_cita', 'id_paciente', 'id_medico', 'id_usuario_registra',
         'fecha_cita', 'hora_inicio', 'hora_fin', 'motivo_consulta',
@@ -44,6 +49,28 @@ class Cita extends Model
     public function reprogramaciones()
     {
         return $this->hasMany(Cita::class, 'id_cita_reprogramada_desde', 'id_cita');
+    }
+
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'id_cita', 'id_cita');
+    }
+
+    public function pago()
+    {
+        return $this->hasOne(Pago::class, 'id_cita', 'id_cita')
+                    ->whereIn('estado_pago', ['pendiente', 'pagado'])
+                    ->latest();
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(Pago::class, 'id_cita', 'id_cita');
+    }
+
+    public function getEstaPagadaAttribute(): bool
+    {
+        return $this->pago && $this->pago->estado_pago === 'pagado';
     }
 
     public function getBadgeClassAttribute(): string
