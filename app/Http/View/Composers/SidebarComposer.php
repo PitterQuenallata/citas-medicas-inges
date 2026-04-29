@@ -15,6 +15,7 @@ class SidebarComposer
                 ['title' => 'Principal',             'route_name' => 'dashboard'],
                 ['title' => 'Estadísticas Médicas',  'route_name' => 'dashboard.analytics'],
                 ['title' => 'Agenda Médica',          'route_name' => 'dashboard.agenda'],
+                ['title' => 'Calendario',             'route_name' => 'dashboard.calendario'],
             ]],
         ];
     }

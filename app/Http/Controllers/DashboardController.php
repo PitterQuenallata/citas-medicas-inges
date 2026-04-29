@@ -126,6 +126,19 @@ class DashboardController extends Controller
         ));
     }
 
+    public function calendario(Request $request)
+    {
+        $result = $this->resolverMedico($request);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+        [$medico, $medicos, $medicoSeleccionado, $puedeSeleccionar] = $result;
+
+        return view('dashboard.doctor-calendario', compact(
+            'medico', 'medicos', 'medicoSeleccionado', 'puedeSeleccionar'
+        ));
+    }
+
     private function resolverMedico(Request $request)
     {
         $user = auth()->user();

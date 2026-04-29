@@ -402,10 +402,15 @@ class CitasController extends Controller
             'end'   => ['required', 'date'],
         ]);
 
-        $citas = Cita::with(['paciente', 'medico'])
+        $query = Cita::with(['paciente', 'medico'])
             ->whereBetween('fecha_cita', [$request->start, $request->end])
-            ->orderBy('hora_inicio')
-            ->get();
+            ->orderBy('hora_inicio');
+
+        if ($request->filled('medico_id')) {
+            $query->where('id_medico', $request->medico_id);
+        }
+
+        $citas = $query->get();
 
         $colores = [
             'pendiente'    => '#f59e0b',
