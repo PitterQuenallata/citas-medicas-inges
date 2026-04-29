@@ -64,5 +64,18 @@ class RolesPermisosSeeder extends Seeder
         if ($primerUsuario) {
             $primerUsuario->roles()->syncWithoutDetaching([$superAdmin->id_rol]);
         }
+
+        // Asignar rol Administrador a los usuarios admin
+        $adminEmails = [
+            'jgonzales2908@gmail.com',
+            'wger777@gmail.com',
+            'alexander@gmail.com',
+        ];
+        foreach ($adminEmails as $email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->roles()->syncWithoutDetaching([$admin->id_rol]);
+            }
+        }
     }
 }
