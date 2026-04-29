@@ -351,6 +351,24 @@ class CitasController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // NO ASISTIÓ
+    // -------------------------------------------------------------------------
+    public function noAsistio(Cita $cita)
+    {
+        if (!in_array($cita->estado_cita, ['pendiente', 'confirmada'])) {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden marcar como "no asistió" citas pendientes o confirmadas.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'no_asistio']);
+        Auditoria::registrar('no_asistio', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita marcada como "No asistió".');
+    }
+
+    // -------------------------------------------------------------------------
     // API — médicos filtrados por especialidad (AJAX)
     // -------------------------------------------------------------------------
     public function medicosPorEspecialidad(Especialidad $especialidad)
