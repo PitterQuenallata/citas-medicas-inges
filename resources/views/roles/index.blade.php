@@ -32,7 +32,6 @@
 }">
 
 <div class="flex items-center justify-between py-2 pb-4">
-    <h2 class="text-base font-medium tracking-wide text-slate-700 dark:text-navy-100">Roles del Sistema</h2>
     <button @click="abrirCrear()" class="btn bg-primary px-4 text-sm font-medium text-white hover:bg-primary-focus">
         + Nuevo Rol
     </button>

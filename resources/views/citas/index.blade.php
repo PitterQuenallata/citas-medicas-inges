@@ -42,6 +42,7 @@
         <table class="is-hoverable w-full text-left">
             <thead>
                 <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Nro</th>
                     <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Codigo</th>
                     <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Fecha / Hora</th>
                     <th class="whitespace-nowrap px-3 py-3 font-semibold uppercase text-slate-800 dark:text-navy-100 lg:px-5">Paciente</th>
@@ -55,6 +56,7 @@
             <tbody>
                 @forelse($citas as $cita)
                 <tr class="border-y border-transparent border-b-slate-200 dark:border-b-navy-500">
+                    <td class="whitespace-nowrap px-3 py-3 sm:px-5 font-medium text-slate-700 dark:text-navy-100">{{ $citas->firstItem() + $loop->index }}</td>
                     <td class="whitespace-nowrap px-3 py-3 sm:px-5 text-xs font-mono text-slate-500 dark:text-navy-300">{{ $cita->codigo_cita }}</td>
                     <td class="whitespace-nowrap px-3 py-3 sm:px-5">
                         <p class="text-sm font-medium text-slate-700 dark:text-navy-100">{{ $cita->fecha_cita ? $cita->fecha_cita->format('d/m/Y') : '—' }}</p>
@@ -104,7 +106,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="8" class="px-5 py-8 text-center text-slate-400">No se encontraron citas.</td></tr>
+                <tr><td colspan="9" class="px-5 py-8 text-center text-slate-400">No se encontraron citas.</td></tr>
                 @endforelse
             </tbody>
         </table>

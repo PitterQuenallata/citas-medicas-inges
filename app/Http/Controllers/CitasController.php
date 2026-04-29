@@ -27,8 +27,8 @@ class CitasController extends Controller
     public function index(Request $request)
     {
         $query = Cita::with(['paciente', 'medico', 'pago'])
-            ->orderBy('fecha_cita', 'desc')
-            ->orderBy('hora_inicio', 'asc');
+            ->orderBy('id_cita', 'desc');
+
 
         if ($request->filled('estado')) {
             $query->where('estado_cita', $request->estado);
@@ -351,6 +351,24 @@ class CitasController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // NO ASISTIÓ
+    // -------------------------------------------------------------------------
+    public function noAsistio(Cita $cita)
+    {
+        if (!in_array($cita->estado_cita, ['pendiente', 'confirmada'])) {
+            return redirect()->route('citas.show', $cita)
+                ->with('error', 'Solo se pueden marcar como "no asistió" citas pendientes o confirmadas.');
+        }
+
+        $datosAnteriores = $cita->toArray();
+        $cita->update(['estado_cita' => 'no_asistio']);
+        Auditoria::registrar('no_asistio', 'citas', $cita->id_cita, $datosAnteriores, $cita->fresh()->toArray());
+
+        return redirect()->route('citas.show', $cita)
+            ->with('success', 'Cita marcada como "No asistió".');
+    }
+
+    // -------------------------------------------------------------------------
     // API — médicos filtrados por especialidad (AJAX)
     // -------------------------------------------------------------------------
     public function medicosPorEspecialidad(Especialidad $especialidad)
@@ -402,10 +420,15 @@ class CitasController extends Controller
             'end'   => ['required', 'date'],
         ]);
 
-        $citas = Cita::with(['paciente', 'medico'])
+        $query = Cita::with(['paciente', 'medico'])
             ->whereBetween('fecha_cita', [$request->start, $request->end])
-            ->orderBy('hora_inicio')
-            ->get();
+            ->orderBy('hora_inicio');
+
+        if ($request->filled('medico_id')) {
+            $query->where('id_medico', $request->medico_id);
+        }
+
+        $citas = $query->get();
 
         $colores = [
             'pendiente'    => '#f59e0b',
