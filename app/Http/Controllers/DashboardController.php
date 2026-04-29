@@ -11,29 +11,31 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
         if ($user->esMedico() && !$user->esSuperAdmin()) {
-            return $this->dashboardDoctor($user);
+            return $this->dashboardDoctor($user->medicoProfile());
+        }
+
+        if ($request->filled('medico_id')) {
+            $medico = Medico::find($request->medico_id);
+            if ($medico) {
+                return $this->dashboardDoctor($medico, true);
+            }
         }
 
         return view('dashboard');
     }
 
-    public function analytics()
+    public function analytics(Request $request)
     {
-        $user = auth()->user();
-
-        if (!$user->esMedico() && !$user->esSuperAdmin()) {
-            return redirect()->route('dashboard');
+        $result = $this->resolverMedico($request);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
-
-        $medico = $user->medicoProfile();
-        if (!$medico) {
-            return redirect()->route('dashboard');
-        }
+        [$medico, $medicos, $medicoSeleccionado, $puedeSeleccionar] = $result;
 
         $mesesLabels = [];
         $mesesData = [];
@@ -68,22 +70,18 @@ class DashboardController extends Controller
 
         return view('dashboard.doctor-analytics', compact(
             'medico', 'mesesLabels', 'mesesData', 'estadosCitas',
-            'topPacientes', 'tasaAtencion', 'tasaCancelacion', 'totalCitas'
+            'topPacientes', 'tasaAtencion', 'tasaCancelacion', 'totalCitas',
+            'medicos', 'medicoSeleccionado', 'puedeSeleccionar'
         ));
     }
 
-    public function agenda()
+    public function agenda(Request $request)
     {
-        $user = auth()->user();
-
-        if (!$user->esMedico() && !$user->esSuperAdmin()) {
-            return redirect()->route('dashboard');
+        $result = $this->resolverMedico($request);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
-
-        $medico = $user->medicoProfile();
-        if (!$medico) {
-            return redirect()->route('dashboard');
-        }
+        [$medico, $medicos, $medicoSeleccionado, $puedeSeleccionar] = $result;
 
         $medico->load('horariosActivos');
         $diasSemana = HorarioMedico::DIAS;
@@ -123,18 +121,56 @@ class DashboardController extends Controller
             ->groupBy(fn ($c) => Carbon::parse($c->fecha_cita)->dayOfWeekIso);
 
         return view('dashboard.doctor-agenda', compact(
-            'medico', 'diasSemana', 'proximasCitas', 'historialReciente', 'citasSemana'
+            'medico', 'diasSemana', 'proximasCitas', 'historialReciente', 'citasSemana',
+            'medicos', 'medicoSeleccionado', 'puedeSeleccionar'
         ));
     }
 
-    private function dashboardDoctor($user)
+    private function resolverMedico(Request $request)
     {
-        $medico = $user->medicoProfile();
+        $user = auth()->user();
+        $puedeSeleccionar = !$user->esMedico() || $user->esSuperAdmin();
+        $medicos = collect();
+        $medicoSeleccionado = null;
+
+        if ($puedeSeleccionar) {
+            $medicos = Medico::where('estado', 'activo')->orderBy('apellidos')->get();
+
+            if ($request->filled('medico_id')) {
+                $medico = Medico::find($request->medico_id);
+                $medicoSeleccionado = $medico?->id_medico;
+            } else {
+                $medico = $medicos->first();
+                $medicoSeleccionado = $medico?->id_medico;
+            }
+
+            if (!$medico) {
+                return redirect()->route('dashboard')->with('error', 'No hay medicos activos en el sistema.');
+            }
+        } else {
+            $medico = $user->medicoProfile();
+            if (!$medico) {
+                return redirect()->route('dashboard');
+            }
+        }
+
+        return [$medico, $medicos, $medicoSeleccionado, $puedeSeleccionar];
+    }
+
+    private function dashboardDoctor(Medico $medico = null, bool $adminView = false)
+    {
         if (!$medico) {
             return view('dashboard');
         }
 
         $hoy = today();
+        $medicos = collect();
+        $medicoSeleccionado = $medico->id_medico;
+        $puedeSeleccionar = $adminView;
+
+        if ($adminView) {
+            $medicos = Medico::where('estado', 'activo')->orderBy('apellidos')->get();
+        }
 
         $citasHoy = Cita::where('id_medico', $medico->id_medico)
             ->whereDate('fecha_cita', $hoy)
@@ -166,7 +202,8 @@ class DashboardController extends Controller
 
         return view('dashboard.doctor', compact(
             'medico', 'citasHoy', 'atendidosHoy', 'pendientesHoy',
-            'totalCitasHoy', 'proximaCita', 'totalPacientes', 'citasSemana'
+            'totalCitasHoy', 'proximaCita', 'totalPacientes', 'citasSemana',
+            'medicos', 'medicoSeleccionado', 'puedeSeleccionar'
         ));
     }
 }

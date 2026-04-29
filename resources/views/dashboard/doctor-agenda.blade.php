@@ -1,23 +1,26 @@
 @extends('layouts.app')
-@section('title', 'Mi Agenda')
+@section('title', 'Agenda Médica')
 
 @section('content')
+{{-- Filtro de médico (admin/recepcionista) --}}
+@include('dashboard._filtro-medico')
+
 {{-- Header --}}
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">
-            Mi Agenda - Dr. {{ $medico->nombres }} {{ $medico->apellidos }}
+            Agenda - Dr. {{ $medico->nombres }} {{ $medico->apellidos }}
         </h2>
         <p class="mt-1 text-sm text-slate-400 dark:text-navy-300">
             Semana del {{ now()->startOfWeek()->format('d/m') }} al {{ now()->endOfWeek()->format('d/m/Y') }}
         </p>
     </div>
     <div class="flex gap-2">
-        <a href="{{ route('dashboard') }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+        <a href="{{ route('dashboard', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
             <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Dashboard
         </a>
-        <a href="{{ route('dashboard.analytics') }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+        <a href="{{ route('dashboard.analytics', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
             Estadísticas
         </a>
     </div>

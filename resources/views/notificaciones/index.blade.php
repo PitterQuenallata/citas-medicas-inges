@@ -4,8 +4,8 @@
 @section('content')
 
 <div class="flex items-center justify-between pb-4">
-    <h2 class="text-lg font-medium text-slate-700 dark:text-navy-100">Notificaciones WhatsApp</h2>
-    <div class="flex items-center gap-3">
+    
+    <div class="flex items-center gap-2">
         <div class="flex gap-2">
             <span class="badge rounded-full bg-success/10 text-success text-xs px-3 py-1">Enviadas: {{ $conteos['enviadas'] }}</span>
             <span class="badge rounded-full bg-error/10 text-error text-xs px-3 py-1">Fallidas: {{ $conteos['fallidas'] }}</span>

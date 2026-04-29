@@ -1,25 +1,28 @@
 @extends('layouts.app')
-@section('title', 'Mi Dashboard')
+@section('title', $puedeSeleccionar ? 'Dashboard Medico' : 'Mi Dashboard')
 
 @section('content')
+{{-- Filtro de médico (admin/recepcionista) --}}
+@include('dashboard._filtro-medico')
+
 {{-- Bienvenida --}}
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-xl font-semibold text-slate-700 dark:text-navy-100">
-            Bienvenido, Dr. {{ $medico->nombres }} {{ $medico->apellidos }}
+            {{ $puedeSeleccionar ? 'Dashboard de' : 'Bienvenido,' }} Dr. {{ $medico->nombres }} {{ $medico->apellidos }}
         </h2>
         <p class="mt-1 text-sm text-slate-400 dark:text-navy-300">
             {{ now()->translatedFormat('l, d \\d\\e F \\d\\e Y') }}
         </p>
     </div>
     <div class="flex gap-2">
-        <a href="{{ route('dashboard.analytics') }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+        <a href="{{ route('dashboard.analytics', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
             <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             Estadísticas
         </a>
-        <a href="{{ route('dashboard.agenda') }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
+        <a href="{{ route('dashboard.agenda', $puedeSeleccionar ? ['medico_id' => $medico->id_medico] : []) }}" class="btn h-9 border border-slate-300 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:border-navy-450 dark:text-navy-200 dark:hover:bg-navy-600">
             <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            Mi Agenda
+            Agenda
         </a>
     </div>
 </div>
