@@ -48,13 +48,20 @@ class SidebarComposer
 
     private static function seccionPacientes(): array
     {
+        $user = Auth::user();
+        $soloVista = $user && $user->esMedico() && !$user->esSuperAdmin();
+
+        $items = [
+            ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
+        ];
+        if (!$soloVista) {
+            $items[] = ['title' => 'Nuevo Paciente', 'route_name' => 'pacientes.create'];
+        }
+        $items[] = ['title' => 'Historial Clinico', 'route_name' => 'historial.index'];
+
         return [
             'title' => 'Pacientes',
-            'items' => [[
-                ['title' => 'Lista de Pacientes','route_name' => 'pacientes.index'],
-                ['title' => 'Nuevo Paciente',    'route_name' => 'pacientes.create'],
-                ['title' => 'Historial Clinico', 'route_name' => 'historial.index'],
-            ]],
+            'items' => [$items],
         ];
     }
 
