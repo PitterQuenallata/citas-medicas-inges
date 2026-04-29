@@ -27,6 +27,8 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+    Route::get('/dashboard/agenda', [DashboardController::class, 'agenda'])->name('dashboard.agenda');
 
     // Citas
     Route::middleware('permiso:acceso_citas')->group(function () {
