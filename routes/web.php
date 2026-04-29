@@ -31,10 +31,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/agenda', [DashboardController::class, 'agenda'])->name('dashboard.agenda');
     Route::get('/dashboard/calendario', [DashboardController::class, 'calendario'])->name('dashboard.calendario');
 
+    // API calendario (accesible desde Dashboard y Citas)
+    Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
+
     // Citas
     Route::middleware('permiso:acceso_citas')->group(function () {
         Route::get('citas/calendario', [CitasController::class, 'calendario'])->name('citas.calendario');
-        Route::get('api/citas/eventos', [CitasController::class, 'calendarEvents'])->name('api.citas.eventos');
         Route::resource('citas', CitasController::class);
         Route::patch('citas/{cita}/cancelar',    [CitasController::class, 'cancelar'])->name('citas.cancelar');
         Route::patch('citas/{cita}/confirmar',   [CitasController::class, 'confirmar'])->name('citas.confirmar');
