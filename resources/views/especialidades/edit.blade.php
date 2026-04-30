@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Editar Especialidades')
+@section('title', 'Editar Especialidad')
 
 @section('content')
 <div class="flex items-center gap-2 pb-4">
@@ -17,14 +17,23 @@
             <label class="block sm:col-span-2">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombre <span class="text-error">*</span></span>
                 <input type="text" name="nombre_especialidad" value="{{ old('nombre_especialidad', $especialidad->nombre_especialidad) }}" required
+                    maxlength="100"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('nombre_especialidad') border-error @enderror" />
                 @error('nombre_especialidad')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
             <label class="block sm:col-span-2">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Descripción</span>
                 <input type="text" name="descripcion" value="{{ old('descripcion', $especialidad->descripcion) }}"
+                    maxlength="255"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('descripcion') border-error @enderror" />
                 @error('descripcion')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+            </label>
+            <label class="block">
+                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Costo de consulta (Bs.)</span>
+                <input type="number" name="costo_consulta" min="0" max="99999.99" step="0.01"
+                    value="{{ old('costo_consulta', $especialidad->costo_consulta) }}"
+                    class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('costo_consulta') border-error @enderror" />
+                @error('costo_consulta')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Estado <span class="text-error">*</span></span>

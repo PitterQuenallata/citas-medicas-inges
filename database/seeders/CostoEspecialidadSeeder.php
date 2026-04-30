@@ -11,15 +11,15 @@ class CostoEspecialidadSeeder extends Seeder
     {
         $costos = [
             'Medicina General'       => 50.00,
-            'Pediatria'              => 60.00,
-            'Ginecologia'            => 80.00,
-            'Cardiologia'            => 100.00,
-            'Dermatologia'           => 70.00,
-            'Traumatologia'          => 90.00,
-            'Oftalmologia'           => 75.00,
-            'Otorrinolaringologia'   => 80.00,
-            'Neurologia'             => 120.00,
-            'Urologia'               => 85.00,
+            'Pediatría'              => 60.00,
+            'Ginecología'            => 80.00,
+            'Cardiología'            => 100.00,
+            'Dermatología'           => 70.00,
+            'Traumatología'          => 90.00,
+            'Oftalmología'           => 75.00,
+            'Otorrinolaringología'   => 80.00,
+            'Neurología'             => 120.00,
+            'Urología'               => 85.00,
         ];
 
         foreach ($costos as $nombre => $costo) {

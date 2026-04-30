@@ -1,17 +1,22 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE notificaciones MODIFY COLUMN tipo_notificacion ENUM('recordatorio','confirmacion','cancelacion','reserva','reprogramacion') NOT NULL");
+        Schema::table('notificaciones', function (Blueprint $table) {
+            $table->enum('tipo_notificacion', ['recordatorio', 'confirmacion', 'cancelacion', 'reserva', 'reprogramacion'])->nullable(false)->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE notificaciones MODIFY COLUMN tipo_notificacion ENUM('recordatorio','confirmacion','cancelacion') NOT NULL");
+        Schema::table('notificaciones', function (Blueprint $table) {
+            $table->enum('tipo_notificacion', ['recordatorio', 'confirmacion', 'cancelacion'])->nullable(false)->change();
+        });
     }
 };

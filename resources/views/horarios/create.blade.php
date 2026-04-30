@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Nueva Horarios Medicos')
+@section('title', 'Nuevo Horario Médico')
 
 @section('content')
 <div class="flex items-center gap-2 pb-4">
@@ -20,7 +20,8 @@
                     class="form-select mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('id_medico') border-error @enderror">
                     <option value="" disabled {{ old('id_medico') ? '' : 'selected' }}>Seleccionar...</option>
                     @foreach($medicos as $medico)
-                        <option value="{{ $medico->id_medico }}" {{ (string)old('id_medico') === (string)$medico->id_medico ? 'selected' : '' }}>
+                        {{-- NUEVO: soporta pre-selección via ?medico_id=X desde la vista de horarios por médico --}}
+                        <option value="{{ $medico->id_medico }}" {{ (string)old('id_medico', request('medico_id')) === (string)$medico->id_medico ? 'selected' : '' }}>
                             {{ $medico->nombre_completo }} ({{ $medico->codigo_medico }})
                         </option>
                     @endforeach

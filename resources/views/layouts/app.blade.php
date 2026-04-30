@@ -24,6 +24,7 @@
             document.documentElement.classList.add("dark");
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
 </head>
 
@@ -50,34 +51,7 @@
                 </div>
             </div>
 
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-                    class="alert flex rounded-lg border border-success/30 bg-success/10 py-4 px-4 text-success sm:px-5 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert flex rounded-lg border border-error/30 bg-error/10 py-4 px-4 text-error sm:px-5 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>{{ session('error') }}</span>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert flex rounded-lg border border-error/30 bg-error/10 py-4 px-4 text-error sm:px-5 mb-4">
-                    <ul class="list-disc list-inside text-sm">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            {{-- SweetAlert: los mensajes flash y errores se muestran via JS abajo --}}
 
             @yield('content')
         </div>
@@ -87,6 +61,61 @@
 
     <script>
         window.addEventListener("DOMContentLoaded", () => Alpine.start());
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: @json(session('success')),
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+        });
+        @endif
+
+        @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: @json(session('error')),
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 6000,
+            timerProgressBar: true,
+        });
+        @endif
+
+        @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Advertencia',
+            text: @json(session('warning')),
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+        });
+        @endif
+
+        @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Revisa el formulario',
+            html: '<ul class="text-left text-sm space-y-1">' +
+                @json($errors->all()).map(e => `<li>• ${e}</li>`).join('') +
+                '</ul>',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6',
+        });
+        @endif
+    });
     </script>
 
     @stack('scripts')
