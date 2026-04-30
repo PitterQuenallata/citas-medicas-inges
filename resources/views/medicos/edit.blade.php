@@ -36,14 +36,11 @@
 
             <div>
                 <label class="block">
-                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Código médico <span class="text-error">*</span></span>
-                    <input type="text" name="codigo_medico" required
-                        x-model="codigo_medico.value" @blur="codigo_medico.blurred = true" x-effect="codigo_medico.errorMessage = getErrorMessage(codigo_medico.value, 'codigo_medico')"
-                        :class="{ 'border-slate-300 focus:border-primary dark:border-navy-450': !codigo_medico.blurred, 'border-error': codigo_medico.blurred && codigo_medico.errorMessage, 'border-success': codigo_medico.blurred && !codigo_medico.errorMessage }"
-                        class="form-input mt-1.5 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none dark:bg-navy-700 dark:text-navy-100 @error('codigo_medico') border-error @enderror" />
+                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Código médico</span>
+                    <input type="text" name="codigo_medico" readonly
+                        x-model="codigo_medico.value"
+                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 cursor-not-allowed dark:border-navy-450 dark:bg-navy-600 dark:text-navy-300" />
                 </label>
-                <span class="mt-1 text-xs text-error" x-show="codigo_medico.blurred && codigo_medico.errorMessage" x-text="codigo_medico.errorMessage"></span>
-                @error('codigo_medico')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -245,7 +242,7 @@ function medicoForm() {
             });
         },
         getErrorMessage(value, field) {
-            if (['id_usuario', 'codigo_medico'].includes(field)) {
+            if (['id_usuario'].includes(field)) {
                 if (!value) return 'Este campo es requerido';
             }
             if (['nombres', 'apellidos'].includes(field)) {
@@ -272,7 +269,7 @@ function medicoForm() {
         },
         validarSubmit(e) {
             let hasError = false;
-            const fields = ['id_usuario', 'codigo_medico', 'nombres', 'apellidos', 'ci', 'telefono', 'email', 'matricula_profesional'];
+            const fields = ['id_usuario', 'nombres', 'apellidos', 'ci', 'telefono', 'email', 'matricula_profesional'];
             
             fields.forEach(f => {
                 this[f].blurred = true;

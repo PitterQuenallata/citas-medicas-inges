@@ -16,33 +16,15 @@
     <div class="card p-4 sm:p-5">
         <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-5">Datos del Médico</h3>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-                <label class="block">
-                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Usuario vinculado <span class="text-error">*</span></span>
-                    <select name="id_usuario" required
-                        x-model="id_usuario.value" @blur="id_usuario.blurred = true" x-effect="id_usuario.errorMessage = getErrorMessage(id_usuario.value, 'id_usuario')"
-                        :class="{ 'border-slate-300 focus:border-primary dark:border-navy-450': !id_usuario.blurred, 'border-error': id_usuario.blurred && id_usuario.errorMessage, 'border-success': id_usuario.blurred && !id_usuario.errorMessage }"
-                        class="form-select mt-1.5 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none dark:bg-navy-700 dark:text-navy-100 @error('id_usuario') border-error @enderror">
-                        <option value="" disabled>Seleccionar usuario...</option>
-                        @foreach($usuariosSinMedico as $usuario)
-                            <option value="{{ $usuario->id }}">{{ $usuario->nombre }} {{ $usuario->apellido }} ({{ $usuario->email }})</option>
-                        @endforeach
-                    </select>
-                </label>
-                <span class="mt-1 text-xs text-error" x-show="id_usuario.blurred && id_usuario.errorMessage" x-text="id_usuario.errorMessage"></span>
-                @error('id_usuario')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
-            </div>
+
 
             <div>
                 <label class="block">
-                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Código médico <span class="text-error">*</span></span>
-                    <input type="text" name="codigo_medico" required
-                        x-model="codigo_medico.value" @blur="codigo_medico.blurred = true" x-effect="codigo_medico.errorMessage = getErrorMessage(codigo_medico.value, 'codigo_medico')"
-                        :class="{ 'border-slate-300 focus:border-primary dark:border-navy-450': !codigo_medico.blurred, 'border-error': codigo_medico.blurred && codigo_medico.errorMessage, 'border-success': codigo_medico.blurred && !codigo_medico.errorMessage }"
-                        class="form-input mt-1.5 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none dark:bg-navy-700 dark:text-navy-100 @error('codigo_medico') border-error @enderror" />
+                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Código médico</span>
+                    <input type="text" name="codigo_medico" readonly
+                        x-model="codigo_medico.value"
+                        class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 cursor-not-allowed dark:border-navy-450 dark:bg-navy-600 dark:text-navy-300" />
                 </label>
-                <span class="mt-1 text-xs text-error" x-show="codigo_medico.blurred && codigo_medico.errorMessage" x-text="codigo_medico.errorMessage"></span>
-                @error('codigo_medico')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -115,6 +97,18 @@
                 </label>
                 <span class="mt-1 text-xs text-error" x-show="matricula_profesional.blurred && matricula_profesional.errorMessage" x-text="matricula_profesional.errorMessage"></span>
                 @error('matricula_profesional')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label class="block">
+                    <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Contraseña de acceso <span class="text-error">*</span></span>
+                    <input type="password" name="password" required minlength="8"
+                        x-model="password.value" @blur="password.blurred = true" x-effect="password.errorMessage = getErrorMessage(password.value, 'password')"
+                        :class="{ 'border-slate-300 focus:border-primary dark:border-navy-450': !password.blurred, 'border-error': password.blurred && password.errorMessage, 'border-success': password.blurred && !password.errorMessage }"
+                        class="form-input mt-1.5 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none dark:bg-navy-700 dark:text-navy-100 @error('password') border-error @enderror" />
+                </label>
+                <span class="mt-1 text-xs text-error" x-show="password.blurred && password.errorMessage" x-text="password.errorMessage"></span>
+                @error('password')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -214,13 +208,13 @@
 <script>
 function medicoForm() {
     return {
-        id_usuario: { value: '{{ old('id_usuario') }}', errorMessage: '', blurred: false },
         codigo_medico: { value: '{{ old('codigo_medico', $codigoSugerido) }}', errorMessage: '', blurred: false },
         nombres: { value: '{{ old('nombres') }}', errorMessage: '', blurred: false },
         apellidos: { value: '{{ old('apellidos') }}', errorMessage: '', blurred: false },
         ci: { value: '{{ old('ci') }}', errorMessage: '', blurred: false },
         telefono: { value: '{{ old('telefono') }}', errorMessage: '', blurred: false },
         email: { value: '{{ old('email') }}', errorMessage: '', blurred: false },
+        password: { value: '{{ old('password') }}', errorMessage: '', blurred: false },
         matricula_profesional: { value: '{{ old('matricula_profesional') }}', errorMessage: '', blurred: false },
         estado: { value: '{{ old('estado', 'activo') }}', errorMessage: '', blurred: false },
         especialidadesSeleccionadas: @json(old('especialidades', [])).map(String),
@@ -236,8 +230,11 @@ function medicoForm() {
             });
         },
         getErrorMessage(value, field) {
-            if (['id_usuario', 'codigo_medico'].includes(field)) {
+            if (['password'].includes(field)) {
                 if (!value) return 'Este campo es requerido';
+            }
+            if (field === 'password' && value.length < 8) {
+                return 'La contraseña debe tener al menos 8 caracteres';
             }
             if (['nombres', 'apellidos'].includes(field)) {
                 if (!value) return 'Este campo es requerido';
@@ -263,7 +260,7 @@ function medicoForm() {
         },
         validarSubmit(e) {
             let hasError = false;
-            const fields = ['id_usuario', 'codigo_medico', 'nombres', 'apellidos', 'ci', 'telefono', 'email', 'matricula_profesional'];
+            const fields = ['nombres', 'apellidos', 'ci', 'telefono', 'email', 'matricula_profesional', 'password'];
             
             fields.forEach(f => {
                 this[f].blurred = true;

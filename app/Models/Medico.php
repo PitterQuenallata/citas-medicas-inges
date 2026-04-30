@@ -89,6 +89,13 @@ class Medico extends Model
 
     public static function generarCodigo(): string
     {
+        $ultimoCodigo = static::orderBy('id_medico', 'desc')->value('codigo_medico');
+        
+        if ($ultimoCodigo && preg_match('/^MED-(\d+)$/', $ultimoCodigo, $matches)) {
+            $numero = (int) $matches[1];
+            return 'MED-' . str_pad($numero + 1, 4, '0', STR_PAD_LEFT);
+        }
+
         $ultimo = static::orderBy('id_medico', 'desc')->value('id_medico') ?? 0;
         return 'MED-' . str_pad($ultimo + 1, 4, '0', STR_PAD_LEFT);
     }

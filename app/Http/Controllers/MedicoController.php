@@ -36,17 +36,12 @@ class MedicoController extends Controller
             ->orderBy('nombre_especialidad')
             ->get();
 
-        $usuariosSinMedico = User::whereDoesntHave('medico')
-            ->where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
 
         $codigoSugerido = Medico::generarCodigo();
         $diasSemana = HorarioMedico::DIAS;
 
         return view('medicos.create', compact(
             'especialidades',
-            'usuariosSinMedico',
             'codigoSugerido',
             'diasSemana'
         ));
@@ -57,8 +52,19 @@ class MedicoController extends Controller
         $datos = $this->validarMedico($request);
 
         DB::transaction(function () use ($datos) {
+            $email = !empty($datos['email']) ? $datos['email'] : strtolower(explode(' ', $datos['nombres'])[0] . '.' . explode(' ', $datos['apellidos'])[0] . rand(1000, 9999) . '@medico.com');
+            
+            $usuario = User::create([
+                'nombre'   => $datos['nombres'],
+                'apellido' => $datos['apellidos'],
+                'email'    => $email,
+                'telefono' => $datos['telefono'] ?? null,
+                'password' => $datos['password'],
+                'estado'   => 'activo',
+            ]);
+
             $medico = Medico::create([
-                'id_usuario'            => $datos['id_usuario'],
+                'id_usuario'            => $usuario->id,
                 'codigo_medico'         => $datos['codigo_medico'],
                 'nombres'               => strtoupper($datos['nombres']),
                 'apellidos'             => strtoupper($datos['apellidos']),
@@ -81,7 +87,7 @@ class MedicoController extends Controller
                 ]);
             }
 
-            $this->asignarRolMedico($datos['id_usuario']);
+            $this->asignarRolMedico($usuario->id);
         });
 
         return redirect()->route('medicos.index')
@@ -205,7 +211,7 @@ class MedicoController extends Controller
     {
         $rules = [
             'id_usuario' => [
-                'required',
+                $medico ? 'required' : 'nullable',
                 'exists:users,id',
                 $medico
                     ? Rule::unique('medicos', 'id_usuario')->ignore($medico->id_medico, 'id_medico')
@@ -223,7 +229,8 @@ class MedicoController extends Controller
             'apellidos' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'ci'        => ['nullable', 'digits_between:7,12'],
             'telefono'  => ['nullable', 'digits:8'],
-            'email'     => ['nullable', 'email', 'max:150'],
+            'password'  => [$medico ? 'nullable' : 'required', 'string', 'min:8'],
+            'email'     => ['nullable', 'email', 'max:150', $medico ? '' : 'unique:users,email'],
             'matricula_profesional' => [
                 'required',
                 'string',

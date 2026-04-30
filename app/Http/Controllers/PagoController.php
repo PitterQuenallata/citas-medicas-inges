@@ -19,7 +19,7 @@ class PagoController extends Controller
     public function index(Request $request)
     {
         $query = Pago::with(['cita.paciente', 'cita.medico', 'usuarioRegistra'])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id_pago', 'desc');
 
         if ($request->filled('estado')) {
             $query->where('estado_pago', $request->estado);
