@@ -1,18 +1,16 @@
 <x-base-layout title="Iniciar Sesión">
-    <div class="fixed top-0 hidden p-6 lg:block lg:px-12">
-        <a href="#" class="flex items-center space-x-2">
-            <img class="size-14" src="{{ asset('img/logo-clinica.svg') }}" alt="Logo Clínica" />
-            <p class="text-xl font-semibold uppercase text-slate-700 dark:text-navy-100">
-                {{ config('app.name') }}
-            </p>
-        </a>
+    <div class="absolute top-6 left-6 flex items-center space-x-3" style="z-index:1000;">
+        <img src="{{ asset('img/logo-clinica.svg') }}" alt="Logo Clínica" class="h-12 w-12" style="filter:none; opacity:1;" />
+        <span class="text-xl font-semibold uppercase text-slate-700 dark:text-navy-100" style="color:#64748b; opacity:1;">
+            CLINICA MEDICOS CRISTIANOS SOLIDARIOS
+        </span>
     </div>
-    <div class="hidden w-full place-items-center lg:grid">
-        <div class="w-full max-w-lg p-6">
-            <img class="w-full" x-show="!$store.global.isDarkModeEnabled"
-                src="{{ asset('images/illustrations/dashboard-check.svg') }}" alt="image" />
-            <img class="w-full" x-show="$store.global.isDarkModeEnabled"
-                src="{{ asset('images/illustrations/dashboard-check-dark.svg') }}" alt="image" />
+    <div class="hidden w-full place-items-center lg:grid relative">
+        <div class="absolute inset-0 w-full h-full z-0">
+            <img src="{{ asset('img/fondologin.png') }}" alt="Fondo login" class="object-cover w-full h-full" style="opacity:1;" />
+        </div>
+        <div class="w-full max-w-lg p-6 relative z-10">
+            <!-- Solo fondo, sin personaje -->
         </div>
     </div>
     <main class="flex w-full flex-col items-center bg-white dark:bg-navy-700 lg:max-w-md">
