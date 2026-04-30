@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEspecialidadRequest;
+use App\Http\Requests\UpdateEspecialidadRequest;
 use App\Models\Especialidad;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class EspecialidadController extends Controller
 {
@@ -11,15 +14,17 @@ class EspecialidadController extends Controller
     {
         $buscar = $request->buscar;
 
-        $especialidades = Especialidad::when($buscar, function ($q) use ($buscar) {
-            $q->where(function ($query) use ($buscar) {
-                $query->where('nombre_especialidad', 'like', "%{$buscar}%")
-                    ->orWhere('descripcion', 'like', "%{$buscar}%");
-            });
-        })
-        ->orderBy('id_especialidad', 'desc')
-        ->paginate(10)
-        ->withQueryString();
+        $especialidades = Especialidad::withCount('medicos')
+            ->when($buscar, function ($q) use ($buscar) {
+                $q->where(function ($query) use ($buscar) {
+                    $query->where('nombre_especialidad', 'like', "%{$buscar}%")
+                          ->orWhere('descripcion', 'like', "%{$buscar}%");
+                });
+            })
+            // REFACTOR: ordenar alfabéticamente es más intuitivo que por id
+            ->orderBy('nombre_especialidad')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('especialidades.index', compact('especialidades'));
     }
@@ -29,22 +34,28 @@ class EspecialidadController extends Controller
         return view('especialidades.create');
     }
 
-    public function store(Request $request)
+    // REFACTOR: validación movida a StoreEspecialidadRequest
+    public function store(StoreEspecialidadRequest $request)
     {
-        $request->validate([
-            'nombre_especialidad' => 'required|string|max:100|unique:especialidades,nombre_especialidad',
-            'descripcion' => 'nullable|string|max:255',
-            'estado' => 'nullable|in:activo,inactivo',
-        ]);
-
         Especialidad::create([
             'nombre_especialidad' => $request->nombre_especialidad,
-            'descripcion' => $request->descripcion,
-            'estado' => $request->estado ?? 'activo',
+            'descripcion'         => $request->descripcion,
+            'costo_consulta'      => $request->costo_consulta ?? 0,
+            'estado'              => $request->estado ?? 'activo',
         ]);
 
         return redirect()->route('especialidades.index')
-            ->with('success', 'Especialidad creada correctamente');
+            ->with('success', 'Especialidad creada correctamente.');
+    }
+
+    // NUEVO: detalle de una especialidad con sus médicos asociados
+    public function show(Especialidad $especialidad)
+    {
+        $especialidad->load(['medicos' => function ($q) {
+            $q->orderBy('apellidos')->orderBy('nombres');
+        }]);
+
+        return view('especialidades.show', compact('especialidad'));
     }
 
     public function edit(Especialidad $especialidad)
@@ -52,21 +63,32 @@ class EspecialidadController extends Controller
         return view('especialidades.edit', compact('especialidad'));
     }
 
-    public function update(Request $request, Especialidad $especialidad)
+    // REFACTOR: validación movida a UpdateEspecialidadRequest
+    public function update(UpdateEspecialidadRequest $request, Especialidad $especialidad)
     {
-        $request->validate([
-            'nombre_especialidad' => 'required|string|max:100|unique:especialidades,nombre_especialidad,' . $especialidad->id_especialidad . ',id_especialidad',
-            'descripcion' => 'nullable|string|max:255',
-            'estado' => 'required|in:activo,inactivo',
+        $especialidad->update([
+            'nombre_especialidad' => $request->nombre_especialidad,
+            'descripcion'         => $request->descripcion,
+            'costo_consulta'      => $request->costo_consulta ?? 0,
+            'estado'              => $request->estado,
         ]);
 
-        $especialidad->update($request->only([
-            'nombre_especialidad',
-            'descripcion',
-            'estado',
-        ]));
+        return redirect()->route('especialidades.index')
+            ->with('success', 'Especialidad actualizada correctamente.');
+    }
+
+    // NUEVO: eliminar especialidad con guard de FK
+    public function destroy(Especialidad $especialidad)
+    {
+        if ($especialidad->medicos()->exists()) {
+            return redirect()->route('especialidades.index')
+                ->with('error', 'No se puede eliminar "' . $especialidad->nombre_especialidad . '" porque tiene médicos asociados.');
+        }
+
+        $nombre = $especialidad->nombre_especialidad;
+        $especialidad->delete();
 
         return redirect()->route('especialidades.index')
-            ->with('success', 'Especialidad actualizada correctamente');
+            ->with('success', "Especialidad \"{$nombre}\" eliminada correctamente.");
     }
 }

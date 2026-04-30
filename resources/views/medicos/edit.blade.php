@@ -41,6 +41,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombres <span class="text-error">*</span></span>
                 <input type="text" name="nombres" value="{{ old('nombres', $medico->nombres) }}" required
+                    maxlength="100" pattern="[A-Za-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00fc\u00f1\u00c1\u00c9\u00cd\u00d3\u00da\u00dc\u00d1 ]+" title="Solo letras y espacios"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('nombres') border-error @enderror" />
                 @error('nombres')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -48,6 +49,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Apellidos <span class="text-error">*</span></span>
                 <input type="text" name="apellidos" value="{{ old('apellidos', $medico->apellidos) }}" required
+                    maxlength="100" pattern="[A-Za-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00fc\u00f1\u00c1\u00c9\u00cd\u00d3\u00da\u00dc\u00d1 ]+" title="Solo letras y espacios"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('apellidos') border-error @enderror" />
                 @error('apellidos')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -55,6 +57,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">CI</span>
                 <input type="text" name="ci" value="{{ old('ci', $medico->ci) }}"
+                    pattern="[0-9]{8,10}" minlength="8" maxlength="10" title="Solo d\u00edgitos, entre 8 y 10 caracteres"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('ci') border-error @enderror" />
                 @error('ci')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -62,6 +65,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Teléfono</span>
                 <input type="text" name="telefono" value="{{ old('telefono', $medico->telefono) }}"
+                    pattern="[0-9]{9,10}" minlength="9" maxlength="10" title="Solo d\u00edgitos, 9 o 10 caracteres"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('telefono') border-error @enderror" />
                 @error('telefono')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -76,6 +80,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Matrícula profesional <span class="text-error">*</span></span>
                 <input type="text" name="matricula_profesional" value="{{ old('matricula_profesional', $medico->matricula_profesional) }}" required
+                    maxlength="50" pattern="[A-Z]+-[0-9]+" title="Formato: LETRAS-N\u00daMEROS en may\u00fasculas (ej: MED-12345)"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('matricula_profesional') border-error @enderror" />
                 @error('matricula_profesional')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>

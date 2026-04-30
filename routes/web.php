@@ -50,8 +50,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('medicos', MedicoController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
         Route::patch('medicos/{medico}/desactivar', [MedicoController::class, 'desactivar'])->name('medicos.desactivar');
         Route::patch('medicos/{medico}/activar', [MedicoController::class, 'activar'])->name('medicos.activar');
-        Route::resource('especialidades', EspecialidadController::class)->only(['index', 'create', 'store', 'edit', 'update']);
-        Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        // NUEVO: vista de horarios agrupados por médico
+        Route::get('medicos/{medico}/horarios', [MedicoController::class, 'horarios'])->name('medicos.horarios');
+        Route::resource('especialidades', EspecialidadController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+            ->parameters(['especialidades' => 'especialidad']); // NUEVO: fuerza {especialidad} para que el binding coincida con $especialidad en el controlador
+        Route::resource('horarios', HorarioController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     });
 
     // Pacientes, Historial
