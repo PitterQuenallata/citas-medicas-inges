@@ -18,12 +18,14 @@
             <label class="block sm:col-span-2">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombre <span class="text-error">*</span></span>
                 <input type="text" name="nombre_especialidad" value="{{ old('nombre_especialidad') }}" required
+                    maxlength="100"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('nombre_especialidad') border-error @enderror" />
                 @error('nombre_especialidad')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
             <label class="block sm:col-span-2">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Descripción</span>
                 <input type="text" name="descripcion" value="{{ old('descripcion') }}"
+                    maxlength="255"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('descripcion') border-error @enderror" />
                 @error('descripcion')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>

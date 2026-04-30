@@ -57,7 +57,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">CI</span>
                 <input type="text" name="ci" value="{{ old('ci', $medico->ci) }}"
-                    pattern="[0-9]{8,10}" minlength="8" maxlength="10" title="Solo d\u00edgitos, entre 8 y 10 caracteres"
+                    pattern="[0-9]{7,12}" minlength="7" maxlength="12" title="Solo d\u00edgitos, entre 7 y 12 caracteres"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('ci') border-error @enderror" />
                 @error('ci')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -65,7 +65,7 @@
             <label class="block">
                 <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Teléfono</span>
                 <input type="text" name="telefono" value="{{ old('telefono', $medico->telefono) }}"
-                    pattern="[0-9]{9,10}" minlength="9" maxlength="10" title="Solo d\u00edgitos, 9 o 10 caracteres"
+                    pattern="[0-9]{8}" minlength="8" maxlength="8" title="Exactamente 8 d\u00edgitos num\u00e9ricos"
                     class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700 dark:text-navy-100 @error('telefono') border-error @enderror" />
                 @error('telefono')<p class="mt-1 text-xs text-error">{{ $message }}</p>@enderror
             </label>
@@ -175,15 +175,18 @@
     </div>
 </form>
 
+@php
+    $horariosIniciales = old('horarios', $medico->horarios->map(fn($h) => [
+        'dia_semana'            => $h->dia_semana,
+        'hora_inicio'           => substr($h->hora_inicio, 0, 5),
+        'hora_fin'              => substr($h->hora_fin, 0, 5),
+        'duracion_cita_minutos' => $h->duracion_cita_minutos,
+    ])->values()->toArray());
+@endphp
 <script>
 function medicoForm() {
     return {
-        horarios: @json(old('horarios', $medico->horarios->map(fn($h) => [
-            'dia_semana' => $h->dia_semana,
-            'hora_inicio' => substr($h->hora_inicio, 0, 5),
-            'hora_fin' => substr($h->hora_fin, 0, 5),
-            'duracion_cita_minutos' => $h->duracion_cita_minutos,
-        ])->values()->toArray())),
+        horarios: @json($horariosIniciales),
         agregarHorario() {
             this.horarios.push({
                 dia_semana: 1,

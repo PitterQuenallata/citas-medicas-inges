@@ -221,8 +221,8 @@ class MedicoController extends Controller
             ],
             'nombres'   => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
             'apellidos' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
-            'ci'        => ['nullable', 'digits_between:8,10'],
-            'telefono'  => ['nullable', 'digits_between:9,10'],
+            'ci'        => ['nullable', 'digits_between:7,12'],
+            'telefono'  => ['nullable', 'digits:8'],
             'email'     => ['nullable', 'email', 'max:150'],
             'matricula_profesional' => [
                 'required',
@@ -246,8 +246,8 @@ class MedicoController extends Controller
         $messages = [
             'nombres.regex'               => 'Los nombres solo pueden contener letras y espacios.',
             'apellidos.regex'             => 'Los apellidos solo pueden contener letras y espacios.',
-            'ci.digits_between'           => 'La cédula debe tener entre 8 y 10 dígitos numéricos, sin guiones ni espacios.',
-            'telefono.digits_between'     => 'El teléfono debe tener entre 9 y 10 dígitos numéricos, sin espacios ni símbolos.',
+            'ci.digits_between'           => 'La cédula debe tener entre 7 y 12 dígitos numéricos, sin guiones ni espacios.',
+            'telefono.digits'             => 'El teléfono/celular debe tener exactamente 8 dígitos numéricos.', 
             'matricula_profesional.regex' => 'La matrícula debe tener el formato LETRAS-NÚMEROS, en mayúsculas (ej: MED-12345).',
         ];
 
