@@ -21,15 +21,6 @@ class UsuarioSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nombre'     => 'Recepcionista',
-                'apellido'   => 'Demo',
-                'email'      => 'recepcion@clinica.com',
-                'password'   => Hash::make('sopademani1'),
-                'estado'     => 'activo',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
                 'nombre'     => 'Carlos',
                 'apellido'   => 'Mendoza',
                 'email'      => 'c.mendoza@clinica.com',
@@ -38,7 +29,7 @@ class UsuarioSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-                        [
+            [
                 'nombre'     => 'Josue',
                 'apellido'   => 'Gonzales',
                 'email'      => 'jgonzales@clinica.com',
@@ -48,27 +39,9 @@ class UsuarioSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nombre'     => 'Josue',
-                'apellido'   => 'Gonzales',
-                'email'      => 'jgonzales2908@gmail.com',
-                'password'   => Hash::make('sopademani1'),
-                'estado'     => 'activo',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
                 'nombre'     => 'Walter',
                 'apellido'   => 'Ger',
                 'email'      => 'wger777@gmail.com',
-                'password'   => Hash::make('sopademani1'),
-                'estado'     => 'activo',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nombre'     => 'Alexander',
-                'apellido'   => 'Admin',
-                'email'      => 'alexander@gmail.com',
                 'password'   => Hash::make('sopademani1'),
                 'estado'     => 'activo',
                 'created_at' => now(),

@@ -32,16 +32,16 @@ class MedicoSeeder extends Seeder
         // Requiere que existan usuarios con id 1 y 2 (módulo de Walter).
         // Si no existen, se omite silenciosamente.
         $usuariosExistentes = DB::table('users')
-                                ->whereIn('id', [1, 2, 3])
-                                ->pluck('id')
-                                ->toArray();
+                                ->whereIn('id', [2, 3, 4])
+                                ->get();
 
-        if (empty($usuariosExistentes)) {
-            $this->command->warn('⚠ No se encontraron usuarios con id 1, 2 o 3. Corre el UserSeeder primero.');
+        if ($usuariosExistentes->isEmpty()) {
+            $this->command->warn('⚠ No se encontraron usuarios con id 2, 3 o 4. Corre el UserSeeder primero.');
             return;
         }
 
-        foreach ($usuariosExistentes as $idUsuario) {
+        foreach ($usuariosExistentes as $usuario) {
+            $idUsuario = $usuario->id;
             // No duplicar si ya tiene médico asignado
             if (DB::table('medicos')->where('id_usuario', $idUsuario)->exists()) {
                 $this->command->warn("⚠ El usuario {$idUsuario} ya tiene médico asignado — omitiendo");
@@ -52,11 +52,11 @@ class MedicoSeeder extends Seeder
             $idMedico  = DB::table('medicos')->insertGetId([
                 'id_usuario'            => $idUsuario,
                 'codigo_medico'         => "MED-{$num}",
-                'nombres'               => "Nombre{$idUsuario}",
-                'apellidos'             => "Apellido{$idUsuario}",
+                'nombres'               => $usuario->nombre,
+                'apellidos'             => $usuario->apellido,
                 'ci'                    => "1234567{$idUsuario}",
-                'telefono'              => "7999000{$idUsuario}",
-                'email'                 => "medico{$idUsuario}@clinica.com",
+                'telefono'              => "67033711",
+                'email'                 => $usuario->email,
                 'matricula_profesional' => "MAT-{$num}",
                 'estado'                => 'activo',
                 'created_at'            => now(),
