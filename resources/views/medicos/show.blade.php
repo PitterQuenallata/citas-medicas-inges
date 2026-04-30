@@ -143,7 +143,14 @@
 
 {{-- Horarios --}}
 <div class="card mt-4 p-4 sm:p-5">
-    <h3 class="text-base font-medium text-slate-700 dark:text-navy-100 mb-4">Horarios de Atención</h3>
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">Horarios de Atención</h3>
+        {{-- NUEVO: enlace a la vista de gestión de horarios agrupada --}}
+        <a href="{{ route('medicos.horarios', $medico->id_medico) }}"
+            class="btn h-8 rounded-lg border border-slate-300 px-3 text-xs font-medium hover:bg-slate-100 dark:border-navy-450 dark:hover:bg-navy-600">
+            Gestionar horarios
+        </a>
+    </div>
     @if($medico->horariosActivos->count())
         <div class="min-w-full overflow-x-auto">
             <table class="is-hoverable w-full text-left">

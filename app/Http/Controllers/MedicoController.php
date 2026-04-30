@@ -58,15 +58,15 @@ class MedicoController extends Controller
 
         DB::transaction(function () use ($datos) {
             $medico = Medico::create([
-                'id_usuario' => $datos['id_usuario'],
-                'codigo_medico' => $datos['codigo_medico'],
-                'nombres' => $datos['nombres'],
-                'apellidos' => $datos['apellidos'],
-                'ci' => $datos['ci'] ?? null,
-                'telefono' => $datos['telefono'] ?? null,
-                'email' => $datos['email'] ?? null,
-                'matricula_profesional' => $datos['matricula_profesional'],
-                'estado' => $datos['estado'],
+                'id_usuario'            => $datos['id_usuario'],
+                'codigo_medico'         => $datos['codigo_medico'],
+                'nombres'               => strtoupper($datos['nombres']),
+                'apellidos'             => strtoupper($datos['apellidos']),
+                'ci'                    => $datos['ci'] ?? null,
+                'telefono'              => $datos['telefono'] ?? null,
+                'email'                 => $datos['email'] ?? null,
+                'matricula_profesional' => strtoupper($datos['matricula_profesional']),
+                'estado'                => $datos['estado'],
             ]);
 
             $medico->especialidades()->sync($datos['especialidades'] ?? []);
@@ -122,15 +122,15 @@ class MedicoController extends Controller
 
         DB::transaction(function () use ($datos, $medico) {
             $medico->update([
-                'id_usuario' => $datos['id_usuario'],
-                'codigo_medico' => $datos['codigo_medico'],
-                'nombres' => $datos['nombres'],
-                'apellidos' => $datos['apellidos'],
-                'ci' => $datos['ci'] ?? null,
-                'telefono' => $datos['telefono'] ?? null,
-                'email' => $datos['email'] ?? null,
-                'matricula_profesional' => $datos['matricula_profesional'],
-                'estado' => $datos['estado'],
+                'id_usuario'            => $datos['id_usuario'],
+                'codigo_medico'         => $datos['codigo_medico'],
+                'nombres'               => strtoupper($datos['nombres']),
+                'apellidos'             => strtoupper($datos['apellidos']),
+                'ci'                    => $datos['ci'] ?? null,
+                'telefono'              => $datos['telefono'] ?? null,
+                'email'                 => $datos['email'] ?? null,
+                'matricula_profesional' => strtoupper($datos['matricula_profesional']),
+                'estado'                => $datos['estado'],
             ]);
 
             $medico->especialidades()->sync($datos['especialidades'] ?? []);
@@ -164,6 +164,16 @@ class MedicoController extends Controller
         $citasHoy = $medico->citas()->whereDate('fecha_cita', today())->count();
 
         return view('medicos.show', compact('medico', 'diasSemana', 'totalCitas', 'citasAtendidas', 'citasPendientes', 'citasHoy'));
+    }
+
+    // NUEVO: vista de horarios agrupados por día para un médico específico
+    public function horarios(Medico $medico)
+    {
+        $medico->load('horarios');
+        $diasSemana     = HorarioMedico::DIAS;
+        $horariosPorDia = $medico->horarios->groupBy('dia_semana')->sortKeys();
+
+        return view('medicos.horarios', compact('medico', 'diasSemana', 'horariosPorDia'));
     }
 
     public function desactivar(Medico $medico)
@@ -209,15 +219,16 @@ class MedicoController extends Controller
                     ? Rule::unique('medicos', 'codigo_medico')->ignore($medico->id_medico, 'id_medico')
                     : 'unique:medicos,codigo_medico',
             ],
-            'nombres' => ['required', 'string', 'max:100'],
-            'apellidos' => ['required', 'string', 'max:100'],
-            'ci' => ['nullable', 'string', 'max:20'],
-            'telefono' => ['nullable', 'string', 'max:20'],
-            'email' => ['nullable', 'email', 'max:150'],
+            'nombres'   => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'apellidos' => ['required', 'string', 'max:100', 'regex:/^[\pL\s]+$/u'],
+            'ci'        => ['nullable', 'digits_between:7,12'],
+            'telefono'  => ['nullable', 'digits:8'],
+            'email'     => ['nullable', 'email', 'max:150'],
             'matricula_profesional' => [
                 'required',
                 'string',
                 'max:50',
+                'regex:/^[A-Z]+-\d+$/',
                 $medico
                     ? Rule::unique('medicos', 'matricula_profesional')->ignore($medico->id_medico, 'id_medico')
                     : 'unique:medicos,matricula_profesional',
@@ -232,12 +243,23 @@ class MedicoController extends Controller
             'horarios.*.duracion_cita_minutos' => ['nullable', 'integer', 'between:5,240'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $messages = [
+            'nombres.regex'               => 'Los nombres solo pueden contener letras y espacios.',
+            'apellidos.regex'             => 'Los apellidos solo pueden contener letras y espacios.',
+            'ci.digits_between'           => 'La cédula debe tener entre 7 y 12 dígitos numéricos, sin guiones ni espacios.',
+            'telefono.digits'             => 'El teléfono/celular debe tener exactamente 8 dígitos numéricos.', 
+            'matricula_profesional.regex' => 'La matrícula debe tener el formato LETRAS-NÚMEROS, en mayúsculas (ej: MED-12345).',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         $validator->after(function ($validator) use ($request) {
-            foreach ($request->input('horarios', []) as $i => $horario) {
+            $horarios = $request->input('horarios', []);
+
+            // Validación individual: hora_fin > hora_inicio
+            foreach ($horarios as $i => $horario) {
                 $inicio = $horario['hora_inicio'] ?? null;
-                $fin = $horario['hora_fin'] ?? null;
+                $fin    = $horario['hora_fin']    ?? null;
 
                 if ($inicio && $fin && $fin <= $inicio) {
                     $validator->errors()->add(
@@ -245,6 +267,37 @@ class MedicoController extends Controller
                         'La hora fin debe ser mayor a la hora inicio.'
                     );
                 }
+            }
+
+            // NUEVO: detectar solapamientos entre filas del mismo día dentro del array enviado
+            $porDia = [];
+            foreach ($horarios as $i => $horario) {
+                $dia    = isset($horario['dia_semana']) ? (int) $horario['dia_semana'] : null;
+                $inicio = $horario['hora_inicio'] ?? null;
+                $fin    = $horario['hora_fin']    ?? null;
+
+                // Saltear filas inválidas (ya capturadas arriba)
+                if ($dia === null || !$inicio || !$fin || $fin <= $inicio) {
+                    continue;
+                }
+
+                // Normalizar a HH:MM:SS igual que en HorarioController::existeSolapamiento()
+                $inicioNorm = strlen($inicio) === 5 ? $inicio . ':00' : $inicio;
+                $finNorm    = strlen($fin)    === 5 ? $fin    . ':00' : $fin;
+
+                // Comparar contra cada fila ya procesada del mismo día
+                foreach ($porDia[$dia] ?? [] as [$j, $jInicio, $jFin]) {
+                    // Dos intervalos [a,b) y [c,d) se solapan si a < d && b > c
+                    if ($inicioNorm < $jFin && $finNorm > $jInicio) {
+                        $nombreDia = HorarioMedico::DIAS[$dia] ?? "día $dia";
+                        $validator->errors()->add(
+                            "horarios.$i.hora_inicio",
+                            "El horario del {$nombreDia} (fila " . ($i + 1) . ") se solapa con otro del mismo día (fila " . ($j + 1) . ")."
+                        );
+                    }
+                }
+
+                $porDia[$dia][] = [$i, $inicioNorm, $finNorm];
             }
         });
 

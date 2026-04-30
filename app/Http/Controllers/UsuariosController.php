@@ -7,6 +7,8 @@ use App\Models\Rol;
 use App\Models\Auditoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreUsuarioRequest;
+use App\Http\Requests\UpdateUsuarioRequest;
 
 class UsuariosController extends Controller
 {
@@ -40,17 +42,8 @@ class UsuariosController extends Controller
         return view('usuarios.index', compact('usuarios', 'roles', 'buscar', 'esSuperAdmin'));
     }
 
-    public function store(Request $request)
+    public function store(StoreUsuarioRequest $request)
     {
-        $request->validate([
-            'nombre'   => 'required|string|max:100',
-            'apellido' => 'required|string|max:100',
-            'email'    => 'required|email|max:150|unique:users,email',
-            'telefono' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
-            'roles'    => 'array',
-        ]);
-
         $usuario = User::create([
             'nombre'   => $request->nombre,
             'apellido' => $request->apellido,
@@ -67,19 +60,10 @@ class UsuariosController extends Controller
         return redirect()->route('usuarios.index')->with('swal_success', 'Usuario creado correctamente');
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUsuarioRequest $request, $id)
     {
         $usuario = User::findOrFail($id);
         $datosAnteriores = $usuario->toArray();
-
-        $request->validate([
-            'nombre'   => 'required|string|max:100',
-            'apellido' => 'required|string|max:100',
-            'email'    => 'required|email|max:150|unique:users,email,' . $id,
-            'telefono' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:6',
-            'roles'    => 'array',
-        ]);
 
         $datos = [
             'nombre'   => $request->nombre,

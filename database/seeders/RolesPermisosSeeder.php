@@ -67,9 +67,9 @@ class RolesPermisosSeeder extends Seeder
 
         // Asignar rol Administrador a los usuarios admin
         $adminEmails = [
-            'jgonzales2908@gmail.com',
+            'c.mendoza@clinica.com',
+            'jgonzales@clinica.com',
             'wger777@gmail.com',
-            'alexander@gmail.com',
         ];
         foreach ($adminEmails as $email) {
             $user = User::where('email', $email)->first();

@@ -6,34 +6,83 @@
     showModal: false,
     editando: false,
     formAction: '{{ route('usuarios.store') }}',
-    nombre: '',
-    apellido: '',
-    email: '',
-    telefono: '',
-    password: '',
+    nombre: { value: '', errorMessage: '', blurred: false },
+    apellido: { value: '', errorMessage: '', blurred: false },
+    email: { value: '', errorMessage: '', blurred: false },
+    telefono: { value: '', errorMessage: '', blurred: false },
+    password: { value: '', errorMessage: '', blurred: false },
     rolesSeleccionados: [],
+    rolesErrorMessage: '',
     loading: false,
+
+    getErrorMessage(value, field) {
+        if (field === 'nombre' || field === 'apellido') {
+            if (!value) return 'Este campo es requerido';
+            if (!/^[A-ZÑÁÉÍÓÚ\s]+$/.test(value)) return 'Solo mayúsculas y espacios';
+        }
+        if (field === 'email') {
+            if (!value) return 'El correo es requerido';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Correo inválido';
+        }
+        if (field === 'telefono') {
+            if (value && !/^[678]\d{7}$/.test(value)) return 'Debe tener 8 dígitos (inicia con 6, 7 u 8)';
+        }
+        if (field === 'password' && !this.editando) {
+            if (!value) return 'La contraseña es requerida';
+            if (value.length < 8) return 'Mínimo 8 caracteres';
+            if (!/(?=.*[a-z])(?=.*\d)/.test(value)) return 'Debe contener minúsculas y números';
+        }
+        if (field === 'password' && this.editando && value) {
+            if (value.length < 8) return 'Mínimo 8 caracteres';
+            if (!/(?=.*[a-z])(?=.*\d)/.test(value)) return 'Debe contener minúsculas y números';
+        }
+        return '';
+    },
+    validarRoles() {
+        this.rolesErrorMessage = this.rolesSeleccionados.length === 0 ? 'Debe seleccionar al menos un rol' : '';
+    },
     abrirCrear() {
         this.editando = false;
         this.formAction = '{{ route('usuarios.store') }}';
-        this.nombre = '';
-        this.apellido = '';
-        this.email = '';
-        this.telefono = '';
-        this.password = '';
+        this.nombre = { value: '', errorMessage: '', blurred: false };
+        this.apellido = { value: '', errorMessage: '', blurred: false };
+        this.email = { value: '', errorMessage: '', blurred: false };
+        this.telefono = { value: '', errorMessage: '', blurred: false };
+        this.password = { value: '', errorMessage: '', blurred: false };
         this.rolesSeleccionados = [];
+        this.rolesErrorMessage = '';
         this.showModal = true;
     },
     abrirEditar(u) {
         this.editando = true;
         this.formAction = '/usuarios/' + u.id;
-        this.nombre = u.nombre;
-        this.apellido = u.apellido;
-        this.email = u.email;
-        this.telefono = u.telefono || '';
-        this.password = '';
+        this.nombre = { value: u.nombre, errorMessage: '', blurred: false };
+        this.apellido = { value: u.apellido, errorMessage: '', blurred: false };
+        this.email = { value: u.email, errorMessage: '', blurred: false };
+        this.telefono = { value: u.telefono || '', errorMessage: '', blurred: false };
+        this.password = { value: '', errorMessage: '', blurred: false };
         this.rolesSeleccionados = u.roles.map(r => r.id_rol);
+        this.rolesErrorMessage = '';
         this.showModal = true;
+    },
+    validarSubmit(e) {
+        this.nombre.blurred = true;
+        this.apellido.blurred = true;
+        this.email.blurred = true;
+        this.telefono.blurred = true;
+        this.password.blurred = true;
+        this.validarRoles();
+        
+        if (this.getErrorMessage(this.nombre.value, 'nombre') ||
+            this.getErrorMessage(this.apellido.value, 'apellido') ||
+            this.getErrorMessage(this.email.value, 'email') ||
+            this.getErrorMessage(this.telefono.value, 'telefono') ||
+            this.getErrorMessage(this.password.value, 'password') ||
+            this.rolesErrorMessage) {
+            e.preventDefault();
+            return;
+        }
+        this.loading = true;
     }
 }">
 
@@ -108,7 +157,7 @@
                     <td class="whitespace-nowrap px-3 py-3 sm:px-5">
                         <div class="flex gap-2">
                             @if($usuario->estado !== 'eliminado')
-                            <button @click="abrirEditar({{ $usuario->load('roles')->toJson() }})"
+                            <button @click='abrirEditar(@json($usuario->load("roles")))'
                                 class="btn size-8 rounded-full p-0 text-primary hover:bg-primary/10" title="Editar">
                                 <svg class="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </button>
@@ -159,57 +208,116 @@
 
             <h3 class="text-lg font-medium text-slate-700 dark:text-navy-100 mb-4" x-text="editando ? 'Editar Usuario' : 'Nuevo Usuario'"></h3>
 
-            <form :action="formAction" method="POST" @submit="loading = true">
+            <form :action="formAction" method="POST" @submit="validarSubmit($event)">
                 @csrf
                 <template x-if="editando"><input type="hidden" name="_method" value="PUT"></template>
 
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="block">
-                            <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombre</span>
-                            <input type="text" name="nombre" x-model="nombre" required
-                                class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700" />
-                        </label>
-                        <label class="block">
-                            <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Apellido</span>
-                            <input type="text" name="apellido" x-model="apellido" required
-                                class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700" />
-                        </label>
+                        <div>
+                            <label class="block">
+                                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Nombre *</span>
+                                <input type="text" name="nombre"
+                                    @input="nombre.value = $event.target.value.toUpperCase()"
+                                    x-model="nombre.value"
+                                    @blur="nombre.blurred = true"
+                                    x-effect="nombre.errorMessage = getErrorMessage(nombre.value, 'nombre')"
+                                    :class="{
+                                        'border-slate-300 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent': !nombre.blurred,
+                                        'border-error': nombre.blurred && nombre.errorMessage,
+                                        'border-success': nombre.blurred && !nombre.errorMessage
+                                    }"
+                                    class="form-input mt-1.5 w-full rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none dark:bg-navy-700" />
+                            </label>
+                            <span class="text-xs text-error" x-show="nombre.blurred && nombre.errorMessage" x-text="nombre.errorMessage"></span>
+                        </div>
+                        <div>
+                            <label class="block">
+                                <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Apellido *</span>
+                                <input type="text" name="apellido"
+                                    @input="apellido.value = $event.target.value.toUpperCase()"
+                                    x-model="apellido.value"
+                                    @blur="apellido.blurred = true"
+                                    x-effect="apellido.errorMessage = getErrorMessage(apellido.value, 'apellido')"
+                                    :class="{
+                                        'border-slate-300 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent': !apellido.blurred,
+                                        'border-error': apellido.blurred && apellido.errorMessage,
+                                        'border-success': apellido.blurred && !apellido.errorMessage
+                                    }"
+                                    class="form-input mt-1.5 w-full rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none dark:bg-navy-700" />
+                            </label>
+                            <span class="text-xs text-error" x-show="apellido.blurred && apellido.errorMessage" x-text="apellido.errorMessage"></span>
+                        </div>
                     </div>
 
-                    <label class="block">
-                        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Email</span>
-                        <input type="email" name="email" x-model="email" required
-                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700" />
-                    </label>
-
-                    <label class="block">
-                        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Telefono</span>
-                        <input type="text" name="telefono" x-model="telefono"
-                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700" />
-                    </label>
-
-                    <label class="block">
-                        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">
-                            <span x-text="editando ? 'Nueva contraseña (dejar vacio para no cambiar)' : 'Contraseña'"></span>
-                        </span>
-                        <input type="password" name="password" x-model="password" :required="!editando" minlength="6"
-                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none dark:border-navy-450 dark:bg-navy-700" />
-                    </label>
+                    <div>
+                        <label class="block">
+                            <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Email *</span>
+                            <input type="email" name="email"
+                                x-model="email.value"
+                                @blur="email.blurred = true"
+                                x-effect="email.errorMessage = getErrorMessage(email.value, 'email')"
+                                :class="{
+                                    'border-slate-300 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent': !email.blurred,
+                                    'border-error': email.blurred && email.errorMessage,
+                                    'border-success': email.blurred && !email.errorMessage
+                                }"
+                                class="form-input mt-1.5 w-full rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none dark:bg-navy-700" />
+                        </label>
+                        <span class="text-xs text-error" x-show="email.blurred && email.errorMessage" x-text="email.errorMessage"></span>
+                    </div>
 
                     <div>
-                        <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Roles</span>
+                        <label class="block">
+                            <span class="text-sm font-medium text-slate-600 dark:text-navy-100">Telefono </span>
+                            <input type="text" name="telefono" maxlength="8"
+                                x-model="telefono.value"
+                                @blur="telefono.blurred = true"
+                                x-effect="telefono.errorMessage = getErrorMessage(telefono.value, 'telefono')"
+                                :class="{
+                                    'border-slate-300 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent': !telefono.blurred,
+                                    'border-error': telefono.blurred && telefono.errorMessage,
+                                    'border-success': telefono.blurred && !telefono.errorMessage && telefono.value
+                                }"
+                                class="form-input mt-1.5 w-full rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none dark:bg-navy-700" />
+                        </label>
+                        <span class="text-xs text-error" x-show="telefono.blurred && telefono.errorMessage" x-text="telefono.errorMessage"></span>
+                    </div>
+
+                    <div>
+                        <label class="block">
+                            <span class="text-sm font-medium text-slate-600 dark:text-navy-100">
+                                <span x-text="editando ? 'Nueva contraseña (dejar vacio para no cambiar)' : 'Contraseña'"></span> *
+                            </span>
+                            <input type="password" name="password" minlength="8"
+                                x-model="password.value"
+                                @blur="password.blurred = true"
+                                x-effect="password.errorMessage = getErrorMessage(password.value, 'password')"
+                                :class="{
+                                    'border-slate-300 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent': !password.blurred,
+                                    'border-error': password.blurred && password.errorMessage,
+                                    'border-success': password.blurred && !password.errorMessage && password.value
+                                }"
+                                class="form-input mt-1.5 w-full rounded-lg border bg-transparent px-3 py-2 text-sm focus:outline-none dark:bg-navy-700" />
+                        </label>
+                        <span class="text-xs text-error" x-show="password.blurred && password.errorMessage" x-text="password.errorMessage"></span>
+                    </div>
+
+                    <div>
+                        <span class="text-sm font-medium text-slate-600 dark:text-navy-100" 
+                              :class="rolesErrorMessage ? 'text-error' : ''">Roles *</span>
                         <div class="mt-2 flex flex-wrap gap-3">
                             @foreach($roles as $rol)
                             <label class="inline-flex items-center space-x-2">
                                 <input type="checkbox" name="roles[]" value="{{ $rol->id_rol }}"
                                     :checked="rolesSeleccionados.includes({{ $rol->id_rol }})"
-                                    @change="$event.target.checked ? rolesSeleccionados.push({{ $rol->id_rol }}) : rolesSeleccionados = rolesSeleccionados.filter(i => i !== {{ $rol->id_rol }})"
+                                    @change="$event.target.checked ? rolesSeleccionados.push({{ $rol->id_rol }}) : rolesSeleccionados = rolesSeleccionados.filter(i => i !== {{ $rol->id_rol }}); validarRoles()"
                                     class="form-checkbox is-basic size-5 rounded-sm border-slate-400/70 checked:bg-primary checked:border-primary hover:border-primary focus:border-primary dark:border-navy-400 dark:checked:bg-accent dark:checked:border-accent dark:hover:border-accent dark:focus:border-accent" />
                                 <p>{{ $rol->nombre_rol }}</p>
                             </label>
                             @endforeach
                         </div>
+                        <span class="text-xs text-error block mt-1" x-show="rolesErrorMessage" x-text="rolesErrorMessage"></span>
                     </div>
                 </div>
 
@@ -242,6 +350,21 @@ document.addEventListener('DOMContentLoaded', () => {
     @endif
     @if(session('swal_error'))
         Swal.fire({ title: 'Error', text: @json(session('swal_error')), icon: 'error', confirmButtonColor: '#4f46e5' });
+    @endif
+
+    @if($errors->any())
+        let errorHtml = '<ul class="text-left text-sm text-slate-600 dark:text-navy-200" style="list-style-type: disc; padding-left: 20px;">';
+        @foreach($errors->all() as $error)
+            errorHtml += '<li>{{ $error }}</li>';
+        @endforeach
+        errorHtml += '</ul>';
+
+        Swal.fire({ 
+            title: 'Por favor, corrige los siguientes errores:', 
+            html: errorHtml, 
+            icon: 'warning', 
+            confirmButtonColor: '#4f46e5' 
+        });
     @endif
 
     document.querySelectorAll('.swal-eliminar').forEach(form => {

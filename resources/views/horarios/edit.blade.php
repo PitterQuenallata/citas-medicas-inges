@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Editar Horarios Medicos')
+@section('title', 'Editar Horario Médico')
 
 @section('content')
 <div class="flex items-center gap-2 pb-4">

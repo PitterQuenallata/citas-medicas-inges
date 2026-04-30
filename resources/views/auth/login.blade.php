@@ -10,7 +10,7 @@
     <div class="hidden w-full place-items-center lg:grid">
         <div class="w-full max-w-lg p-6">
             <img class="w-full" x-show="!$store.global.isDarkModeEnabled"
-                src="{{ asset('images/illustrations/dashboard-check.svg') }}" alt="image" />
+                src="{{ asset('images/illustrations/dashboard-check1.svg') }}" alt="image" />
             <img class="w-full" x-show="$store.global.isDarkModeEnabled"
                 src="{{ asset('images/illustrations/dashboard-check-dark.svg') }}" alt="image" />
         </div>

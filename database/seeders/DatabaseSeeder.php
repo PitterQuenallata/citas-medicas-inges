@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             RolesPermisosSeeder::class,
             EspecialidadSeeder::class,
+            CostoEspecialidadSeeder::class,
             MedicoSeeder::class,
             PacienteSeeder::class,
         ]);

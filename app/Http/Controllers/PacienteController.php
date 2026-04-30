@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Paciente;
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePacienteRequest;
+use App\Http\Requests\UpdatePacienteRequest;
 
 class PacienteController extends Controller
 {
@@ -31,46 +33,8 @@ class PacienteController extends Controller
         return view('pacientes.create');
     }
 
-    public function store(Request $request)
+    public function store(StorePacienteRequest $request)
     {
-        // VALIDACIONES
-        $request->validate([
-            'nombres' => 'required',
-            'apellidos' => 'required',
-            'fecha_nacimiento' => 'required|date',
-            'sexo' => 'required|in:masculino,femenino,otro',
-            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci'],
-            'direccion' => 'required',
-            'telefono' => ['required', 'regex:/^[0-9\-\s\+]+$/'],
-            'email' => 'required|email',
-            'grupo_sanguineo' => 'required',
-            'contacto_emergencia_nombre' => 'required',
-            'contacto_emergencia_telefono' => ['required', 'regex:/^[0-9\-\s\+]+$/'],
-            'alergias' => 'required',
-            'observaciones_generales' => 'required',
-        ], [
-            'nombres.required' => 'El nombre es obligatorio',
-            'apellidos.required' => 'El apellido es obligatorio',
-            'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria',
-            'fecha_nacimiento.date' => 'La fecha de nacimiento no es válida',
-            'sexo.required' => 'El sexo es obligatorio',
-            'sexo.in' => 'El sexo seleccionado no es válido',
-            'ci.required' => 'El CI es obligatorio',
-            'ci.unique' => 'Este CI ya está registrado',
-            'ci.regex' => 'El CI debe contener solo números',
-            'direccion.required' => 'La dirección es obligatoria',
-            'telefono.required' => 'El teléfono es obligatorio',
-            'telefono.regex' => 'El teléfono no es válido',
-            'email.required' => 'El correo es obligatorio',
-            'email.email' => 'El correo no es válido',
-            'grupo_sanguineo.required' => 'El grupo sanguíneo es obligatorio',
-            'contacto_emergencia_nombre.required' => 'El contacto de emergencia es obligatorio',
-            'contacto_emergencia_telefono.required' => 'El teléfono de emergencia es obligatorio',
-            'contacto_emergencia_telefono.regex' => 'El teléfono de emergencia no es válido',
-            'alergias.required' => 'Las alergias son obligatorias (si no tiene, escribe "Ninguna")',
-            'observaciones_generales.required' => 'Las observaciones generales son obligatorias',
-        ]);
-
         $paciente = Paciente::create([
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
@@ -104,29 +68,8 @@ class PacienteController extends Controller
         return view('pacientes.edit', compact('paciente'));
     }
 
-    public function update(Request $request, Paciente $paciente)
+    public function update(UpdatePacienteRequest $request, Paciente $paciente)
     {
-        $request->validate([
-            'nombres' => 'required',
-            'apellidos' => 'required',
-            'fecha_nacimiento' => 'required|date',
-            'sexo' => 'required|in:masculino,femenino,otro',
-            'ci' => ['required', 'regex:/^[0-9]+$/', 'unique:pacientes,ci,' . $paciente->id_paciente . ',id_paciente'],
-            'direccion' => 'required',
-            'telefono' => ['required', 'regex:/^[0-9\-\s\+]+$/'],
-            'email' => 'required|email',
-            'grupo_sanguineo' => 'required',
-            'contacto_emergencia_nombre' => 'required',
-            'contacto_emergencia_telefono' => ['required', 'regex:/^[0-9\-\s\+]+$/'],
-            'alergias' => 'required',
-            'observaciones_generales' => 'required',
-        ], [
-            'ci.unique' => 'Este CI ya está registrado',
-            'ci.regex' => 'El CI debe contener solo números',
-            'telefono.regex' => 'El teléfono no es válido',
-            'contacto_emergencia_telefono.regex' => 'El teléfono de emergencia no es válido',
-        ]);
-
         $paciente->update($request->only([
             'nombres',
             'apellidos',
